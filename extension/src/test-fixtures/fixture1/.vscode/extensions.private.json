@@ -1,0 +1,23 @@
+{
+    // This file should support comments.
+    "registries": [
+        {
+            "name": "Workspace Registry 1",
+            "registry": "https://workspace.registry"
+        },
+        {
+            "name": "Workspace Registry 2",
+            "registry": "https://workspace.registry",
+            "query": "keywords:test"
+        },
+        // This registry should be ignored in favor of Workspace Registry 1
+        {
+            "name": "Duplicate Registry",
+            "registry": "https://workspace.registry"
+        }
+    ],
+    "recommendations": [
+        "test.recommended1",
+        "test.recommended2"
+    ]
+}

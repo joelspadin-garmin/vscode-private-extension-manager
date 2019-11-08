@@ -1,0 +1,19 @@
+.vscode-test
+dist
+out
+node_modules
+*.vsix
+
+# Keep only specific VS Code files. Others such as settings.json often contain
+# data specific to a developer's machine or preferences.
+**/.vscode/*
+!**/.vscode/*.default.*
+!**/.vscode/tasks.json
+!**/.vscode/launch.json
+!**/.vscode/extensions.json
+
+# Add python exclusions.
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class

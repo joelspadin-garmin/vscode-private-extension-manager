@@ -1,0 +1,91 @@
+/* These selectors match inline styles in vscode. Color variables are provided by vscode. */
+.monaco-editor,
+.monaco-editor-background,
+.monaco-editor .inputarea.ime-input {
+    background-color: var(--vscode-editor-background);
+}
+
+.monaco-editor,
+.monaco-editor .inputarea.ime-input {
+    color: var(--vscode-editor-foreground);
+}
+
+.monaco-workbench {
+    color: var(--vscode-foreground);
+    background-color: var(--vscode-menu-background);
+}
+
+.monaco-workbench .codicon {
+    color: var(--vscode-icon-foreground);
+}
+
+.monaco-workbench input::-webkit-input-placeholder {
+    color: var(--vscode-input-placeholderForeground);
+}
+
+.monaco-workbench textarea::-webkit-input-placeholder {
+    color: var(--vscode-input-placeholderForeground);
+}
+
+.monaco-workbench [tabindex='0']:focus,
+.monaco-workbench [tabindex='-1']:focus,
+.monaco-workbench .synthetic-focus,
+.monaco-workbench select:focus,
+.monaco-workbench .monaco-tree.focused.no-focused-item:focus:before,
+.monaco-workbench .monaco-list:not(.element-focused):focus:before,
+.monaco-workbench input[type='button']:focus,
+.monaco-workbench input[type='text']:focus,
+.monaco-workbench button:focus,
+.monaco-workbench textarea:focus,
+.monaco-workbench input[type='search']:focus,
+.monaco-workbench input[type='checkbox']:focus {
+    outline-color: var(--vscode-focusBorder);
+}
+
+.extension-editor .extension-remote-badge {
+    color: var(--vscode-extensionBadge-remoteForeground);
+    background-color: var(--vscode-extensionBadge-remoteBackground);
+}
+
+.extension-editor .monaco-action-bar .action-item .action-label.extension-action.built-in-status {
+    border-color: var(--vscode-foreground);
+}
+
+.extension-editor .monaco-action-bar .action-item .action-label.extension-action {
+    color: var(--vscode-button-foreground);
+    background-color: var(--vscode-button-background);
+}
+
+.extension-editor .monaco-action-bar .action-item:hover .action-label.extension-action {
+    background-color: var(--vscode-button-hoverBackground);
+}
+
+.extension-editor .monaco-action-bar .action-item .action-label.extension-action.prominent {
+    color: var(--vscode-extensionButton-prominentForeground);
+    background-color: var(--vscode-extensionButton-prominentBackground);
+}
+
+.extension-editor .monaco-action-bar .action-item:hover .action-label.extension-action.prominent {
+    background-color: var(--vscode-extensionButton-prominentHoverBackground);
+}
+
+/* Extra styles to match built-in extension editor layout and theme */
+body {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+}
+
+.monaco-workbench,
+.monaco-editor {
+    height: 100%;
+}
+
+.monaco-workbench .extension-editor > .body > .content {
+    overflow: auto;
+}
+
+.extension-editor > .body > .navbar > .monaco-action-bar > .actions-container > .action-item > .action-label,
+.extension-editor > .body > .navbar > .monaco-action-bar > .actions-container > .action-item > .action-label:hover {
+    color: var(--vscode-foreground);
+}

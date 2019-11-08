@@ -1,0 +1,27 @@
+# Ignore vscode settings for development
+.vscode/**
+
+# Ignore source files
+licenses/**
+src/**
+
+# Ignore non-webpacked dependencies
+node_modules
+
+# Ignore test output
+.vscode-test/**
+out/**
+
+# Ignore vsce output
+*.vsix
+
+# Ignore development files
+.editorconfig
+.gitignore
+tsconfig.json
+tslint.json
+webpack.config.js
+**/*.map
+
+# Ignore i18n language files
+i18n/**

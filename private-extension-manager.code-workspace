@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "extension"
+		},
+		{
+			"path": "remote-helper"
+		}
+	],
+	"settings": {
+		"typescript.tsc.autoDetect": "off",
+		"typescript.tsdk": "extension/node_modules/typescript/lib"
+	}
+}

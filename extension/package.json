@@ -1,0 +1,322 @@
+{
+    "name": "private-extension-manager",
+    "displayName": "Private Extension Manager",
+    "description": "Manages extensions hosted in private NPM registries.",
+    "version": "0.9.0",
+    "publisher": "garmin",
+    "license": "Apache-2.0",
+    "author": {
+        "name": "Garmin International"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/joelspadin-garmin/vscode-private-extension-manager.git",
+        "directory": "extension"
+    },
+    "engines": {
+        "vscode": "^1.40.0"
+    },
+    "extensionKind": "workspace",
+    "extensionPack": [
+        "garmin.private-extension-manager-remote-helper"
+    ],
+    "icon": "media/icon.png",
+    "categories": [
+        "Other"
+    ],
+    "keywords": [
+        "multi-root-ready"
+    ],
+    "activationEvents": [
+        "workspaceContains:.vscode/extensions.private.json",
+        "onView:privateExtensions.extensions",
+        "onView:privateExtensions.recommended",
+        "onCommand:privateExtensions.checkForUpdates",
+        "onCommand:privateExtensions.configureWorkspaceRegistries",
+        "onCommand:privateExtensions.configureRecommendedExtensions",
+        "onCommand:privateExtensions.registry.add",
+        "onCommand:privateExtensions.registry.remove"
+    ],
+    "main": "./dist/extension.js",
+    "contributes": {
+        "jsonValidation": [
+            {
+                "fileMatch": "extensions.private.json",
+                "url": "./extensions.private.schema.json"
+            }
+        ],
+        "languages": [
+            {
+                "id": "jsonc",
+                "filenames": [
+                    "extensions.private.json"
+                ]
+            }
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "%configuration.title%",
+            "properties": {
+                "privateExtensions.registries": {
+                    "type": "array",
+                    "scope": "machine",
+                    "description": "%configuration.registries.description%"
+                },
+                "privateExtensions.updateCheckInterval": {
+                    "type": "number",
+                    "scope": "machine",
+                    "description": "%configuration.updateCheckInterval.description%",
+                    "default": 3600
+                }
+            }
+        },
+        "commands": [
+            {
+                "command": "privateExtensions.checkForUpdates",
+                "title": "%command.checkForUpdates.title%",
+                "category": "%command.category%"
+            },
+            {
+                "command": "privateExtensions.configureWorkspaceRegistries",
+                "title": "%command.configureWorkspaceRegistries.title%",
+                "category": "%command.category%",
+                "icon": {
+                    "light": "media/light/edit.svg",
+                    "dark": "media/dark/edit.svg"
+                }
+            },
+            {
+                "command": "privateExtensions.configureRecommendedExtensions",
+                "title": "%command.configureRecommendedExtensions.title%",
+                "category": "%command.category%",
+                "icon": {
+                    "light": "media/light/edit.svg",
+                    "dark": "media/dark/edit.svg"
+                }
+            },
+            {
+                "command": "privateExtensions.refresh",
+                "title": "%command.refresh.title%",
+                "category": "%command.category%",
+                "icon": {
+                    "light": "media/light/refresh.svg",
+                    "dark": "media/dark/refresh.svg"
+                }
+            },
+            {
+                "command": "privateExtensions.extension.install",
+                "title": "%command.extension.install.title%"
+            },
+            {
+                "command": "privateExtensions.extension.uninstall",
+                "title": "%command.extension.uninstall.title%"
+            },
+            {
+                "command": "privateExtensions.extension.update",
+                "title": "%command.extension.update.title%",
+                "icon": {
+                    "light": "media/light/update.svg",
+                    "dark": "media/dark/update.svg"
+                }
+            },
+            {
+                "command": "privateExtensions.extension.install.anotherVersion",
+                "title": "%command.extension.install.anotherVersion.title%"
+            },
+            {
+                "command": "privateExtensions.extension.copyInformation",
+                "title": "%command.extension.copyInformation.title%"
+            },
+            {
+                "command": "privateExtensions.registry.add",
+                "title": "%command.registry.add.title%",
+                "category": "%command.category%",
+                "icon": {
+                    "light": "media/light/new-folder.svg",
+                    "dark": "media/dark/new-folder.svg"
+                }
+            },
+            {
+                "command": "privateExtensions.registry.remove",
+                "title": "%command.registry.remove.title%",
+                "category": "%command.category%"
+            }
+        ],
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "privateExtensions",
+                    "title": "%viewsContainers.activitybar.privateExtensions.title%",
+                    "icon": "media/extensions.svg"
+                }
+            ]
+        },
+        "views": {
+            "privateExtensions": [
+                {
+                    "id": "privateExtensions.extensions",
+                    "name": "%views.privateExtensions.extensions.name%"
+                },
+                {
+                    "id": "privateExtensions.recommended",
+                    "name": "%views.privateExtensions.recommended.name%"
+                }
+            ]
+        },
+        "menus": {
+            "view/title": [
+                {
+                    "command": "privateExtensions.configureWorkspaceRegistries",
+                    "when": "view == privateExtensions.extensions",
+                    "group": "navigation"
+                },
+                {
+                    "command": "privateExtensions.refresh",
+                    "when": "view == privateExtensions.extensions",
+                    "group": "navigation"
+                },
+                {
+                    "command": "privateExtensions.checkForUpdates",
+                    "when": "view == privateExtensions.extensions",
+                    "group": "extensions"
+                },
+                {
+                    "command": "privateExtensions.registry.add",
+                    "when": "view == privateExtensions.extensions",
+                    "group": "registry"
+                },
+                {
+                    "command": "privateExtensions.configureRecommendedExtensions",
+                    "when": "view == privateExtensions.recommended",
+                    "group": "navigation"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "privateExtensions.extension.install",
+                    "when": "view =~ /^privateExtensions/ && viewItem =~ /available/",
+                    "group": "install"
+                },
+                {
+                    "command": "privateExtensions.extension.uninstall",
+                    "when": "view =~ /^privateExtensions/ && viewItem =~ /installed|update/",
+                    "group": "install"
+                },
+                {
+                    "command": "privateExtensions.extension.update",
+                    "when": "view =~ /^privateExtensions/ && viewItem =~ /update/",
+                    "group": "inline"
+                },
+                {
+                    "command": "privateExtensions.extension.install.anotherVersion",
+                    "when": "view =~ /^privateExtensions/ && viewItem =~ /installed|update/",
+                    "group": "installVersion"
+                },
+                {
+                    "command": "privateExtensions.extension.copyInformation",
+                    "when": "view =~ /^privateExtensions/ && viewItem =~ /extension/",
+                    "group": "other"
+                },
+                {
+                    "command": "privateExtensions.registry.remove",
+                    "when": "view == privateExtensions.extensions && viewItem == registry.user",
+                    "group": "registries"
+                }
+            ],
+            "commandPalette": [
+                {
+                    "command": "privateExtensions.refresh",
+                    "when": "false"
+                },
+                {
+                    "command": "privateExtensions.extension.install",
+                    "when": "false"
+                },
+                {
+                    "command": "privateExtensions.extension.uninstall",
+                    "when": "false"
+                },
+                {
+                    "command": "privateExtensions.extension.update",
+                    "when": "false"
+                },
+                {
+                    "command": "privateExtensions.extension.install.anotherVersion",
+                    "when": "false"
+                },
+                {
+                    "command": "privateExtensions.extension.copyInformation",
+                    "when": "false"
+                }
+            ]
+        }
+    },
+    "scripts": {
+        "prepublishOnly": "npm run package",
+        "vscode:prepublish": "webpack --mode production",
+        "clean": "rimraf ./dist ./out",
+        "compile": "webpack --mode none",
+        "watch": "webpack --mode none --watch --info-verbosity verbose",
+        "lint": "tslint src/**/*.ts",
+        "fix-lint": "tslint --fix src/**/*.ts",
+        "test-compile": "npm run clean && tsc -p ./ && npm run compile",
+        "pretest": "npm run test-compile",
+        "test": "node ./out/test/runTest.js",
+        "package": "vsce package -o extension.vsix"
+    },
+    "devDependencies": {
+        "@types/cacache": "^12.0.1",
+        "@types/glob": "^7.1.1",
+        "@types/is-unc-path": "^1.0.0",
+        "@types/libnpmsearch": "^2.0.1",
+        "@types/mocha": "^5.2.7",
+        "@types/node": "^12.12.7",
+        "@types/npm-package-arg": "^6.1.0",
+        "@types/npm-registry-fetch": "^4.0.1",
+        "@types/pacote": "^9.5.0",
+        "@types/rimraf": "^2.0.3",
+        "@types/semver": "^6.2.0",
+        "@types/sinon": "^7.5.0",
+        "@types/valid-url": "^1.0.2",
+        "@types/vscode": "^1.40.0",
+        "cacache": "^13.0.1",
+        "json-loader": "^0.5.7",
+        "license-checker-webpack-plugin": "^0.1.4",
+        "lodash.template": "^4.5.0",
+        "mocha": "^6.2.2",
+        "nock": "^11.7.0",
+        "prettier": "^1.19.1",
+        "sinon": "^7.5.0",
+        "ts-loader": "^6.2.1",
+        "tslint": "^5.20.1",
+        "tslint-config-prettier": "1.18.0",
+        "tslint-plugin-prettier": "2.0.1",
+        "typescript": "^3.7.2",
+        "vsce": "^1.69.0",
+        "vscode-test": "^1.2.3",
+        "webpack": "^4.41.2",
+        "webpack-cli": "^3.3.10"
+    },
+    "dependencies": {
+        "glob": "^7.1.6",
+        "is-unc-path": "^1.0.0",
+        "jsonc-parser": "^2.2.0",
+        "libnpmsearch": "^2.0.2",
+        "memoize-one": "^5.1.1",
+        "node-noop": "^1.0.0",
+        "npm-package-arg": "^7.0.0",
+        "npm-registry-fetch": "^5.0.1",
+        "pacote": "^9.5.9",
+        "rimraf": "^3.0.0",
+        "sanitize-filename": "^1.6.3",
+        "semver": "^6.3.0",
+        "valid-url": "^1.0.9",
+        "vscode-nls": "^4.1.1"
+    },
+    "prettier": {
+        "singleQuote": true,
+        "trailingComma": "all",
+        "tabWidth": 4,
+        "printWidth": 120
+    }
+}

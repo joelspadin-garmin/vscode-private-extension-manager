@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" fill="none" version="1.1" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+    <cc:license rdf:resource="http://creativecommons.org/licenses/by/4.0/"/>
+   </cc:Work>
+   <cc:License rdf:about="http://creativecommons.org/licenses/by/4.0/">
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Notice"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Attribution"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+   </cc:License>
+  </rdf:RDF>
+ </metadata>
+ <circle cx="64" cy="64" r="64" fill="#0077d4"/>
+ <path d="m87.255 27.485c-1.5539.08311-2.9604.94618-3.7383 2.2939l-11.5 19.921c-1.7705 3.0666.44257 6.8999 3.9836 6.9h23c3.541-9e-5 5.7541-3.8334 3.9836-6.9l-11.5-19.921c-.86609-1.5006-2.5019-2.3873-4.232-2.2939zm.24533 4.5939-11.5 19.921h23zm-25.5 60.921h22v-22h-22zm-5-22h-22v22h22zm0-5v-22h-22v22zm-27 5v-27l4.6-5h23l4.4 5v22h22l5 5v22l-5 5h-49l-5-5z" clip-rule="evenodd" fill="#fff" fill-rule="evenodd" stroke-width="3.0667"/>
+</svg>

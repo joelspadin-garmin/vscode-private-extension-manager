@@ -1,0 +1,13 @@
+{
+    "extends": [
+        "tslint-plugin-prettier",
+        "tslint-config-prettier"
+    ],
+    "rules": {
+        "prettier": true,
+        "no-string-throw": true,
+        "no-unused-expression": true,
+        "no-duplicate-variable": true,
+        "triple-equals": true
+    }
+}

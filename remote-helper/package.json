@@ -1,0 +1,71 @@
+{
+    "name": "private-extension-manager-remote-helper",
+    "displayName": "Private Extension Manager: Remote Helper",
+    "description": "Lets Private Extension Manager work in remote workspaces.",
+    "version": "1.0.0",
+    "publisher": "garmin",
+    "license": "Apache-2.0",
+    "author": {
+        "name": "Garmin International"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/joelspadin-garmin/vscode-private-extension-manager.git",
+        "directory": "remote-helper"
+    },
+    "engines": {
+        "vscode": "^1.40.0"
+    },
+    "extensionKind": "ui",
+    "icon": "media/icon.png",
+    "categories": [
+        "Other"
+    ],
+    "keywords": [
+        "multi-root-ready",
+        "remote"
+    ],
+    "activationEvents": [
+        "onCommand:_privateExtensionManager.remoteHelper.getExtension",
+        "onCommand:_privateExtensionManager.remoteHelper.getPlatform"
+    ],
+    "main": "./dist/extension.js",
+    "scripts": {
+        "prepublishOnly": "npm run package",
+        "vscode:prepublish": "webpack --mode production",
+        "clean": "rimraf ./dist ./out",
+        "compile": "webpack --mode none",
+        "watch": "webpack --mode none --watch --info-verbosity verbose",
+        "lint": "tslint src/**/*.ts",
+        "fix-lint": "tslint --fix src/**/*.ts",
+        "test-compile": "npm run clean && tsc -p ./ && npm run compile",
+        "pretest": "npm run test-compile",
+        "test": "node ./out/test/runTest.js",
+        "package": "vsce package -o extension.vsix"
+    },
+    "devDependencies": {
+        "@types/glob": "^7.1.1",
+        "@types/mocha": "^5.2.6",
+        "@types/node": "^12.12.7",
+        "@types/vscode": "^1.40.0",
+        "glob": "^7.1.6",
+        "mocha": "^6.2.2",
+        "prettier": "^1.19.1",
+        "rimraf": "^3.0.0",
+        "ts-loader": "^6.2.1",
+        "tslint": "^5.20.1",
+        "tslint-config-prettier": "^1.18.0",
+        "tslint-plugin-prettier": "^2.0.1",
+        "typescript": "^3.7.2",
+        "vsce": "^1.69.0",
+        "vscode-test": "^1.2.3",
+        "webpack": "^4.41.2",
+        "webpack-cli": "^3.3.10"
+    },
+    "prettier": {
+        "singleQuote": true,
+        "trailingComma": "all",
+        "tabWidth": 4,
+        "printWidth": 120
+    }
+}

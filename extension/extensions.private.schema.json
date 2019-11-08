@@ -1,0 +1,51 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "definitions": {
+        "registries": {
+            "description": "List of NPM registries to search for private extensions. See https://github.com/npm/npm-registry-fetch#fetch-opts for additional properties.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "name"
+                ],
+                "properties": {
+                    "name": {
+                        "description": "Name to display for the registry.",
+                        "type": "string"
+                    },
+                    "registry": {
+                        "description": "The address of the NPM registry which contains the extension packages. If omitted, the registry is determined according to NPM config files (https://docs.npmjs.com/files/npmrc).",
+                        "type": "string"
+                    },
+                    "query": {
+                        "description": "Display only packages that match this query. This is either an array of search terms or a string with space-delimited terms. See https://github.com/npm/registry/blob/master/docs/REGISTRY-API.md#get-v1search",
+                        "type": ["string", "array"],
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "recommendations": {
+            "description": "List of private extensions which should be recommended for users of this workspace. The identifier of an extension is always '${publisher}.${name}'. For example: 'garmin.private-extension-manager'.",
+            "type": "array",
+            "items": {
+                "type": "string",
+                "pattern": "^([a-z0-9A-Z][a-z0-9\\-A-Z]*)\\.([a-z0-9A-Z][a-z0-9\\-A-Z]*)$",
+                "errorMessage": "Expected format '${publisher}.${name}'. Example: 'garmin.private-extension-manager'."
+            }
+        }
+    },
+    "properties": {
+        "registries": {
+            "$ref": "#/definitions/registries"
+        },
+        "recommendations": {
+            "$ref": "#/definitions/recommendations"
+        }
+    },
+    "additionalProperties": false
+}

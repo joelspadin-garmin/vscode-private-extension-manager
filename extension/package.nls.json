@@ -1,0 +1,20 @@
+{
+    "configuration.title": "Private Extensions",
+    "configuration.registries.description": "NPM registries containing private extensions. Same format as \"registries\" in extensions.private.json.",
+    "configuration.updateCheckInterval.description": "Number of seconds between checks for updates to private extensions. Set to 0 to disable automatic update checks.",
+    "command.category": "Private Extensions",
+    "command.checkForUpdates.title": "Check for Extension Updates",
+    "command.configureWorkspaceRegistries.title": "Configure Workspace Registries",
+    "command.configureRecommendedExtensions.title": "Configure Recommended Extensions",
+    "command.refresh.title": "Refresh",
+    "command.extension.install.title": "Install",
+    "command.extension.uninstall.title": "Uninstall",
+    "command.extension.update.title": "Update",
+    "command.extension.install.anotherVersion.title": "Install Another Version...",
+    "command.extension.copyInformation.title": "Copy Extension Information",
+    "command.registry.add.title": "Add User Registry...",
+    "command.registry.remove.title": "Remove User Registry",
+    "viewsContainers.activitybar.privateExtensions.title": "Private Extensions",
+    "views.privateExtensions.extensions.name": "Extensions",
+    "views.privateExtensions.recommended.name": "Recommended"
+}
