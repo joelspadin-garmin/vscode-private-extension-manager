@@ -103,7 +103,7 @@ export class Package {
         }
 
         if (typeof manifest.version === 'string') {
-            this.version = parseVersion(manifest.version) || new SemVer('0.0.0');
+            this.version = parseVersion(manifest.version) ?? new SemVer('0.0.0');
         } else {
             this.version = new SemVer('0.0.0');
         }
@@ -160,7 +160,7 @@ export class Package {
      * The name of the package publisher.
      */
     public get publisher() {
-        return this._publisher || localize('publisher.unknown', 'Unknown');
+        return this._publisher ?? localize('publisher.unknown', 'Unknown');
     }
 
     /**

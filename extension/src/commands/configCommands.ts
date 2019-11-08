@@ -88,7 +88,7 @@ function focusJsonElement(editor: vscode.TextEditor, path: jsonc.JSONPath) {
     const node = jsonc.findNodeAtLocation(tree, path);
 
     if (node) {
-        const lastChildNode = node.children && node.children.length ? node.children[node.children.length - 1] : null;
+        const lastChildNode = node?.children?.[node.children.length - 1];
 
         const offset = lastChildNode ? lastChildNode.offset + lastChildNode.length : node.offset + 1;
         const position = editor.document.positionAt(offset);

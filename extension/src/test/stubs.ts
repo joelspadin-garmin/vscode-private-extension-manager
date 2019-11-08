@@ -20,7 +20,7 @@ export function stubExtension<T>(extensionId: string, mockData?: Partial<vscode.
             packageJSON: {},
             extensionKind: vscode.env.remoteName ? vscode.ExtensionKind.Workspace : vscode.ExtensionKind.UI,
             exports: {},
-            activate: () => Promise.resolve(mockData.exports || {}),
+            activate: () => Promise.resolve(mockData.exports ?? {}),
             ...mockData,
         };
     }
@@ -119,7 +119,7 @@ class StubConfiguration implements vscode.WorkspaceConfiguration {
     get<T>(section: string): T | undefined;
     get<T>(section: string, defaultValue: T): T;
     get(section: any, defaultValue?: any) {
-        return this.mockData[section] || defaultValue;
+        return this.mockData[section] ?? defaultValue;
     }
 
     has(section: string): boolean {

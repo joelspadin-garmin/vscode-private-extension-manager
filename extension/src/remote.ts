@@ -20,7 +20,7 @@ export const getRemoteName = memoizeOne(async () => {
             return localize('ssh.remote', 'SSH: {0}', await getSshHostName());
 
         default:
-            return vscode.env.remoteName || '';
+            return vscode.env.remoteName ?? '';
     }
 });
 

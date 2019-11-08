@@ -24,11 +24,11 @@ suite('Extension Test Suite', function() {
         );
 
         assert.notStrictEqual(extension, undefined);
-        assert.strictEqual(extension!.id!.toLowerCase(), 'garmin.private-extension-manager-remote-helper');
-        assert.strictEqual(extension!.extensionKind, vscode.ExtensionKind.UI);
-        assert.strictEqual(extension!.packageJSON.name, 'private-extension-manager-remote-helper');
-        assert.strictEqual(extension!.packageJSON.publisher, 'garmin');
-        assert.strictEqual(typeof extension!.packageJSON.version, 'string');
+        assert.strictEqual(extension?.id?.toLowerCase(), 'garmin.private-extension-manager-remote-helper');
+        assert.strictEqual(extension?.extensionKind, vscode.ExtensionKind.UI);
+        assert.strictEqual(extension?.packageJSON.name, 'private-extension-manager-remote-helper');
+        assert.strictEqual(extension?.packageJSON.publisher, 'garmin');
+        assert.strictEqual(typeof extension?.packageJSON.version, 'string');
     });
 
     test('Get Platform', async function() {

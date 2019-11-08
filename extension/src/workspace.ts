@@ -11,7 +11,7 @@ const localize = nls.loadMessageBundle();
 export async function pickWorkspaceFolder() {
     const folders = vscode.workspace.workspaceFolders;
 
-    if (!folders || !folders.length) {
+    if (!folders?.length) {
         vscode.window.showInformationMessage(localize('no.workspace.folders', 'There are no workspace folders open.'));
         return undefined;
     }

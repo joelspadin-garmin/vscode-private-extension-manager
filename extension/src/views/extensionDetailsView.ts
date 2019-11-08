@@ -180,10 +180,10 @@ export class ExtensionDetailsView extends WebView<ExtensionData> {
                     </div>
                     <div class="content">
                         <div class="page" id="details">
-                            ${readme || localize('readme.missing', 'No README file found.')}
+                            ${readme ?? localize('readme.missing', 'No README file found.')}
                         </div>
                         <div class="page" id="changelog" style="display: none;">
-                            ${changelog || localize('changelog.missing', 'No changelog file found.')}
+                            ${changelog ?? localize('changelog.missing', 'No changelog file found.')}
                         </div>
                     </div>
                 </div>

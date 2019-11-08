@@ -21,7 +21,7 @@ export class MarkdownView extends WebView<Uri> {
     }
 
     public async show(file: Uri, title?: string) {
-        title = title || path.basename(file.fsPath);
+        title = title ?? path.basename(file.fsPath);
 
         super.internalShow(file, title);
     }

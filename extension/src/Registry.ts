@@ -82,7 +82,7 @@ export class Registry {
 
         // '*' seems to work as a "get all packages" wildcard. If we just
         // leave the search text blank, it will return nothing.
-        this.query = query || '*';
+        this.query = query ?? '*';
         this.options = searchOpts;
 
         this.options.cache = getNpmCacheDir();
@@ -121,7 +121,7 @@ export class Registry {
     public async downloadPackage(packageOrSpec: Package | string) {
         const spec = packageOrSpec instanceof Package ? packageOrSpec.spec : packageOrSpec;
 
-        const registryDir = sanitize(this.options.registry || this.name);
+        const registryDir = sanitize(this.options.registry ?? this.name);
         const dest = path.join(getNpmDownloadDir(), registryDir, spec);
 
         // If we've already downloaded this package, just return it.
@@ -141,7 +141,7 @@ export class Registry {
         const packages: Package[] = [];
 
         for await (const result of this.findMatchingPackages(this.query, token)) {
-            if (token && token.isCancellationRequested) {
+            if (token?.isCancellationRequested) {
                 break;
             }
 
@@ -209,7 +209,7 @@ export class Registry {
     private async *findMatchingPackages(query: string | readonly string[], token?: CancellationToken) {
         let from = 0;
         while (true) {
-            if (token && token.isCancellationRequested) {
+            if (token?.isCancellationRequested) {
                 break;
             }
 
@@ -257,5 +257,6 @@ function hasVersionData(meta: Record<string, unknown>): meta is PackageVersionDa
 }
 
 function getVersionTimestamp(meta: PackageVersionData, key: string) {
-    return meta.time && meta.time[key] ? new Date(meta.time[key]) : undefined;
+    const time = meta.time?.[key];
+    return time ? new Date(time) : undefined;
 }

@@ -84,7 +84,7 @@ export function assertEntriesEqual<T extends object>(obj: T, expected: Partial<T
  * Gets the start index and number of results to return for a search request.
  */
 function parseSearchSlice(uri: string) {
-    const query = querystring.parse(url.parse(uri).query || '');
+    const query = querystring.parse(url.parse(uri).query ?? '');
 
     if (Array.isArray(query.from)) {
         throw new Error('Too many "from" parameters');
@@ -93,8 +93,8 @@ function parseSearchSlice(uri: string) {
         throw new Error('Too many "size" parameters');
     }
 
-    const from = parseInt(query.from || '0');
-    const size = parseInt(query.size || '100');
+    const from = parseInt(query.from ?? '0');
+    const size = parseInt(query.size ?? '100');
 
     return { from, size };
 }

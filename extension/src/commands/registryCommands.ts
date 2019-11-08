@@ -85,7 +85,7 @@ export class RemoveUserRegistryCommand implements Command {
             registry =>
                 ({
                     label: registry.name,
-                    description: registry.uri && registry.uri.toString(),
+                    description: registry.uri?.toString(),
                 } as vscode.QuickPickItem),
         );
 

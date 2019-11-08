@@ -10,7 +10,7 @@ export abstract class WebView<T> implements Disposable {
     private _data?: T;
 
     constructor(localResourceRoots?: readonly vscode.Uri[]) {
-        this.localResourceRoots = localResourceRoots || [];
+        this.localResourceRoots = localResourceRoots ?? [];
     }
 
     public get visible() {
@@ -93,7 +93,7 @@ export abstract class WebView<T> implements Disposable {
     }
 
     protected get title() {
-        return (this.panel && this.panel.title) || '';
+        return this.panel?.title ?? '';
     }
 
     protected set title(value) {
@@ -103,7 +103,7 @@ export abstract class WebView<T> implements Disposable {
     }
 
     protected async getHead(nonce: string) {
-        const cspSource = this.panel ? this.panel.webview.cspSource : '';
+        const cspSource = this.panel?.webview.cspSource ?? '';
 
         const policy = [
             `default-src 'none';`,
