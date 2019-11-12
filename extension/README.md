@@ -11,7 +11,7 @@ or [Verdaccio](https://verdaccio.org).
 
 Select the **Private Extensions** icon on the activity bar:
 
-![Activity Bar Icon](https://github.com/joelspadin-garmin/vscode-private-extension-manager/raw/master/media/readme/activity-bar.png)
+![Activity Bar Icon](https://raw.githubusercontent.com/joelspadin-garmin/vscode-private-extension-manager/master/extension/media/readme/activity-bar.png)
 
 This works similarly to Visual Studio Code's built-in extensions manager and
 allows you to install, update, and uninstall private extensions.
