@@ -51,9 +51,9 @@ Open the Debug panel (`Ctrl+Shift+D`) and select the debug configuration to run:
 * **Run Extension (extension)**: build the main extension and run it in an
 experimental instance of VS Code.
 * **Extension Tests (extension)**: run unit tests for the main extension.
-* **Run Extension (extension)**: build the remote helper extension and run it
+* **Run Extension (remote-helper)**: build the remote helper extension and run it
 in an experimental instance of VS Code.
-* **Extension Tests (extension)**: run unit tests for the remote helper
+* **Extension Tests (remote-helper)**: run unit tests for the remote helper
 extension.
 
 Press `F5` or click the green triangle button to start debugging.
