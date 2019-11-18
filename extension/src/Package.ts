@@ -1,4 +1,5 @@
 import * as _glob from 'glob';
+import * as t from 'io-ts';
 import * as path from 'path';
 import { parse as parseVersion, SemVer } from 'semver';
 import { promisify } from 'util';
@@ -7,6 +8,7 @@ import * as nls from 'vscode-nls';
 
 import { getExtension } from './extensionInfo';
 import { Registry } from './Registry';
+import { assertType, options } from './typeUtil';
 import { isNonEmptyArray } from './util';
 
 const README_GLOB = 'README?(.*)';
@@ -35,6 +37,33 @@ export enum PackageState {
 export class NotAnExtensionError extends Error {}
 
 /**
+ * Fields expected for all NPM packages.
+ */
+const PackageManifest = options(
+    {
+        name: t.string,
+    },
+    {
+        displayName: t.string,
+        publisher: t.string,
+        description: t.string,
+        version: t.string,
+        files: t.array(t.string),
+    },
+);
+type PackageManifest = t.TypeOf<typeof PackageManifest>;
+
+/**
+ * Fields required for VS Code extensions.
+ */
+const VSCodeExtensionFields = t.type({
+    engines: t.type({
+        vscode: t.string,
+    }),
+});
+type VSCodeExtensionFields = t.TypeOf<typeof VSCodeExtensionFields>;
+
+/**
  * Represents an NPM package for an extension.
  */
 export class Package {
@@ -50,6 +79,8 @@ export class Package {
 
     /** The package name. */
     public readonly name: string;
+    /** The name of the package's publisher */
+    public readonly publisher: string;
     /** The ID of the extension in the form `publisher.name`. */
     public readonly extensionId: string;
     /** The name to display for the package in the UI. */
@@ -62,7 +93,7 @@ export class Package {
     public readonly registry: Registry;
 
     private readonly vsixFile: string | null;
-    private readonly _publisher?: string;
+    private readonly isPublisherValid: boolean;
 
     private _isInstalled = false;
     private _isUiExtension = false;
@@ -77,41 +108,26 @@ export class Package {
     constructor(registry: Registry, manifest: Record<string, unknown>) {
         this.registry = registry;
 
-        if (typeof manifest.engines !== 'object' || manifest.engines === null || !('vscode' in manifest.engines)) {
-            throw new NotAnExtensionError('Package is not an extension');
-        }
+        assertType(manifest, PackageManifest);
 
-        if (typeof manifest.name !== 'string') {
-            throw new TypeError('Package name is mising');
-        }
+        assertType(
+            manifest,
+            VSCodeExtensionFields,
+            localize('package.not.an.extension', 'Package {0} is not an extension', manifest.name),
+            NotAnExtensionError,
+        );
 
         this.name = manifest.name;
-
-        if (typeof manifest.displayName === 'string') {
-            this.displayName = manifest.displayName;
-        } else {
-            this.displayName = this.name;
-        }
-
-        if (typeof manifest.publisher === 'string') {
-            this._publisher = manifest.publisher;
-        }
-
-        if (typeof manifest.description === 'string') {
-            this.description = manifest.description;
-        } else {
-            this.description = this.name;
-        }
-
-        if (typeof manifest.version === 'string') {
-            this.version = parseVersion(manifest.version) ?? new SemVer('0.0.0');
-        } else {
-            this.version = new SemVer('0.0.0');
-        }
+        this.displayName = manifest.displayName ?? this.name;
 
         // VS Code uses case-insensitive comparison to match extension IDs.
         // Match that behavior by normalizing everything to lowercase.
+        this.isPublisherValid = !!manifest.publisher;
+        this.publisher = manifest.publisher ?? localize('publisher.unknown', 'Unknown');
         this.extensionId = `${this.publisher}.${this.name}`.toLowerCase();
+
+        this.description = manifest.description ?? this.name;
+        this.version = parseVersion(manifest.version) ?? new SemVer('0.0.0');
 
         // Attempt to infer from the manifest where the extension will be
         // installed. This is overridden by the actual install location later
@@ -144,7 +160,7 @@ export class Package {
      * Call `updateState()` first to ensure this is up-to-date.
      */
     public get state() {
-        if (this._publisher && this.vsixFile) {
+        if (this.isPublisherValid && this.vsixFile) {
             if (this.isUpdateAvailable) {
                 return PackageState.UpdateAvailable;
             } else if (this.isInstalled) {
@@ -155,13 +171,6 @@ export class Package {
         } else {
             return PackageState.Invalid;
         }
-    }
-
-    /**
-     * The name of the package publisher.
-     */
-    public get publisher() {
-        return this._publisher ?? localize('publisher.unknown', 'Unknown');
     }
 
     /**
@@ -176,7 +185,7 @@ export class Package {
      * package is invalid.
      */
     public get errorMessage() {
-        if (!this._publisher) {
+        if (!this.isPublisherValid) {
             return localize('manifest.missing.publisher', 'Manifest is missing "publisher" field.');
         }
         if (!this.vsixFile) {
@@ -251,8 +260,8 @@ function uriJoin(directory: vscode.Uri, file: string) {
     return vscode.Uri.file(path.join(directory.fsPath, file));
 }
 
-function findVsixFile(manifest: Record<string, any>) {
-    if (Array.isArray(manifest.files)) {
+function findVsixFile(manifest: PackageManifest) {
+    if (manifest.files) {
         for (const file of manifest.files) {
             if (typeof file === 'string' && file.endsWith('.vsix')) {
                 return file;

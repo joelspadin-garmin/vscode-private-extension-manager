@@ -1,15 +1,23 @@
-import * as assert from 'assert';
+import { assert, use } from 'chai';
+import * as chaiSubset from 'chai-subset';
+import * as chaiSubsetInOrder from 'chai-subset-in-order';
 import * as search from 'libnpmsearch';
-import { after, before, beforeEach } from 'mocha';
+import { after, afterEach, before, beforeEach } from 'mocha';
 import * as nock from 'nock';
 import * as sinon from 'sinon';
 import * as vscode from 'vscode';
+import * as nls from 'vscode-nls';
 
 import { Package } from '../../Package';
 import { Registry, RegistrySource } from '../../Registry';
 import { RegistryProvider } from '../../RegistryProvider';
 import { stubGlobalConfiguration } from '../stubs';
-import { assertEntriesEqual, clearCache, mockSearch, PackageMetadata } from '../util';
+import { clearCache, mockSearch, PackageMetadata } from '../util';
+
+use(chaiSubset);
+use(chaiSubsetInOrder);
+
+nls.config({ locale: 'pseudo' });
 
 // Test suite should be run inside workspace test-fixtures/fixture1
 suite('Registry Provider', function() {
@@ -34,15 +42,6 @@ suite('Registry Provider', function() {
         scope1.get('/invalid').reply(200, WORKSPACE_PACKAGE.invalid);
 
         // Mock data for registries in user settings
-        stubGlobalConfiguration('privateExtensions', {
-            registries: [
-                {
-                    name: 'User Registry',
-                    registry: USER_REGISTRY_URL,
-                },
-            ],
-        });
-
         scope2 = nock(USER_REGISTRY_URL);
         scope2.persist();
 
@@ -57,7 +56,6 @@ suite('Registry Provider', function() {
         scope2.done();
 
         nock.cleanAll();
-        sinon.restore();
     });
 
     beforeEach(function() {
@@ -66,20 +64,28 @@ suite('Registry Provider', function() {
         clearCache();
     });
 
+    afterEach(function() {
+        sinon.restore();
+    });
+
     test('Get registries', async function() {
+        stubGlobalConfiguration('privateExtensions', USER_REGISTRY_CONFIG);
+
         const provider = new RegistryProvider();
 
         const registries = provider.getRegistries();
 
         // Registries should be in the order they are defined, with workspace
         // registries first and user registries last.
-        assert.strictEqual(registries.length, 3);
-        assertEntriesEqual(registries[0], EXPECT_REGISTRY.workspace1);
-        assertEntriesEqual(registries[1], EXPECT_REGISTRY.workspace2);
-        assertEntriesEqual(registries[2], EXPECT_REGISTRY.user);
+        const expected = [EXPECT_REGISTRY.workspace1, EXPECT_REGISTRY.workspace2, EXPECT_REGISTRY.user];
+
+        assert.containSubsetInOrder(registries, expected);
+        assert.lengthOf(registries, expected.length);
     });
 
     test('Get recommendations', async function() {
+        stubGlobalConfiguration('privateExtensions', USER_REGISTRY_CONFIG);
+
         const provider = new RegistryProvider();
 
         const recommendations = provider.getRecommendedExtensions();
@@ -89,21 +95,122 @@ suite('Registry Provider', function() {
     });
 
     test('Get unique packages', async function() {
+        stubGlobalConfiguration('privateExtensions', USER_REGISTRY_CONFIG);
+
         const provider = new RegistryProvider();
 
         const packages = await provider.getUniquePackages();
         packages.sort(Package.compare);
 
-        assert.strictEqual(packages.length, 4);
-        assertEntriesEqual(packages[0], EXPECT_PACKAGE.recommended1);
-        assertEntriesEqual(packages[1], EXPECT_PACKAGE.recommended2);
-        assertEntriesEqual(packages[2], EXPECT_PACKAGE.test);
-        assertEntriesEqual(packages[3], EXPECT_PACKAGE.user);
+        const expected = [
+            EXPECT_PACKAGE.recommended1,
+            EXPECT_PACKAGE.recommended2,
+            EXPECT_PACKAGE.test,
+            EXPECT_PACKAGE.user,
+        ];
+
+        assert.containSubset(packages, expected);
+        assert.lengthOf(packages, expected.length);
+    });
+
+    test('Invalid user config: wrong type', async function() {
+        stubGlobalConfiguration('privateExtensions', {
+            registries: 42,
+        });
+
+        const provider = new RegistryProvider();
+        const type = 'Array<{ name: string, registry?: string }>';
+
+        assert.throws(
+            () => {
+                provider.getUserRegistries();
+            },
+            TypeError,
+            `\uFF3B${INVALID_CONFIG_CONTEXT}: \uFF3BExpeecteed ${type} buut goot 42\uFF3D\uFF3D`,
+        );
+    });
+
+    test('Invalid user config: missing name', async function() {
+        stubGlobalConfiguration('privateExtensions', {
+            registries: [{ registry: USER_REGISTRY_URL }],
+        });
+
+        const provider = new RegistryProvider();
+
+        assert.throws(
+            () => {
+                provider.getUserRegistries();
+            },
+            TypeError,
+            `\uFF3B${INVALID_CONFIG_CONTEXT}: \uFF3BExpeecteed string aat 0.name buut goot undefined\uFF3D\uFF3D`,
+        );
+    });
+
+    test('Invalid user config: wrong name type', async function() {
+        stubGlobalConfiguration('privateExtensions', {
+            registries: [{ name: 42 }],
+        });
+
+        const provider = new RegistryProvider();
+
+        assert.throws(
+            () => {
+                provider.getUserRegistries();
+            },
+            TypeError,
+            `\uFF3B${INVALID_CONFIG_CONTEXT}: \uFF3BExpeecteed string aat 0.name buut goot 42\uFF3D\uFF3D`,
+        );
+    });
+
+    test('Invalid user config: wrong registry type', async function() {
+        stubGlobalConfiguration('privateExtensions', {
+            registries: [{ name: 'User Registry', registry: 42 }],
+        });
+
+        const provider = new RegistryProvider();
+
+        assert.throws(
+            () => {
+                provider.getUserRegistries();
+            },
+            TypeError,
+            `\uFF3B${INVALID_CONFIG_CONTEXT}: \uFF3BExpeecteed string aat 0.registry buut goot 42\uFF3D\uFF3D`,
+        );
+    });
+
+    test('Invalid user config: mixed values', async function() {
+        stubGlobalConfiguration('privateExtensions', {
+            registries: [
+                { name: 'User Registry 1', registry: USER_REGISTRY_URL },
+                { name: 42, registry: WORKSPACE_REGISTRY_URL },
+            ],
+        });
+
+        const provider = new RegistryProvider();
+
+        assert.throws(
+            () => {
+                provider.getUserRegistries();
+            },
+            TypeError,
+            `\uFF3B${INVALID_CONFIG_CONTEXT}: \uFF3BExpeecteed string aat 1.name buut goot 42\uFF3D\uFF3D`,
+        );
     });
 });
 
+const INVALID_CONFIG_CONTEXT = '\uFF3BpriivaateeExteensiioons.reegiistriiees seettiing iis iinvaaliid\uFF3D';
+
 const WORKSPACE_REGISTRY_URL = 'https://workspace.registry';
 const USER_REGISTRY_URL = 'https://user.registry';
+
+const USER_REGISTRY_CONFIG = {
+    registries: [
+        {
+            name: 'User Registry',
+            registry: USER_REGISTRY_URL,
+        },
+    ],
+};
 
 const WORKSPACE_SEARCH: Record<string, search.Result> = {
     test: {

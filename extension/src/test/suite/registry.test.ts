@@ -1,4 +1,5 @@
-import * as assert from 'assert';
+import { assert, use } from 'chai';
+import * as chaiSubset from 'chai-subset';
 import * as search from 'libnpmsearch';
 import { after, before, beforeEach } from 'mocha';
 import * as nock from 'nock';
@@ -8,7 +9,9 @@ import { Uri } from 'vscode';
 
 import { Package } from '../../Package';
 import { Registry, RegistrySource } from '../../Registry';
-import { assertEntriesEqual, clearCache, mockSearch, PackageMetadata } from '../util';
+import { clearCache, mockSearch, PackageMetadata } from '../util';
+
+use(chaiSubset);
 
 suite('Registry Package Search', function() {
     vscode.window.showInformationMessage(`Start ${this.title} tests`);
@@ -63,11 +66,13 @@ suite('Registry Package Search', function() {
             otp: 123456,
         });
 
-        assert.strictEqual(registry.name, 'test');
-        assert.strictEqual(registry.source, RegistrySource.Workspace);
-        assert.strictEqual(registry.query, 'query');
-        assert.strictEqual(registry.options.otp, 123456);
-        assert.deepStrictEqual(registry.uri, Uri.parse(REGISTRY_URL));
+        assert.deepNestedInclude(registry, {
+            name: 'test',
+            source: RegistrySource.Workspace,
+            query: 'query',
+            'options.otp': 123456,
+            uri: Uri.parse(REGISTRY_URL),
+        });
     });
 
     test('Get all packages', async function() {
@@ -76,11 +81,10 @@ suite('Registry Package Search', function() {
         });
 
         const results = await registry.getPackages();
+        const expected = [EXPECT.foo, EXPECT.bar, EXPECT.baz];
 
-        assert.strictEqual(results.length, 3);
-        assertEntriesEqual(results[0], EXPECT.foo);
-        assertEntriesEqual(results[1], EXPECT.bar);
-        assertEntriesEqual(results[2], EXPECT.baz);
+        assert.containSubset(results, expected);
+        assert.lengthOf(results, expected.length);
     });
 
     test('Get keyword 1', async function() {
@@ -90,9 +94,10 @@ suite('Registry Package Search', function() {
         });
 
         const results = await registry.getPackages();
+        const expected = [EXPECT.foo];
 
-        assert.strictEqual(results.length, 1);
-        assertEntriesEqual(results[0], EXPECT.foo);
+        assert.containSubset(results, expected);
+        assert.lengthOf(results, expected.length);
     });
 
     test('Get keyword 2', async function() {
@@ -102,9 +107,10 @@ suite('Registry Package Search', function() {
         });
 
         const results = await registry.getPackages();
+        const expected = [EXPECT.bar];
 
-        assert.strictEqual(results.length, 1);
-        assertEntriesEqual(results[0], EXPECT.bar);
+        assert.containSubset(results, expected);
+        assert.lengthOf(results, expected.length);
     });
 
     test('Get keyword 3', async function() {
@@ -114,10 +120,10 @@ suite('Registry Package Search', function() {
         });
 
         const results = await registry.getPackages();
+        const expected = [EXPECT.bar, EXPECT.baz];
 
-        assert.strictEqual(results.length, 2);
-        assertEntriesEqual(results[0], EXPECT.bar);
-        assertEntriesEqual(results[1], EXPECT.baz);
+        assert.containSubset(results, expected);
+        assert.lengthOf(results, expected.length);
     });
 
     test('Get two keywords with string', async function() {
@@ -127,10 +133,10 @@ suite('Registry Package Search', function() {
         });
 
         const results = await registry.getPackages();
+        const expected = [EXPECT.foo, EXPECT.bar];
 
-        assert.strictEqual(results.length, 2);
-        assertEntriesEqual(results[0], EXPECT.foo);
-        assertEntriesEqual(results[1], EXPECT.bar);
+        assert.containSubset(results, expected);
+        assert.lengthOf(results, expected.length);
     });
 
     test('Get two keywords with array', async function() {
@@ -141,10 +147,10 @@ suite('Registry Package Search', function() {
         });
 
         const results = await registry.getPackages();
+        const expected = [EXPECT.foo, EXPECT.bar];
 
-        assert.strictEqual(results.length, 2);
-        assertEntriesEqual(results[0], EXPECT.foo);
-        assertEntriesEqual(results[1], EXPECT.bar);
+        assert.containSubset(results, expected);
+        assert.lengthOf(results, expected.length);
     });
 
     test('Get package metadata', async function() {
@@ -153,13 +159,13 @@ suite('Registry Package Search', function() {
         });
 
         const latest = new Package(registry, await registry.getPackageVersionMetadata('baz', 'latest'));
-        assertEntriesEqual(latest, EXPECT.baz);
+        assert.deepInclude(latest, EXPECT.baz);
 
         const versionOne = new Package(registry, await registry.getPackageVersionMetadata('baz', '1.0.0'));
-        assertEntriesEqual(versionOne, EXPECT.baz_old);
+        assert.deepInclude(versionOne, EXPECT.baz_old);
 
         const versionTwo = new Package(registry, await registry.getPackageVersionMetadata('baz', '2.0.0'));
-        assertEntriesEqual(versionTwo, EXPECT.baz);
+        assert.deepInclude(versionTwo, EXPECT.baz);
     });
 });
 

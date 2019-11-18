@@ -1,3 +1,4 @@
+import * as t from 'io-ts';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { Disposable, Uri } from 'vscode';
@@ -13,21 +14,22 @@ import { WebView } from './webView';
 
 const localize = nls.loadMessageBundle();
 
+const ExtensionManifest = t.partial({
+    name: t.string,
+    displayName: t.string,
+    description: t.string,
+    version: t.string,
+    publisher: t.string,
+    icon: t.string,
+});
+type ExtensionManifest = t.TypeOf<typeof ExtensionManifest>;
+
 interface ExtensionData {
     pkg: Package;
     directory: string;
-    manifest: PackageManifest;
+    manifest: ExtensionManifest;
     readme: Uri | null;
     changelog: Uri | null;
-}
-
-interface PackageManifest {
-    name?: string;
-    displayName?: string;
-    description?: string;
-    version?: string;
-    publisher?: string;
-    icon?: string;
 }
 
 export class ExtensionDetailsView extends WebView<ExtensionData> {
@@ -60,7 +62,7 @@ export class ExtensionDetailsView extends WebView<ExtensionData> {
 
         const data: ExtensionData = {
             directory: path.dirname(manifest.fsPath),
-            manifest: (await readJSON(manifest)) as PackageManifest,
+            manifest: await readManifest(manifest),
             pkg,
             readme,
             changelog,
@@ -338,4 +340,10 @@ async function addInstallButton(actions: string[], pkg: Package) {
 
 function getLocalResourceRoots() {
     return [Uri.file(getNpmDownloadDir())];
+}
+
+async function readManifest(uri: Uri): Promise<ExtensionManifest> {
+    const manifest = await readJSON(uri);
+
+    return ExtensionManifest.is(manifest) ? manifest : {};
 }

@@ -1,4 +1,4 @@
-import * as assert from 'assert';
+import { assert } from 'chai';
 import { afterEach, beforeEach } from 'mocha';
 import { SemVer } from 'semver';
 import * as sinon from 'sinon';
@@ -9,6 +9,8 @@ import * as extensionInfo from '../../extensionInfo';
 import { NotAnExtensionError, Package, PackageState } from '../../Package';
 import { Registry, RegistrySource } from '../../Registry';
 import { stubExtension, stubGlobalConfiguration, stubLocalExtension, stubRemoteName } from '../stubs';
+
+nls.config({ locale: 'pseudo' });
 
 suite('Package', function() {
     vscode.window.showInformationMessage(`Start ${this.title} tests`);
@@ -41,14 +43,16 @@ suite('Package', function() {
 
         await pkg.updateState();
 
-        assert.strictEqual(pkg.name, 'test-package');
-        assert.strictEqual(pkg.publisher, 'Test');
-        assert.strictEqual(pkg.extensionId, 'test.test-package');
-        assert.strictEqual(pkg.spec, 'test-package@1.2.3');
-        assert.deepStrictEqual(pkg.version, new SemVer('1.2.3'));
-        assert.strictEqual(pkg.displayName, 'Test Package');
-        assert.strictEqual(pkg.description, 'This is a test package.');
-        assert.strictEqual(pkg.registry, registry);
+        assert.deepInclude(pkg, {
+            name: 'test-package',
+            publisher: 'Test',
+            extensionId: 'test.test-package',
+            spec: 'test-package@1.2.3',
+            version: new SemVer('1.2.3'),
+            displayName: 'Test Package',
+            description: 'This is a test package.',
+            registry: registry,
+        });
     });
 
     test('Available: no remote', async function() {
@@ -64,9 +68,11 @@ suite('Package', function() {
 
         await pkg.updateState();
 
-        assert.strictEqual(pkg.isInstalled, false);
-        assert.strictEqual(pkg.installedVersion, null);
-        assert.strictEqual(pkg.state, PackageState.Available);
+        assert.deepInclude(pkg, {
+            isInstalled: false,
+            installedVersion: null,
+            state: PackageState.Available,
+        });
     });
 
     test('Available: extensionKind = ui', async function() {
@@ -84,8 +90,10 @@ suite('Package', function() {
 
         await pkg.updateState();
 
-        assert.strictEqual(pkg.state, PackageState.Available);
-        assert.strictEqual(pkg.isUiExtension, true);
+        assert.deepInclude(pkg, {
+            state: PackageState.Available,
+            isUiExtension: true,
+        });
     });
 
     test('Available: extensionKind = workspace', async function() {
@@ -103,8 +111,10 @@ suite('Package', function() {
 
         await pkg.updateState();
 
-        assert.strictEqual(pkg.state, PackageState.Available);
-        assert.strictEqual(pkg.isUiExtension, false);
+        assert.deepInclude(pkg, {
+            state: PackageState.Available,
+            isUiExtension: false,
+        });
     });
 
     test('Available: remote.extensionKind = ui', async function() {
@@ -126,8 +136,10 @@ suite('Package', function() {
 
         await pkg.updateState();
 
-        assert.strictEqual(pkg.state, PackageState.Available);
-        assert.strictEqual(pkg.isUiExtension, true);
+        assert.deepInclude(pkg, {
+            state: PackageState.Available,
+            isUiExtension: true,
+        });
     });
 
     test('Available: remote.extensionKind = workspace', async function() {
@@ -149,8 +161,10 @@ suite('Package', function() {
 
         await pkg.updateState();
 
-        assert.strictEqual(pkg.state, PackageState.Available);
-        assert.strictEqual(pkg.isUiExtension, false);
+        assert.deepInclude(pkg, {
+            state: PackageState.Available,
+            isUiExtension: false,
+        });
     });
 
     test('Available: no contributions -> ui', async function() {
@@ -186,8 +200,10 @@ suite('Package', function() {
 
         await pkg.updateState();
 
-        assert.strictEqual(pkg.state, PackageState.Available);
-        assert.strictEqual(pkg.isUiExtension, false);
+        assert.deepInclude(pkg, {
+            state: PackageState.Available,
+            isUiExtension: false,
+        });
     });
 
     test('Available: extension dependencies -> workspace', async function() {
@@ -205,8 +221,10 @@ suite('Package', function() {
 
         await pkg.updateState();
 
-        assert.strictEqual(pkg.state, PackageState.Available);
-        assert.strictEqual(pkg.isUiExtension, false);
+        assert.deepInclude(pkg, {
+            state: PackageState.Available,
+            isUiExtension: false,
+        });
     });
 
     test('Available: extension pack -> workspace', async function() {
@@ -224,8 +242,10 @@ suite('Package', function() {
 
         await pkg.updateState();
 
-        assert.strictEqual(pkg.state, PackageState.Available);
-        assert.strictEqual(pkg.isUiExtension, false);
+        assert.deepInclude(pkg, {
+            state: PackageState.Available,
+            isUiExtension: false,
+        });
     });
 
     test('Installed: no remote', async function() {
@@ -245,9 +265,11 @@ suite('Package', function() {
 
         await pkg.updateState();
 
-        assert.strictEqual(pkg.isInstalled, true);
-        assert.deepStrictEqual(pkg.installedVersion, new SemVer('1.2.3'));
-        assert.strictEqual(pkg.state, PackageState.Installed);
+        assert.deepInclude(pkg, {
+            isInstalled: true,
+            installedVersion: new SemVer('1.2.3'),
+            state: PackageState.Installed,
+        });
     });
 
     test('Installed: remote', async function() {
@@ -268,10 +290,12 @@ suite('Package', function() {
 
         await pkg.updateState();
 
-        assert.strictEqual(pkg.isInstalled, true);
-        assert.deepStrictEqual(pkg.installedVersion, new SemVer('1.2.3'));
-        assert.strictEqual(pkg.isUiExtension, false);
-        assert.strictEqual(pkg.state, PackageState.InstalledRemote);
+        assert.deepInclude(pkg, {
+            isInstalled: true,
+            installedVersion: new SemVer('1.2.3'),
+            isUiExtension: false,
+            state: PackageState.InstalledRemote,
+        });
     });
 
     test('Installed: local', async function() {
@@ -292,10 +316,12 @@ suite('Package', function() {
 
         await pkg.updateState();
 
-        assert.strictEqual(pkg.isInstalled, true);
-        assert.deepStrictEqual(pkg.installedVersion, new SemVer('1.2.3'));
-        assert.strictEqual(pkg.isUiExtension, true);
-        assert.strictEqual(pkg.state, PackageState.Installed);
+        assert.deepInclude(pkg, {
+            isInstalled: true,
+            installedVersion: new SemVer('1.2.3'),
+            isUiExtension: true,
+            state: PackageState.Installed,
+        });
     });
 
     test('Update available: no remote', async function() {
@@ -315,9 +341,11 @@ suite('Package', function() {
 
         await pkg.updateState();
 
-        assert.strictEqual(pkg.isInstalled, true);
-        assert.deepStrictEqual(pkg.installedVersion, new SemVer('1.0.0'));
-        assert.strictEqual(pkg.state, PackageState.UpdateAvailable);
+        assert.deepInclude(pkg, {
+            isInstalled: true,
+            installedVersion: new SemVer('1.0.0'),
+            state: PackageState.UpdateAvailable,
+        });
     });
 
     test('Update available: remote', async function() {
@@ -338,9 +366,11 @@ suite('Package', function() {
 
         await pkg.updateState();
 
-        assert.strictEqual(pkg.isInstalled, true);
-        assert.deepStrictEqual(pkg.installedVersion, new SemVer('1.0.0'));
-        assert.strictEqual(pkg.state, PackageState.UpdateAvailable);
+        assert.deepInclude(pkg, {
+            isInstalled: true,
+            installedVersion: new SemVer('1.0.0'),
+            state: PackageState.UpdateAvailable,
+        });
     });
 
     test('Update available: local', async function() {
@@ -361,36 +391,14 @@ suite('Package', function() {
 
         await pkg.updateState();
 
-        assert.strictEqual(pkg.isInstalled, true);
-        assert.deepStrictEqual(pkg.installedVersion, new SemVer('1.0.0'));
-        assert.strictEqual(pkg.state, PackageState.UpdateAvailable);
-    });
-
-    test('Not an extension', async function() {
-        assert.throws(() => {
-            // @ts-ignore No need to use "pkg". Constructing it should throw.
-            const pkg = new Package(getDummyRegistry(), {
-                name: 'test-package',
-                publisher: 'Test',
-                version: '1.2.3',
-            });
-        }, NotAnExtensionError);
-    });
-
-    test('Missing name', async function() {
-        assert.throws(() => {
-            // @ts-ignore No need to use "pkg". Constructing it should throw.
-            const pkg = new Package(getDummyRegistry(), {
-                publisher: 'Test',
-                version: '1.2.3',
-                engines: { vscode: '1.38.0' },
-                files: ['extension.vsix'],
-            });
-        }, TypeError);
+        assert.deepInclude(pkg, {
+            isInstalled: true,
+            installedVersion: new SemVer('1.0.0'),
+            state: PackageState.UpdateAvailable,
+        });
     });
 
     test('Missing publisher', async function() {
-        nls.config({ locale: 'pseudo' });
         stubExtension('test.test-package');
 
         const pkg = new Package(getDummyRegistry(), {
@@ -402,12 +410,13 @@ suite('Package', function() {
 
         await pkg.updateState();
 
-        assert.strictEqual(pkg.state, PackageState.Invalid);
-        assert.strictEqual(pkg.errorMessage, '\uFF3BMaaniifeest iis miissiing "puubliisheer" fiieeld.\uFF3D');
+        assert.deepInclude(pkg, {
+            state: PackageState.Invalid,
+            errorMessage: '\uFF3BMaaniifeest iis miissiing "puubliisheer" fiieeld.\uFF3D',
+        });
     });
 
     test('Missing .vsix file', async function() {
-        nls.config({ locale: 'pseudo' });
         stubExtension('test.test-package');
 
         const pkg = new Package(getDummyRegistry(), {
@@ -419,10 +428,113 @@ suite('Package', function() {
 
         await pkg.updateState();
 
-        assert.strictEqual(pkg.state, PackageState.Invalid);
-        assert.strictEqual(
-            pkg.errorMessage,
-            '\uFF3BMaaniifeest iis miissiing .vsiix fiilee iin "fiilees" fiieeld.\uFF3D',
+        assert.deepInclude(pkg, {
+            state: PackageState.Invalid,
+            errorMessage: '\uFF3BMaaniifeest iis miissiing .vsiix fiilee iin "fiilees" fiieeld.\uFF3D',
+        });
+    });
+
+    test('Invalid manifest: missing name', async function() {
+        assert.throws(
+            () => {
+                // @ts-ignore No need to use "pkg". Constructing it should throw.
+                const pkg = new Package(getDummyRegistry(), {
+                    publisher: 'Test',
+                    version: '1.2.3',
+                    engines: { vscode: '1.38.0' },
+                    files: ['extension.vsix'],
+                });
+            },
+            TypeError,
+            '\uFF3BExpeecteed string aat name buut goot undefined\uFF3D',
+        );
+    });
+
+    test('Invalid manifest: wrong name type', async function() {
+        assert.throws(
+            () => {
+                // @ts-ignore No need to use "pkg". Constructing it should throw.
+                const pkg = new Package(getDummyRegistry(), {
+                    name: 42,
+                    engines: { vscode: '1.38.0' },
+                });
+            },
+            TypeError,
+            '\uFF3BExpeecteed string aat name buut goot 42\uFF3D',
+        );
+    });
+
+    test('Invalid manifest: wrong displayName type', async function() {
+        assert.throws(
+            () => {
+                // @ts-ignore No need to use "pkg". Constructing it should throw.
+                const pkg = new Package(getDummyRegistry(), {
+                    name: 'test-package',
+                    displayName: 42,
+                    engines: { vscode: '1.38.0' },
+                });
+            },
+            TypeError,
+            '\uFF3BExpeecteed string aat displayName buut goot 42\uFF3D',
+        );
+    });
+
+    test('Invalid manifest: wrong publisher type', async function() {
+        assert.throws(
+            () => {
+                // @ts-ignore No need to use "pkg". Constructing it should throw.
+                const pkg = new Package(getDummyRegistry(), {
+                    name: 'test-package',
+                    publisher: 42,
+                    engines: { vscode: '1.38.0' },
+                });
+            },
+            TypeError,
+            '\uFF3BExpeecteed string aat publisher buut goot 42\uFF3D',
+        );
+    });
+
+    test('Invalid manifest: wrong files type', async function() {
+        assert.throws(
+            () => {
+                // @ts-ignore No need to use "pkg". Constructing it should throw.
+                const pkg = new Package(getDummyRegistry(), {
+                    name: 'test-package',
+                    files: ['foo.bar', 42],
+                    engines: { vscode: '1.38.0' },
+                });
+            },
+            TypeError,
+            '\uFF3BExpeecteed string aat files.1 buut goot 42\uFF3D',
+        );
+    });
+
+    test('Invalid manifest: missing engines.vscode', async function() {
+        assert.throws(
+            () => {
+                // @ts-ignore No need to use "pkg". Constructing it should throw.
+                const pkg = new Package(getDummyRegistry(), {
+                    name: 'test-package',
+                    publisher: 'Test',
+                    version: '1.2.3',
+                });
+            },
+            NotAnExtensionError,
+            `\uFF3B\uFF3BPaackaagee test-package iis noot aan eexteensiioon\uFF3D: \uFF3BExpeecteed { vscode: string } aat engines buut goot undefined\uFF3D\uFF3D`,
+        );
+    });
+
+    test('Invalid manifest: wrong engines.vscode type', async function() {
+        assert.throws(
+            () => {
+                // @ts-ignore No need to use "pkg". Constructing it should throw.
+                const pkg = new Package(getDummyRegistry(), {
+                    name: 'test-package',
+                    engines: { vscode: 42 },
+                });
+            },
+            NotAnExtensionError,
+            `\uFF3B\uFF3BPaackaagee test-package iis noot aan eexteensiioon\uFF3D: \uFF3BExpeecteed string aat engines.vscode buut goot 42\uFF3D\uFF3D`,
         );
     });
 });

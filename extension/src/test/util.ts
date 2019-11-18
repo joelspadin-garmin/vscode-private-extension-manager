@@ -1,4 +1,3 @@
-import * as assert from 'assert';
 import * as cacache from 'cacache';
 import * as search from 'libnpmsearch';
 import * as nock from 'nock';
@@ -62,22 +61,6 @@ export function mockSearch(scope: nock.Scope, text: string, results: readonly se
 
             return detailedResults(slice);
         });
-}
-
-/**
- * Asserts that `obj` contains the key/values from `expected`.
- *
- * This is similar to assert.deepStrictEqual(), but does not care if `obj`
- * contains additional key/values that are not present in `expected`.
- * @param obj The object to test.
- * @param expected Object with expected key/values.
- */
-export function assertEntriesEqual<T extends object>(obj: T, expected: Partial<T>) {
-    for (const key in expected) {
-        if (expected.hasOwnProperty(key)) {
-            assert.deepStrictEqual(obj[key], expected[key], `For key "${key}" of object "${obj}":`);
-        }
-    }
 }
 
 /**

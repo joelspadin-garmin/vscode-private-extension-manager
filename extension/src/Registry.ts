@@ -1,6 +1,7 @@
 import * as fs from 'fs';
-import { Options } from 'libnpmsearch';
+import * as t from 'io-ts';
 import * as npmsearch from 'libnpmsearch';
+import { Options } from 'libnpmsearch';
 import * as npa from 'npm-package-arg';
 import * as npmfetch from 'npm-registry-fetch';
 import * as pacote from 'pacote';
@@ -10,6 +11,7 @@ import { SemVer } from 'semver';
 import { CancellationToken, Uri } from 'vscode';
 
 import { NotAnExtensionError, Package } from './Package';
+import { assertType, options } from './typeUtil';
 import { getNpmCacheDir, getNpmDownloadDir, uriEquals } from './util';
 
 /** Maximum number of search results per request. */
@@ -48,12 +50,16 @@ export interface VersionInfo {
     time?: Date;
 }
 
-interface PackageVersionData {
-    'dist-tags': Record<string, string>;
-    time?: Record<string, string>;
-    versions: Record<string, Record<string, unknown>>;
-    [key: string]: unknown;
-}
+const PackageVersionData = options(
+    {
+        'dist-tags': t.record(t.string, t.string),
+        versions: t.record(t.string, t.record(t.string, t.any)),
+    },
+    {
+        time: t.record(t.string, t.string),
+    },
+);
+type PackageVersionData = t.TypeOf<typeof PackageVersionData>;
 
 /**
  * Represents an NPM registry.
@@ -176,7 +182,7 @@ export class Registry {
     public async getPackageVersions(name: string): Promise<VersionInfo[]> {
         const metadata = await this.getPackageMetadata(name);
 
-        if (hasVersionData(metadata)) {
+        if (PackageVersionData.is(metadata)) {
             return Object.keys(metadata.versions).map(key => {
                 const version = new SemVer(key);
                 const time = getVersionTimestamp(metadata, key);
@@ -195,15 +201,13 @@ export class Registry {
     public async getPackageVersionMetadata(name: string, version: string = 'latest') {
         const metadata = await this.getPackageMetadata(name);
 
-        if (hasVersionData(metadata)) {
-            if (!(version in metadata.versions)) {
-                version = metadata['dist-tags'][version];
-            }
+        assertType(metadata, PackageVersionData, `In package "${name}"`);
 
-            return metadata.versions[version];
-        } else {
-            throw new Error(`Missing required fields "dist-tags" and "versions" in package "${name}"`);
+        if (version in metadata['dist-tags']) {
+            version = metadata['dist-tags'][version];
         }
+
+        return metadata.versions[version];
     }
 
     private async *findMatchingPackages(query: string | readonly string[], token?: CancellationToken) {
@@ -242,18 +246,6 @@ function queryEquals(a: string | readonly string[], b: string | readonly string[
     b = Array.isArray(b) ? b.join(' ') : b;
 
     return a === b;
-}
-
-function hasVersionData(meta: Record<string, unknown>): meta is PackageVersionData {
-    return (
-        typeof meta === 'object' &&
-        meta !== null &&
-        typeof meta['dist-tags'] === 'object' &&
-        meta['dist-tags'] !== null &&
-        typeof meta['versions'] === 'object' &&
-        meta['versions'] !== null &&
-        (typeof meta['time'] === 'undefined' || (typeof meta['time'] === 'object' && meta['time'] !== null))
-    );
 }
 
 function getVersionTimestamp(meta: PackageVersionData, key: string) {

@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import * as t from 'io-ts';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { Disposable, Event, EventEmitter } from 'vscode';
@@ -6,14 +7,26 @@ import * as nls from 'vscode-nls';
 
 import { Package } from './Package';
 import { Registry, RegistrySource } from './Registry';
+import { assertType, options } from './typeUtil';
 import { getConfig, readJSONSync } from './util';
 
 const localize = nls.loadMessageBundle();
 
-interface UserRegistry {
-    name: string;
-    registry?: string;
-}
+const UserRegistry = options(
+    {
+        name: t.string,
+    },
+    {
+        registry: t.string,
+    },
+);
+type UserRegistry = t.TypeOf<typeof UserRegistry>;
+
+const ExtensionsConfig = t.partial({
+    registries: t.array(UserRegistry),
+    recommendations: t.array(t.string),
+});
+type ExtensionsConfig = t.TypeOf<typeof ExtensionsConfig>;
 
 /**
  * Provides NPM registries collected from user and workspace configuration.
@@ -159,22 +172,11 @@ export class RegistryProvider implements Disposable {
     private getUserRegistryConfig(): UserRegistry[] {
         const userRegistries = getConfig().get<any>('registries', []);
 
-        if (!Array.isArray(userRegistries)) {
-            throw new Error(
-                localize('registries.must.be.array', 'privateExtensions.registries setting must be an array'),
-            );
-        }
-
-        for (const item of userRegistries) {
-            if (typeof item.name !== 'string') {
-                throw new Error(
-                    localize(
-                        'registry.name.missing',
-                        'Required field "name" missing from privateExtensions.registries setting',
-                    ),
-                );
-            }
-        }
+        assertType(
+            userRegistries,
+            t.array(UserRegistry),
+            localize('user.setting.invalid', 'privateExtensions.registries setting is invalid'),
+        );
 
         return userRegistries;
     }
@@ -322,20 +324,16 @@ class FolderRegistryProvider implements Disposable {
 
         const config = readJSONSync(this.configFile);
 
-        if (typeof config !== 'object' || !Array.isArray(config.registries)) {
-            throw new Error(`Required field "registries" missing from ${this.configFile.fsPath}`);
-        }
+        assertType(config, ExtensionsConfig, localize('in.file', 'In {0}', this.configFile.fsPath));
 
-        for (const registry of config.registries) {
-            if (typeof registry.name !== 'string') {
-                throw new Error(`Required field "name" missing from registry item in ${this.configFile.fsPath}`);
+        if (config.registries) {
+            for (const registry of config.registries) {
+                const { name, ...options } = registry;
+                this.registries.push(new Registry(name, RegistrySource.Workspace, options));
             }
-
-            const { name, ...options } = registry;
-            this.registries.push(new Registry(name, RegistrySource.Workspace, options));
         }
 
-        if (Array.isArray(config.recommendations)) {
+        if (config.recommendations) {
             this.recommendedExtensions = config.recommendations;
         }
     }
