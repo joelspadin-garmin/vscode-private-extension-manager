@@ -1,16 +1,16 @@
-import { Options } from 'libnpmsearch';
-import { CancellationToken, Uri } from 'vscode';
 import * as fs from 'fs';
+import { Options } from 'libnpmsearch';
+import * as npmsearch from 'libnpmsearch';
 import * as npa from 'npm-package-arg';
 import * as npmfetch from 'npm-registry-fetch';
-import * as npmsearch from 'libnpmsearch';
 import * as pacote from 'pacote';
 import * as path from 'path';
 import sanitize = require('sanitize-filename');
-
-import { Package, NotAnExtensionError } from './Package';
-import { getNpmCacheDir, getNpmDownloadDir, uriEquals } from './util';
 import { SemVer } from 'semver';
+import { CancellationToken, Uri } from 'vscode';
+
+import { NotAnExtensionError, Package } from './Package';
+import { getNpmCacheDir, getNpmDownloadDir, uriEquals } from './util';
 
 /** Maximum number of search results per request. */
 const QUERY_LIMIT = 100;

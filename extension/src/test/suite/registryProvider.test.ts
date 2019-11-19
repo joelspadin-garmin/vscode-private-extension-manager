@@ -1,15 +1,15 @@
 import * as assert from 'assert';
-import * as nock from 'nock';
 import * as search from 'libnpmsearch';
+import { after, before, beforeEach } from 'mocha';
+import * as nock from 'nock';
 import * as sinon from 'sinon';
 import * as vscode from 'vscode';
-import { before, beforeEach, after } from 'mocha';
 
-import { RegistryProvider } from '../../RegistryProvider';
-import { assertEntriesEqual, clearCache, mockSearch, PackageMetadata } from '../util';
-import { Registry, RegistrySource } from '../../Registry';
 import { Package } from '../../Package';
+import { Registry, RegistrySource } from '../../Registry';
+import { RegistryProvider } from '../../RegistryProvider';
 import { stubGlobalConfiguration } from '../stubs';
+import { assertEntriesEqual, clearCache, mockSearch, PackageMetadata } from '../util';
 
 // Test suite should be run inside workspace test-fixtures/fixture1
 suite('Registry Provider', function() {

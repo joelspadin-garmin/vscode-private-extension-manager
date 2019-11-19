@@ -1,14 +1,15 @@
-import * as nls from 'vscode-nls';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { Disposable, Uri } from 'vscode';
+import * as nls from 'vscode-nls';
 
 import * as extensionInfo from '../extensionInfo';
-import { MarkdownView } from './markdownView';
-import { readJSON, getNpmDownloadDir } from '../util';
-import { WebView } from './webView';
 import { Package } from '../Package';
 import { getRemoteName } from '../remote';
+import { getNpmDownloadDir, readJSON } from '../util';
+
+import { MarkdownView } from './markdownView';
+import { WebView } from './webView';
 
 const localize = nls.loadMessageBundle();
 

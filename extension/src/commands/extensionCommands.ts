@@ -2,13 +2,13 @@ import * as semver from 'semver';
 import * as vscode from 'vscode';
 import * as nls from 'vscode-nls';
 
-import * as install from '../install';
 import { Command } from '../commandManager';
 import { getExtension } from '../extensionInfo';
+import { findPackage, getPackageVersions } from '../findPackage';
+import * as install from '../install';
 import { Package } from '../Package';
-import { RegistryView } from '../views/registryView';
 import { RegistryProvider } from '../RegistryProvider';
-import { getPackageVersions, findPackage } from '../findPackage';
+import { RegistryView } from '../views/registryView';
 
 const localize = nls.loadMessageBundle();
 

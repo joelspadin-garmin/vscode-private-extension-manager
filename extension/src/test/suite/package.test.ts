@@ -1,14 +1,14 @@
 import * as assert from 'assert';
+import { afterEach, beforeEach } from 'mocha';
+import { SemVer } from 'semver';
 import * as sinon from 'sinon';
 import * as vscode from 'vscode';
 import * as nls from 'vscode-nls';
-import { afterEach, beforeEach } from 'mocha';
-import { SemVer } from 'semver';
 
 import * as extensionInfo from '../../extensionInfo';
-import { Package, PackageState, NotAnExtensionError } from '../../Package';
+import { NotAnExtensionError, Package, PackageState } from '../../Package';
 import { Registry, RegistrySource } from '../../Registry';
-import { stubExtension, stubLocalExtension, stubRemoteName, stubGlobalConfiguration } from '../stubs';
+import { stubExtension, stubGlobalConfiguration, stubLocalExtension, stubRemoteName } from '../stubs';
 
 suite('Package', function() {
     vscode.window.showInformationMessage(`Start ${this.title} tests`);

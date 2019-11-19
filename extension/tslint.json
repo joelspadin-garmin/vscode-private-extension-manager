@@ -8,6 +8,12 @@
         "no-string-throw": true,
         "no-unused-expression": true,
         "no-duplicate-variable": true,
-        "triple-equals": true
+        "triple-equals": true,
+        "ordered-imports": [
+            true,
+            {
+                "grouped-imports": true
+            }
+        ]
     }
 }

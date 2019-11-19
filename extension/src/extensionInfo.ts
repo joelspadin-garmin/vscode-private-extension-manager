@@ -1,5 +1,5 @@
-import * as vscode from 'vscode';
 import * as semver from 'semver';
+import * as vscode from 'vscode';
 
 /**
  * The data from `vscode.Extension` that is needed for managing extensions.

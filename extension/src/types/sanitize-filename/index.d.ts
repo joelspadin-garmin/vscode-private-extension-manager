@@ -1,4 +1,3 @@
-
 declare module 'sanitize-filename' {
     interface Options {
         replacement?: string | ((inv: string) => string);

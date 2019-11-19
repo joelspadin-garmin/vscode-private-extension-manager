@@ -1,8 +1,8 @@
 import * as dns from 'dns';
-import * as vscode from 'vscode';
-import * as nls from 'vscode-nls';
 import memoizeOne from 'memoize-one';
 import { promisify } from 'util';
+import * as vscode from 'vscode';
+import * as nls from 'vscode-nls';
 
 const localize = nls.loadMessageBundle();
 

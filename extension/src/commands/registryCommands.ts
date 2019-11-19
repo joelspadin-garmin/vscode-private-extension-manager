@@ -1,6 +1,6 @@
+import { isWebUri } from 'valid-url';
 import * as vscode from 'vscode';
 import * as nls from 'vscode-nls';
-import { isWebUri } from 'valid-url';
 
 import { Command } from '../commandManager';
 import { Registry } from '../Registry';

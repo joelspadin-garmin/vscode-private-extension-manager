@@ -1,12 +1,13 @@
-import * as nls from 'vscode-nls';
 import * as vscode from 'vscode';
 import { Disposable, Event, EventEmitter, TreeDataProvider, TreeItem, Uri } from 'vscode';
+import * as nls from 'vscode-nls';
 
-import { ExtensionDetailsView } from './extensionDetailsView';
 import { Package, PackageState } from '../Package';
 import { Registry } from '../Registry';
 import { RegistryProvider } from '../RegistryProvider';
 import { getExtensionFileUri } from '../util';
+
+import { ExtensionDetailsView } from './extensionDetailsView';
 
 const localize = nls.loadMessageBundle();
 

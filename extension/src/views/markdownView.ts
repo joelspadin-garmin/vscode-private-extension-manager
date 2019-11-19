@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { Uri } from 'vscode';
+
 import { WebView } from './webView';
 
 export class MarkdownView extends WebView<Uri> {

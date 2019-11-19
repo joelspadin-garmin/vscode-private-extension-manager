@@ -1,11 +1,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import * as nls from 'vscode-nls';
 import { Disposable, Event, EventEmitter } from 'vscode';
+import * as nls from 'vscode-nls';
+
+import { Package } from './Package';
 import { Registry, RegistrySource } from './Registry';
 import { getConfig, readJSONSync } from './util';
-import { Package } from './Package';
 
 const localize = nls.loadMessageBundle();
 

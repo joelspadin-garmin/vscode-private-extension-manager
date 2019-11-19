@@ -1,11 +1,12 @@
-import memoizeOne from 'memoize-one';
 import * as fs from 'fs';
-import * as path from 'path';
 import * as jsonc from 'jsonc-parser';
-import { Uri, workspace } from 'vscode';
-import { promisify } from 'util';
-import { context } from './context';
+import memoizeOne from 'memoize-one';
+import * as path from 'path';
 import rimraf = require('rimraf');
+import { promisify } from 'util';
+import { Uri, workspace } from 'vscode';
+
+import { context } from './context';
 
 const readFile = promisify(fs.readFile);
 

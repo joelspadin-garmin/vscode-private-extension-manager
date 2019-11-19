@@ -1,9 +1,9 @@
 import * as assert from 'assert';
-import * as nock from 'nock';
 import * as search from 'libnpmsearch';
-import * as vscode from 'vscode';
-import { before, beforeEach, after } from 'mocha';
+import { after, before, beforeEach } from 'mocha';
+import * as nock from 'nock';
 import { SemVer } from 'semver';
+import * as vscode from 'vscode';
 import { Uri } from 'vscode';
 
 import { Package } from '../../Package';

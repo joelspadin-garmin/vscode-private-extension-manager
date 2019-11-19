@@ -1,6 +1,7 @@
+import { isAbsolute } from 'path';
 import * as vscode from 'vscode';
 import { Disposable, WebviewPanel } from 'vscode';
-import { isAbsolute } from 'path';
+
 import { getExtensionFileUri, memoize } from '../util';
 
 export abstract class WebView<T> implements Disposable {

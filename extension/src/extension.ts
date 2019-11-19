@@ -1,15 +1,15 @@
 import * as vscode from 'vscode';
 import * as nls from 'vscode-nls';
 
-import * as commands from './commands/index';
-import * as extensionInfo from './extensionInfo';
 import { CommandManager } from './commandManager';
+import * as commands from './commands/index';
 import { setContext } from './context';
-import { RegistryView } from './views/registryView';
-import { deleteNpmDownloads } from './util';
+import * as extensionInfo from './extensionInfo';
+import { ExtensionsFileFeatures } from './extensionsFileFeatures';
 import { RegistryProvider } from './RegistryProvider';
 import { UpdateChecker } from './UpdateChecker';
-import { ExtensionsFileFeatures } from './extensionsFileFeatures';
+import { deleteNpmDownloads } from './util';
+import { RegistryView } from './views/registryView';
 
 // TODO: provide autocomplete suggestions in extensions.private.json for
 // registries: { "name": "Registry Name", "registry": "https://my-private.registry" }

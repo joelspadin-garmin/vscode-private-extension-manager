@@ -4,8 +4,8 @@ import * as vscode from 'vscode';
 import { Uri } from 'vscode';
 
 import { Command } from '../commandManager';
+import { ExtensionsConfigurationFilePath, ExtensionsConfigurationInitialContent } from '../extensionsFileTemplate';
 import { pickWorkspaceFolder } from '../workspace';
-import { ExtensionsConfigurationInitialContent, ExtensionsConfigurationFilePath } from '../extensionsFileTemplate';
 
 /**
  * Opens extensions.private.json to the "registries" element.

@@ -1,10 +1,10 @@
-import * as nls from 'vscode-nls';
 import * as vscode from 'vscode';
+import * as nls from 'vscode-nls';
 
 import * as extensionInfo from './extensionInfo';
 import { findPackage } from './findPackage';
-import { Registry } from './Registry';
 import { Package } from './Package';
+import { Registry } from './Registry';
 import { RegistryProvider } from './RegistryProvider';
 
 const localize = nls.loadMessageBundle();

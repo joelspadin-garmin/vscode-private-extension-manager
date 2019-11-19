@@ -1,9 +1,10 @@
 import * as _glob from 'glob';
-import * as nls from 'vscode-nls';
 import * as path from 'path';
-import * as vscode from 'vscode';
-import { SemVer, parse as parseVersion } from 'semver';
+import { parse as parseVersion, SemVer } from 'semver';
 import { promisify } from 'util';
+import * as vscode from 'vscode';
+import * as nls from 'vscode-nls';
+
 import { getExtension } from './extensionInfo';
 import { Registry } from './Registry';
 import { isNonEmptyArray } from './util';

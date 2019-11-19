@@ -1,7 +1,8 @@
 import * as jsonc from 'jsonc-parser';
 import * as vscode from 'vscode';
-import * as nls from 'vscode-nls';
 import { CompletionItem, Disposable } from 'vscode';
+import * as nls from 'vscode-nls';
+
 import { RegistryProvider } from './RegistryProvider';
 
 const localize = nls.loadMessageBundle();
