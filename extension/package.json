@@ -16,7 +16,7 @@
     "engines": {
         "vscode": "^1.40.0"
     },
-    "extensionKind": "workspace",
+    "extensionKind": ["workspace"],
     "extensionPack": [
         "garmin.private-extension-manager-remote-helper"
     ],
@@ -297,7 +297,7 @@
         "tslint-config-prettier": "1.18.0",
         "tslint-plugin-prettier": "2.0.1",
         "typescript": "^3.7.2",
-        "vsce": "^1.69.0",
+        "vsce": "^1.70.0",
         "vscode-test": "^1.2.3",
         "webpack": "^4.41.2",
         "webpack-cli": "^3.3.10"
