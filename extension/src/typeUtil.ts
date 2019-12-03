@@ -1,6 +1,6 @@
+import { isLeft } from 'fp-ts/lib/Either';
 import * as t from 'io-ts';
 import * as nls from 'vscode-nls';
-import { isLeft } from 'fp-ts/lib/Either';
 
 const localize = nls.loadMessageBundle();
 
