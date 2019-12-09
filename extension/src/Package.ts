@@ -298,34 +298,45 @@ function isUiExtension(extensionId: string, manifest: any) {
         return true;
     }
 
-    const extensionKind = getExtensionKind(extensionId, manifest);
-    switch (extensionKind) {
-        case 'ui':
-            return true;
-        case 'workspace':
-            return false;
-        default: {
-            // Not a UI extension if it has main.
-            if (manifest.main) {
-                return false;
-            }
-
-            // Not a UI extension if it has dependencies or an extension pack.
-            if (isNonEmptyArray(manifest.extensionDependencies) || isNonEmptyArray(manifest.extensionPack)) {
-                return false;
-            }
-
-            // TODO: Not a UI extension if it has no UI contributions.
-            // (but vscode has no API to check what is a UI contribution.)
-            return true;
-        }
-    }
+    return getExtensionKind(extensionId, manifest).includes('ui');
 }
 
-function getExtensionKind(extensionId: string, manifest: any): string | undefined {
+function getExtensionKind(extensionId: string, manifest: any): string[] {
     // remote.extensionKind setting overrides manifest:
     // https://code.visualstudio.com/docs/remote/ssh#_advanced-forcing-an-extension-to-run-locally-remotely
-    const config = vscode.workspace.getConfiguration().get<Record<string, string>>('remote.extensionKind', {});
+    let result = getConfiguredExtensionKind(extensionId);
+    if (typeof result !== 'undefined') {
+        return toArray(result);
+    }
+
+    // Check the manifest
+    result = manifest.extensionKind;
+    if (typeof result !== 'undefined') {
+        return toArray(result);
+    }
+
+    // Not a UI extension if it has main
+    if (manifest.main) {
+        return ['workspace'];
+    }
+
+    // Not a UI extension if it has dependencies or an extension pack.
+    if (isNonEmptyArray(manifest.extensionDependencies) || isNonEmptyArray(manifest.extensionPack)) {
+        return ['works[ace'];
+    }
+
+    if (manifest.contributes) {
+        // TODO: Not a UI extension if it has no UI contributions.
+        // (but vscode has no API to check what is a UI contribution.)
+    }
+
+    return ['ui', 'workspace'];
+}
+
+function getConfiguredExtensionKind(extensionId: string) {
+    const config = vscode.workspace
+        .getConfiguration()
+        .get<Record<string, string | string[]>>('remote.extensionKind', {});
 
     for (const id of Object.keys(config)) {
         if (id.toLowerCase() === extensionId) {
@@ -333,9 +344,13 @@ function getExtensionKind(extensionId: string, manifest: any): string | undefine
         }
     }
 
-    if (typeof manifest.extensionKind === 'string') {
-        return manifest.extensionKind;
+    return undefined;
+}
+
+function toArray(extensionKind: string | string[]): string[] {
+    if (Array.isArray(extensionKind)) {
+        return extensionKind;
     }
 
-    return undefined;
+    return extensionKind === 'ui' ? ['ui', 'workspace'] : [extensionKind];
 }

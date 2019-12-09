@@ -75,7 +75,71 @@ suite('Package', function() {
         });
     });
 
-    test('Available: extensionKind = ui', async function() {
+    test('Available: extensionKind = [ui]', async function() {
+        stubRemoteName('test-remote');
+        stubLocalExtension('test.test-package');
+
+        const pkg = new Package(getDummyRegistry(), {
+            name: 'test-package',
+            publisher: 'Test',
+            version: '1.2.3',
+            engines: { vscode: '1.38.0' },
+            files: ['extension.vsix'],
+            extensionKind: ['ui'],
+        });
+
+        await pkg.updateState();
+
+        assert.deepInclude(pkg, {
+            state: PackageState.Available,
+            isUiExtension: true,
+        });
+    });
+
+    test('Available: extensionKind = [ui, workspace]', async function() {
+        stubRemoteName('test-remote');
+        stubLocalExtension('test.test-package');
+
+        const pkg = new Package(getDummyRegistry(), {
+            name: 'test-package',
+            publisher: 'Test',
+            version: '1.2.3',
+            engines: { vscode: '1.38.0' },
+            files: ['extension.vsix'],
+            extensionKind: ['ui', 'workspace'],
+        });
+
+        await pkg.updateState();
+
+        assert.deepInclude(pkg, {
+            state: PackageState.Available,
+            isUiExtension: true,
+        });
+    });
+
+    test('Available: extensionKind = [workspace]', async function() {
+        stubRemoteName('test-remote');
+        stubLocalExtension('test.test-package');
+
+        const pkg = new Package(getDummyRegistry(), {
+            name: 'test-package',
+            publisher: 'Test',
+            version: '1.2.3',
+            engines: { vscode: '1.38.0' },
+            files: ['extension.vsix'],
+            extensionKind: ['workspace'],
+        });
+
+        await pkg.updateState();
+
+        assert.deepInclude(pkg, {
+            state: PackageState.Available,
+            isUiExtension: false,
+        });
+    });
+
+    // Backwards compatibility with old type for extensionKind.
+    test('Available: extensionKind = "ui"', async function() {
         stubRemoteName('test-remote');
         stubLocalExtension('test.test-package');
 
@@ -96,7 +160,8 @@ suite('Package', function() {
         });
     });
 
-    test('Available: extensionKind = workspace', async function() {
+    // Backwards compatibility with old type for extensionKind.
+    test('Available: extensionKind = "workspace"', async function() {
         stubRemoteName('test-remote');
         stubLocalExtension('test.test-package');
 
@@ -117,7 +182,83 @@ suite('Package', function() {
         });
     });
 
-    test('Available: remote.extensionKind = ui', async function() {
+    test('Available: remote.extensionKind = [ui]', async function() {
+        stubRemoteName('test-remote');
+        stubLocalExtension('test.test-package');
+        stubGlobalConfiguration({
+            'remote.extensionKind': {
+                'test.test-package': ['ui'],
+            },
+        });
+
+        const pkg = new Package(getDummyRegistry(), {
+            name: 'test-package',
+            publisher: 'Test',
+            version: '1.2.3',
+            engines: { vscode: '1.38.0' },
+            files: ['extension.vsix'],
+        });
+
+        await pkg.updateState();
+
+        assert.deepInclude(pkg, {
+            state: PackageState.Available,
+            isUiExtension: true,
+        });
+    });
+
+    test('Available: remote.extensionKind = [ui, workspace]', async function() {
+        stubRemoteName('test-remote');
+        stubLocalExtension('test.test-package');
+        stubGlobalConfiguration({
+            'remote.extensionKind': {
+                'test.test-package': ['ui', 'workspace'],
+            },
+        });
+
+        const pkg = new Package(getDummyRegistry(), {
+            name: 'test-package',
+            publisher: 'Test',
+            version: '1.2.3',
+            engines: { vscode: '1.38.0' },
+            files: ['extension.vsix'],
+        });
+
+        await pkg.updateState();
+
+        assert.deepInclude(pkg, {
+            state: PackageState.Available,
+            isUiExtension: true,
+        });
+    });
+
+    test('Available: remote.extensionKind = [workspace]', async function() {
+        stubRemoteName('test-remote');
+        stubLocalExtension('test.test-package');
+        stubGlobalConfiguration({
+            'remote.extensionKind': {
+                'test.test-package': ['workspace'],
+            },
+        });
+
+        const pkg = new Package(getDummyRegistry(), {
+            name: 'test-package',
+            publisher: 'Test',
+            version: '1.2.3',
+            engines: { vscode: '1.38.0' },
+            files: ['extension.vsix'],
+        });
+
+        await pkg.updateState();
+
+        assert.deepInclude(pkg, {
+            state: PackageState.Available,
+            isUiExtension: false,
+        });
+    });
+
+    // Backwards compatibility with old type for extensionKind.
+    test('Available: remote.extensionKind = "ui"', async function() {
         stubRemoteName('test-remote');
         stubLocalExtension('test.test-package');
         stubGlobalConfiguration({
@@ -142,7 +283,8 @@ suite('Package', function() {
         });
     });
 
-    test('Available: remote.extensionKind = workspace', async function() {
+    // Backwards compatibility with old type for extensionKind.
+    test('Available: remote.extensionKind = "workspace"', async function() {
         stubRemoteName('test-remote');
         stubLocalExtension('test.test-package');
         stubGlobalConfiguration({
