@@ -119,7 +119,7 @@ suite('Registry Provider', function() {
         });
 
         const provider = new RegistryProvider();
-        const type = 'Array<{ name: string, registry?: string }>';
+        const type = 'Array<{ name: string, registry?: string, channels?: object }>';
 
         assert.throws(
             () => {

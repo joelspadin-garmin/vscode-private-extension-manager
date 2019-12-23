@@ -82,6 +82,7 @@ export class Registry {
     constructor(
         public readonly name: string,
         public readonly source: RegistrySource,
+        public readonly channels: any,
         options: Partial<RegistryOptions & Options>,
     ) {
         const { query, ...searchOpts } = options;
@@ -90,6 +91,7 @@ export class Registry {
         // leave the search text blank, it will return nothing.
         this.query = query ?? '*';
         this.options = searchOpts;
+        this.channels = channels;
 
         this.options.cache = getNpmCacheDir();
     }
@@ -152,8 +154,12 @@ export class Registry {
             }
 
             try {
-                const manifest = await this.getPackageVersionMetadata(result.name, 'latest');
-                packages.push(new Package(this, manifest));
+                let channel = 'latest';
+                if (this.channels && this.channels[result.name]) {
+                    channel = this.channels[result.name];
+                }
+                const manifest = await this.getPackageVersionMetadata(result.name, channel);
+                packages.push(new Package(this, manifest, channel));
             } catch (ex) {
                 if (ex instanceof NotAnExtensionError) {
                     // Package is not an extension. Ignore.

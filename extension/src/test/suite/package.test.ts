@@ -544,7 +544,7 @@ suite('Package', function() {
  * tests on `Package` objects.
  */
 function getDummyRegistry() {
-    return new Registry('test', RegistrySource.Workspace, {
+    return new Registry('test', RegistrySource.Workspace, 'latest', {
         registry: 'localhost',
     });
 }

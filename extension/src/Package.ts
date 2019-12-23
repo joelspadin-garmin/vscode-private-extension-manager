@@ -91,6 +91,8 @@ export class Package {
     public readonly version: SemVer;
     /** The registry containing the extension. */
     public readonly registry: Registry;
+    /* The channel that this package is tracking */
+    public readonly channel: string;
 
     private readonly vsixFile: string | null;
     private readonly isPublisherValid: boolean;
@@ -105,7 +107,7 @@ export class Package {
      * @param manifest The version-specific package manifest for the extension.
      * @throws {NotAnExtensionError} `manifest` is not a Visual Studio Code extension.
      */
-    constructor(registry: Registry, manifest: Record<string, unknown>) {
+    constructor(registry: Registry, manifest: Record<string, unknown>, channel: string = 'latest') {
         this.registry = registry;
 
         assertType(manifest, PackageManifest);
@@ -118,6 +120,7 @@ export class Package {
         );
 
         this.name = manifest.name;
+        this.channel = channel;
         this.displayName = manifest.displayName ?? this.name;
 
         // VS Code uses case-insensitive comparison to match extension IDs.

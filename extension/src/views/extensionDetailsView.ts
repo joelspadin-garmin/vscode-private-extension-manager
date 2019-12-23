@@ -129,6 +129,9 @@ export class ExtensionDetailsView extends WebView<ExtensionData> {
                             )}">
                                 ${this.pkg.extensionId}
                             </span>
+                            <span class="identifier" title="${localize('extension.channel', 'Extension channel')}">
+                                ${this.pkg.channel}
+                            </span>
                         </div>
                         <div class="subtitle">
                             <span class="publisher" title="${localize('publisher', 'Publisher')}">

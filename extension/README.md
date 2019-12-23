@@ -113,7 +113,11 @@ The file has the following structure:
     "registries": [
         {
             "name": "My Private Registry",
-            "registry": "https://my-private.registry"
+            "registry": "https://my-private.registry",
+            "channels": {
+                "extension1": "latest",
+                "extension2": "insiders"
+            }
         }
     ],
     "recommendations": [
@@ -132,6 +136,13 @@ extensions. Each item supports the following fields:
     This is either an array of search terms or a string with space-delimited terms.
     For example, `"keywords:group1 keywords:group2"` would display only packages
     that have the either of the keywords `group1` or `group2`.
+* **channels**: (Optional) An object describing which channels should be subscribed to for extensions in the repository.
+    The key is the extension ID and the value is the desired channel.  To publish an extension to a channel, simply specify the channel name using
+    [npm dist-tags](https://docs.npmjs.com/cli/dist-tag) when publishing.  By default, all packages will reference the `latest` tag.
+    ```
+    npm publish . --tag=insiders
+    ```
+    When publishing pre-release versions, it is also reccomended to use pre-release sematic-versioning, such as 1.0.0-beta.0.
 * Any options supported by [npm-registry-fetch](https://github.com/npm/npm-registry-fetch#-fetch-options).
     Use these if you need to set authentication, a proxy, or other options.
 
