@@ -2,7 +2,7 @@
     "name": "private-extension-manager-remote-helper",
     "displayName": "Private Extension Manager: Remote Helper",
     "description": "Lets Private Extension Manager work in remote workspaces.",
-    "version": "1.0.0",
+    "version": "0.9.0-beta.0",
     "publisher": "garmin",
     "license": "Apache-2.0",
     "author": {
@@ -14,7 +14,7 @@
         "directory": "remote-helper"
     },
     "engines": {
-        "vscode": "^1.40.0"
+        "vscode": "^1.41.0"
     },
     "extensionKind": [
         "ui"
@@ -33,35 +33,34 @@
     ],
     "main": "./dist/extension.js",
     "scripts": {
-        "prepublishOnly": "npm run package",
         "vscode:prepublish": "webpack --mode production",
         "clean": "rimraf ./dist ./out",
-        "compile": "webpack --mode none",
-        "watch": "webpack --mode none --watch --info-verbosity verbose",
+        "compile": "webpack --mode development",
+        "watch": "webpack --mode development --watch --info-verbosity verbose",
         "lint": "tslint -p ./",
         "fix-lint": "tslint -p ./ --fix",
         "test-compile": "npm run clean && tsc -p ./ && npm run compile",
         "pretest": "npm run test-compile",
         "test": "node ./out/test/runTest.js",
-        "package": "vsce package -o extension.vsix"
+        "package": "vsce package"
     },
     "devDependencies": {
         "@types/glob": "^7.1.1",
         "@types/mocha": "^5.2.6",
-        "@types/node": "^12.12.15",
-        "@types/vscode": "^1.40.0",
+        "@types/node": "^12.12.24",
+        "@types/vscode": "^1.41.0",
         "glob": "^7.1.6",
-        "mocha": "^6.2.2",
+        "mocha": "^7.0.0",
         "prettier": "^1.19.1",
         "rimraf": "^3.0.0",
         "ts-loader": "^6.2.1",
         "tslint": "^5.20.1",
         "tslint-config-prettier": "^1.18.0",
-        "tslint-plugin-prettier": "^2.0.1",
-        "typescript": "^3.7.3",
+        "tslint-plugin-prettier": "^2.1.0",
+        "typescript": "^3.7.4",
         "vsce": "^1.71.0",
-        "vscode-test": "^1.2.3",
-        "webpack": "^4.41.2",
+        "vscode-test": "^1.3.0",
+        "webpack": "^4.41.5",
         "webpack-cli": "^3.3.10"
     },
     "prettier": {
