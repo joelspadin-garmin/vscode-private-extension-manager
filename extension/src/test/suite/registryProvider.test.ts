@@ -239,7 +239,7 @@ const USER_REGISTRY_CONFIG_CHNL = {
         },
     ],
     channels: {
-        test: 'insiders',
+        'test.test': 'insiders',
     },
 };
 

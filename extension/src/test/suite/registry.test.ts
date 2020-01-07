@@ -158,13 +158,13 @@ suite('Registry Package Search', function() {
             registry: REGISTRY_URL,
         });
 
-        const latest = new Package(registry, await registry.getPackageVersionMetadata('baz', 'latest'));
+        const latest = await registry.getPackageVersionMetadata('baz', 'latest');
         assert.deepInclude(latest, EXPECT.baz);
 
-        const versionOne = new Package(registry, await registry.getPackageVersionMetadata('baz', '1.0.0'));
+        const versionOne = await registry.getPackageVersionMetadata('baz', '1.0.0');
         assert.deepInclude(versionOne, EXPECT.baz_old);
 
-        const versionTwo = new Package(registry, await registry.getPackageVersionMetadata('baz', '2.0.0'));
+        const versionTwo = await registry.getPackageVersionMetadata('baz', '2.0.0');
         assert.deepInclude(versionTwo, EXPECT.baz);
     });
 });

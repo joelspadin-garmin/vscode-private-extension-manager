@@ -1,7 +1,6 @@
 import * as npa from 'npm-package-arg';
 import * as nls from 'vscode-nls';
 
-import { Package } from './Package';
 import { Registry, VersionInfo } from './Registry';
 import { RegistryProvider } from './RegistryProvider';
 
@@ -77,8 +76,8 @@ async function _findVersions(registries: readonly Registry[], name: string) {
 
 async function tryGetPackage(registry: Registry, name: string, version: string) {
     try {
-        const manifest = await registry.getPackageVersionMetadata(name, version);
-        return new Package(registry, manifest);
+        const pkg = await registry.getPackageVersionMetadata(name, version);
+        return pkg;
     } catch (ex) {
         if (ex.statusCode === 404) {
             // Ignore 404 errors. The registry does not have the package.

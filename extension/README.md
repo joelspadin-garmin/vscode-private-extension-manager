@@ -162,12 +162,12 @@ extension updates are available.
 To specify a channel to track for an extension, add it to the `privateExtensions.channels` settings object as shown in the example below:
 ```
 "privateExtensions.channels" :{
-    "extensionOne": "insiders",     // Tracks the 'insiders' dist-tag
-    "extensionTwo": "beta",         // Tracks the 'beta' dist-tag
-    "extensionThree": "1.0.0"       // Pins the extension to version 1.0.0
+    "publisherOne.extensionOne": "insiders",     // Tracks the 'insiders' dist-tag
+    "publisherTwo.extensionOne": "beta",         // Tracks the 'beta' dist-tag
+    "publisherOne.extensionTwo": "1.0.0"       // Pins the extension to version 1.0.0
 }
 ```
-Note that the key is the extension's npm package ID and the value is the desired channel.
+Note that the key is the extension's npm package ID (`publisherName.packageID`) and the value is the desired channel.
 
 *Publishing to a Channel*<br>
 To publish an extension to a channel, simply specify the channel name using

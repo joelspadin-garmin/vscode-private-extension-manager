@@ -8,11 +8,14 @@ import * as pacote from 'pacote';
 import * as path from 'path';
 import sanitize = require('sanitize-filename');
 import { SemVer } from 'semver';
-import { CancellationToken, Uri } from 'vscode';
+import { CancellationToken, Uri, window } from 'vscode';
+import * as nls from 'vscode-nls';
 
 import { NotAnExtensionError, Package } from './Package';
 import { assertType, options } from './typeUtil';
 import { getConfig, getNpmCacheDir, getNpmDownloadDir, uriEquals } from './util';
+
+const localize = nls.loadMessageBundle();
 
 /** Maximum number of search results per request. */
 const QUERY_LIMIT = 100;
@@ -22,6 +25,15 @@ export enum RegistrySource {
     User = 'user',
     /** Registry is defined by a workspace folder's extensions.private.json. */
     Workspace = 'workspace',
+}
+
+/**
+ * Error thrown when trying to get a version of a package that does not exist.
+ */
+export class VersionMissingError extends Error {
+    constructor(public pkg: string, public version: string) {
+        super(localize('version.missing', 'Couldn\'t find version "{0}" for package "{1}".', version, pkg));
+    }
 }
 
 export interface RegistryOptions {
@@ -145,7 +157,6 @@ export class Registry {
      */
     public async getPackages(token?: CancellationToken): Promise<Package[]> {
         const packages: Package[] = [];
-        const config = getConfig();
 
         for await (const result of this.findMatchingPackages(this.query, token)) {
             if (token?.isCancellationRequested) {
@@ -153,21 +164,25 @@ export class Registry {
             }
 
             try {
-                let channel = config.get<any>('channels')?.[result.name] ?? 'latest';
-
-                // Ensure requested channel is valid, otherwise fallback to latest
-                if (channel !== 'latest') {
-                    let meta: any = await this.getPackageMetadata(result.name);
-                    if (!(channel in meta['dist-tags']) && !(channel in meta['versions'])) {
-                        channel = 'latest';
-                    }
-                }
-
-                const manifest = await this.getPackageVersionMetadata(result.name, channel);
-                packages.push(new Package(this, manifest, channel));
+                const pkg = await this.getPackageVersionMetadata(result.name);
+                packages.push(pkg);
             } catch (ex) {
                 if (ex instanceof NotAnExtensionError) {
                     // Package is not an extension. Ignore.
+                } else if (ex instanceof VersionMissingError) {
+                    // Requested package version does not exist
+                    const openSettingsJson = localize('open.settings.json', 'Open settings.json');
+                    const settingsJsonLink = `[${openSettingsJson}](command:workbench.action.openSettingsJson)`;
+
+                    // TODO: Add a quick link to reset to 'latest' via command
+                    window.showErrorMessage(
+                        localize(
+                            'invalid.channel',
+                            '{0} Your "privateExtensions.channels" setting may be invalid.  {1} to fix.',
+                            ex.message,
+                            settingsJsonLink,
+                        ),
+                    );
                 } else {
                     console.warn(`Discarding package ${result.name}:`, ex);
                 }
@@ -207,18 +222,26 @@ export class Registry {
     /**
      * Gets the version-specific metadata for a specific version of a package.
      *
-     * If `version` is omitted or `"latest"`, this returns the latest version.
+     * If `version` is the name of a release channel, this gets the latest version in that channel.
+     * If `version` is omitted, this gets the latest version for the user's selected channel.
+     * @throws VersionMissingError if the given version does not exist.
      */
-    public async getPackageVersionMetadata(name: string, version: string = 'latest') {
+    public async getPackageVersionMetadata(name: string, version?: string) {
         const metadata = await this.getPackageMetadata(name);
 
         assertType(metadata, PackageVersionData, `In package "${name}"`);
 
-        if (version in metadata['dist-tags']) {
-            version = metadata['dist-tags'][version];
+        if (version === undefined) {
+            const latest = lookupVersion(metadata, name, 'latest');
+            if (typeof latest.publisher === 'string') {
+                version = getReleaseChannel(latest.publisher, name);
+            } else {
+                version = 'latest';
+            }
         }
 
-        return metadata.versions[version];
+        const manifest = lookupVersion(metadata, name, version);
+        return new Package(this, manifest, version);
     }
 
     private async *findMatchingPackages(query: string | readonly string[], token?: CancellationToken) {
@@ -262,4 +285,30 @@ function queryEquals(a: string | readonly string[], b: string | readonly string[
 function getVersionTimestamp(meta: PackageVersionData, key: string) {
     const time = meta.time?.[key];
     return time ? new Date(time) : undefined;
+}
+
+/**
+    Finds the version-specific metadata for a package given a version
+    or dist-tag.
+*/
+function lookupVersion(metadata: PackageVersionData, name: string, versionOrTag: string) {
+    if (versionOrTag in metadata['dist-tags']) {
+        versionOrTag = metadata['dist-tags'][versionOrTag];
+    }
+
+    const result = metadata.versions[versionOrTag];
+    if (result === undefined) {
+        throw new VersionMissingError(name, versionOrTag);
+    }
+
+    return result;
+}
+
+/**
+ * Gets the user's selected release channel for an extension, or 'latest'.
+ */
+function getReleaseChannel(publisher: string, name: string) {
+    const id = `${publisher}.${name}`.toLowerCase();
+
+    return getConfig().get<Record<string, string>>('channels')?.[id] ?? 'latest';
 }
