@@ -254,7 +254,6 @@
         }
     },
     "scripts": {
-        "prepublishOnly": "npm run package",
         "vscode:prepublish": "webpack --mode production",
         "clean": "rimraf ./dist ./out",
         "compile": "webpack --mode development",
@@ -264,7 +263,7 @@
         "test-compile": "npm run clean && tsc -p ./ && npm run compile",
         "pretest": "npm run test-compile",
         "test": "node ./out/test/runTest.js",
-        "package": "vsce package -o extension.vsix"
+        "package": "vsce package"
     },
     "devDependencies": {
         "@types/cacache": "^12.0.1",
