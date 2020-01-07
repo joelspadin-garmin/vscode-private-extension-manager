@@ -114,10 +114,6 @@ The file has the following structure:
         {
             "name": "My Private Registry",
             "registry": "https://my-private.registry",
-            "channels": {
-                "extension1": "latest",
-                "extension2": "insiders"
-            }
         }
     ],
     "recommendations": [
@@ -136,13 +132,6 @@ extensions. Each item supports the following fields:
     This is either an array of search terms or a string with space-delimited terms.
     For example, `"keywords:group1 keywords:group2"` would display only packages
     that have the either of the keywords `group1` or `group2`.
-* **channels**: (Optional) An object describing which channels should be subscribed to for extensions in the repository.
-    The key is the extension ID and the value is the desired channel.  To publish an extension to a channel, simply specify the channel name using
-    [npm dist-tags](https://docs.npmjs.com/cli/dist-tag) when publishing.  By default, all packages will reference the `latest` tag.
-    ```
-    npm publish . --tag=insiders
-    ```
-    When publishing pre-release versions, it is also reccomended to use pre-release sematic-versioning, such as 1.0.0-beta.0.
 * Any options supported by [npm-registry-fetch](https://github.com/npm/npm-registry-fetch#-fetch-options).
     Use these if you need to set authentication, a proxy, or other options.
 
@@ -163,6 +152,30 @@ as the `registries` array in `extensions.private.json`.
 
 You can use the **Private Extensions: Add Registry...** and
 **Private Extensions: Remove Registry** commands to quickly edit this setting.
+
+#### Custom Channels
+It is possible to create tracking channels by using npm dist-tags when
+publishing a private extension. The tracked channel is used to determine when
+extension updates are available.
+
+*Tracking a Channel*<br>
+To specify a channel to track for an extension, add it to the `privateExtensions.channels` settings object as shown in the example below:
+```
+"privateExtensions.channels" :{
+    "extensionOne": "insiders",     // Tracks the 'insiders' dist-tag
+    "extensionTwo": "beta",         // Tracks the 'beta' dist-tag
+    "extensionThree": "1.0.0"       // Pins the extension to version 1.0.0
+}
+```
+Note that the key is the extension's npm package ID and the value is the desired channel.
+
+*Publishing to a Channel*<br>
+To publish an extension to a channel, simply specify the channel name using
+[npm dist-tags](https://docs.npmjs.com/cli/dist-tag) when publishing.  By default, all packages will reference the `latest` tag.
+```
+npm publish . --tag=insiders
+```
+When publishing pre-release versions, it is reccomended to use pre-release sematic-versioning, such as **1.0.0-beta.0**.
 
 ## Remote Development
 

@@ -64,6 +64,11 @@
                     "scope": "machine",
                     "description": "%configuration.registries.description%"
                 },
+                "privateExtensions.channels": {
+                    "type": "object",
+                    "scope": "machine",
+                    "description": "%configuration.channels.description%"
+                },
                 "privateExtensions.updateCheckInterval": {
                     "type": "number",
                     "scope": "machine",

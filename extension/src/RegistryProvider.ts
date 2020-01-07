@@ -18,7 +18,6 @@ const UserRegistry = options(
     },
     {
         registry: t.string,
-        channels: t.object,
     },
 );
 type UserRegistry = t.TypeOf<typeof UserRegistry>;
@@ -192,13 +191,16 @@ export class RegistryProvider implements Disposable {
         const userRegistries = this.getUserRegistryConfig();
 
         for (const item of userRegistries) {
-            const { name, channels, ...options } = item;
-            this.userRegistries.push(new Registry(name, RegistrySource.User, channels, options));
+            const { name, ...options } = item;
+            this.userRegistries.push(new Registry(name, RegistrySource.User, options));
         }
     }
 
     private onDidChangeConfiguration(e: vscode.ConfigurationChangeEvent) {
-        if (e.affectsConfiguration('privateExtensions.registries')) {
+        if (
+            e.affectsConfiguration('privateExtensions.registries') ||
+            e.affectsConfiguration('privateExtensions.channels')
+        ) {
             this.isStale = true;
             this._onDidChangeRegistries.fire();
         }
@@ -329,8 +331,8 @@ class FolderRegistryProvider implements Disposable {
 
         if (config.registries) {
             for (const registry of config.registries) {
-                const { name, channels, ...options } = registry;
-                this.registries.push(new Registry(name, RegistrySource.Workspace, channels, options));
+                const { name, ...options } = registry;
+                this.registries.push(new Registry(name, RegistrySource.Workspace, options));
             }
         }
 

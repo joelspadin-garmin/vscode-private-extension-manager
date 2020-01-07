@@ -12,7 +12,7 @@ import { CancellationToken, Uri } from 'vscode';
 
 import { NotAnExtensionError, Package } from './Package';
 import { assertType, options } from './typeUtil';
-import { getNpmCacheDir, getNpmDownloadDir, uriEquals } from './util';
+import { getConfig, getNpmCacheDir, getNpmDownloadDir, uriEquals } from './util';
 
 /** Maximum number of search results per request. */
 const QUERY_LIMIT = 100;
@@ -82,7 +82,6 @@ export class Registry {
     constructor(
         public readonly name: string,
         public readonly source: RegistrySource,
-        public readonly channels: any,
         options: Partial<RegistryOptions & Options>,
     ) {
         const { query, ...searchOpts } = options;
@@ -91,7 +90,6 @@ export class Registry {
         // leave the search text blank, it will return nothing.
         this.query = query ?? '*';
         this.options = searchOpts;
-        this.channels = channels;
 
         this.options.cache = getNpmCacheDir();
     }
@@ -147,6 +145,7 @@ export class Registry {
      */
     public async getPackages(token?: CancellationToken): Promise<Package[]> {
         const packages: Package[] = [];
+        const config = getConfig();
 
         for await (const result of this.findMatchingPackages(this.query, token)) {
             if (token?.isCancellationRequested) {
@@ -154,10 +153,16 @@ export class Registry {
             }
 
             try {
-                let channel = 'latest';
-                if (this.channels && this.channels[result.name]) {
-                    channel = this.channels[result.name];
+                let channel = config.get<any>('channels')?.[result.name] ?? 'latest';
+
+                // Ensure requested channel is valid, otherwise fallback to latest
+                if (channel !== 'latest') {
+                    let meta: any = await this.getPackageMetadata(result.name);
+                    if (!(channel in meta['dist-tags']) && !(channel in meta['versions'])) {
+                        channel = 'latest';
+                    }
                 }
+
                 const manifest = await this.getPackageVersionMetadata(result.name, channel);
                 packages.push(new Package(this, manifest, channel));
             } catch (ex) {
