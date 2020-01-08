@@ -17,6 +17,11 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+
+    - name: Start xvfb
+      if: startsWith(matrix.os, 'ubuntu')
+      run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+
     - name: npm install and test
       working-directory: ./remote-helper
       run: |
@@ -25,3 +30,5 @@ jobs:
         npm test
       env:
         CI: true
+        CODE_VERSION: ''
+        DISPLAY: ':99.0'
