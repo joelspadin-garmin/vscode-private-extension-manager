@@ -260,7 +260,7 @@
         "watch": "webpack --mode development --watch --info-verbosity verbose",
         "lint": "tslint -p ./",
         "fix-lint": "tslint -p ./ --fix",
-        "test-compile": "npm run clean && tsc -p ./ && npm run compile",
+        "test-compile": "tsc -p ./",
         "pretest": "npm run test-compile",
         "test": "node ./out/test/runTest.js",
         "package": "vsce package"
