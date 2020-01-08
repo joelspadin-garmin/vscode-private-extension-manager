@@ -14,7 +14,7 @@ async function main() {
         const extensionTestsPath = path.resolve(__dirname, './suite/index');
 
         const launchArgs = [
-            path.resolve(__dirname, '../test-fixtures/fixture1'),
+            path.resolve(__dirname, '../../src/test-fixtures/fixture1'),
             '--disable-extensions', // Don't run any other extensions.
         ];
 
