@@ -197,7 +197,10 @@ export class RegistryProvider implements Disposable {
     }
 
     private onDidChangeConfiguration(e: vscode.ConfigurationChangeEvent) {
-        if (e.affectsConfiguration('privateExtensions.registries')) {
+        if (
+            e.affectsConfiguration('privateExtensions.registries') ||
+            e.affectsConfiguration('privateExtensions.channels')
+        ) {
             this.isStale = true;
             this._onDidChangeRegistries.fire();
         }

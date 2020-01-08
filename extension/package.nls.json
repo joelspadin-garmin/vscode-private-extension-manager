@@ -1,6 +1,7 @@
 {
     "configuration.title": "Private Extensions",
     "configuration.registries.description": "NPM registries containing private extensions. Same format as \"registries\" in extensions.private.json.",
+    "configuration.channels.description": "Channels to track for each extension. Keys are the extension package name and values are the target channel. By default extensions track the 'latest' channel.",
     "configuration.updateCheckInterval.description": "Number of seconds between checks for updates to private extensions. Set to 0 to disable automatic update checks.",
     "command.category": "Private Extensions",
     "command.checkForUpdates.title": "Check for Extension Updates",

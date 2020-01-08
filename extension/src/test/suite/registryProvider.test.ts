@@ -4,6 +4,7 @@ import * as chaiSubsetInOrder from 'chai-subset-in-order';
 import * as search from 'libnpmsearch';
 import { after, afterEach, before, beforeEach } from 'mocha';
 import * as nock from 'nock';
+import { SemVer } from 'semver';
 import * as sinon from 'sinon';
 import * as vscode from 'vscode';
 import * as nls from 'vscode-nls';
@@ -113,6 +114,24 @@ suite('Registry Provider', function() {
         assert.lengthOf(packages, expected.length);
     });
 
+    test('Tracking custom channel', async function() {
+        stubGlobalConfiguration('privateExtensions', USER_REGISTRY_CONFIG_CHANNEL);
+
+        const provider = new RegistryProvider();
+        const packages = await provider.getUniquePackages();
+        packages.sort(Package.compare);
+
+        const expected = [
+            EXPECT_PACKAGE.recommended1,
+            EXPECT_PACKAGE.recommended2,
+            EXPECT_PACKAGE.test_insiders,
+            EXPECT_PACKAGE.user,
+        ];
+
+        assert.containSubset(packages, expected);
+        assert.lengthOf(packages, expected.length);
+    });
+
     test('Invalid user config: wrong type', async function() {
         stubGlobalConfiguration('privateExtensions', {
             registries: 42,
@@ -212,6 +231,18 @@ const USER_REGISTRY_CONFIG = {
     ],
 };
 
+const USER_REGISTRY_CONFIG_CHANNEL = {
+    registries: [
+        {
+            name: 'User Registry',
+            registry: USER_REGISTRY_URL,
+        },
+    ],
+    channels: {
+        'test.test': 'insiders',
+    },
+};
+
 const WORKSPACE_SEARCH: Record<string, search.Result> = {
     test: {
         name: 'test',
@@ -242,7 +273,7 @@ const USER_SEARCH: Record<string, search.Result> = {
 const WORKSPACE_PACKAGE: Record<string, PackageMetadata> = {
     test: {
         name: 'test',
-        'dist-tags': { latest: '1.0.0' },
+        'dist-tags': { latest: '1.0.0', insiders: '2.0.0-beta.0' },
         versions: {
             '1.0.0': {
                 publisher: 'Test',
@@ -252,6 +283,17 @@ const WORKSPACE_PACKAGE: Record<string, PackageMetadata> = {
                 dist: {
                     shasum: 'TODO',
                     tarball: WORKSPACE_REGISTRY_URL + 'test/-/test-1.0.0.tgz',
+                },
+                files: ['extension.vsix'],
+            },
+            '2.0.0-beta.0': {
+                publisher: 'Test',
+                name: 'test',
+                version: '2.0.0-beta.0',
+                engines: { vscode: '1.38.0' },
+                dist: {
+                    shasum: 'TODO',
+                    tarball: WORKSPACE_REGISTRY_URL + 'test/-/test-2.0.0-beta.0.tgz',
                 },
                 files: ['extension.vsix'],
             },
@@ -330,6 +372,11 @@ const USER_PACKAGE: Record<string, PackageMetadata> = {
 const EXPECT_PACKAGE: Record<string, Partial<Package>> = {
     test: {
         extensionId: 'test.test',
+        version: new SemVer('1.0.0'),
+    },
+    test_insiders: {
+        extensionId: 'test.test',
+        version: new SemVer('2.0.0-beta.0'),
     },
     recommended1: {
         extensionId: 'test.recommended1',

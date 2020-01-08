@@ -113,7 +113,7 @@ The file has the following structure:
     "registries": [
         {
             "name": "My Private Registry",
-            "registry": "https://my-private.registry"
+            "registry": "https://my-private.registry",
         }
     ],
     "recommendations": [
@@ -152,6 +152,30 @@ as the `registries` array in `extensions.private.json`.
 
 You can use the **Private Extensions: Add Registry...** and
 **Private Extensions: Remove Registry** commands to quickly edit this setting.
+
+#### Custom Channels
+It is possible to create tracking channels by using npm dist-tags when
+publishing a private extension. The tracked channel is used to determine when
+extension updates are available.
+
+*Tracking a Channel*<br>
+To specify a channel to track for an extension, add it to the `privateExtensions.channels` settings object as shown in the example below:
+```
+"privateExtensions.channels" :{
+    "publisherOne.extensionOne": "insiders",     // Tracks the 'insiders' dist-tag
+    "publisherTwo.extensionOne": "beta",         // Tracks the 'beta' dist-tag
+    "publisherOne.extensionTwo": "1.0.0"       // Pins the extension to version 1.0.0
+}
+```
+Note that the key is the extension identifier (given as '${publisher}.${name}') and the value is the desired channel.
+
+*Publishing to a Channel*<br>
+To publish an extension to a channel, simply specify the channel name using
+[npm dist-tags](https://docs.npmjs.com/cli/dist-tag) when publishing.  By default, all packages will reference the `latest` tag.
+```
+npm publish . --tag=insiders
+```
+When publishing pre-release versions, it is reccomended to use pre-release sematic-versioning, such as **1.0.0-beta.0**.
 
 ## Remote Development
 
