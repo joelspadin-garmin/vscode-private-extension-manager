@@ -1,12 +1,6 @@
 name: Node CI (remote-helper)
 
-on:
-  push:
-    paths:
-    - 'remote-helper/**'
-  pull_request:
-    paths:
-    - 'remote-helper/**'
+on: [push, pull_request]
 
 jobs:
   build:
@@ -24,8 +18,8 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - name: npm install and test
+      working-directory: ./remote-helper
       run: |
-        cd remote-helper
         npm ci
         npm run lint
         npm test
