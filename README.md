@@ -1,5 +1,9 @@
 # Private Extension Manager for Visual Studio Code
 
+![build status: extension](https://github.com/joelspadin-garmin/vscode-private-extension-manager/workflows/Node%20CI%20(extension)/badge.svg)
+![build status: remote-helper](https://github.com/joelspadin-garmin/vscode-private-extension-manager/workflows/Node%20CI%20(remote-helper)/badge.svg)
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
+
 Private Extension Manager is a Visual Studio Code extension that lets you find,
 install, and update extensions from any NPM registry. This lets you distribute
 organization-specific extensions using a private registry server such as
