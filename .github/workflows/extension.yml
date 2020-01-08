@@ -1,6 +1,12 @@
-name: Node CI
+name: Node CI (extension)
 
-on: [push, pull_request]
+on:
+  push:
+    paths:
+    - 'extension/**'
+  pull_request:
+    paths:
+    - 'extension/**'
 
 jobs:
   build:
@@ -19,6 +25,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: npm install and test
       run: |
+        cd extension
         npm ci
         npm run lint
         npm test
