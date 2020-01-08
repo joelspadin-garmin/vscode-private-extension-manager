@@ -167,7 +167,7 @@ To specify a channel to track for an extension, add it to the `privateExtensions
     "publisherOne.extensionTwo": "1.0.0"       // Pins the extension to version 1.0.0
 }
 ```
-Note that the key is the extension's npm package ID (`publisherName.packageID`) and the value is the desired channel.
+Note that the key is the extension identifier (given as '${publisher}.${name}') and the value is the desired channel.
 
 *Publishing to a Channel*<br>
 To publish an extension to a channel, simply specify the channel name using

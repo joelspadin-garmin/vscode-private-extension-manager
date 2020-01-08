@@ -115,7 +115,7 @@ suite('Registry Provider', function() {
     });
 
     test('Tracking custom channel', async function() {
-        stubGlobalConfiguration('privateExtensions', USER_REGISTRY_CONFIG_CHNL);
+        stubGlobalConfiguration('privateExtensions', USER_REGISTRY_CONFIG_CHANNEL);
 
         const provider = new RegistryProvider();
         const packages = await provider.getUniquePackages();
@@ -231,7 +231,7 @@ const USER_REGISTRY_CONFIG = {
     ],
 };
 
-const USER_REGISTRY_CONFIG_CHNL = {
+const USER_REGISTRY_CONFIG_CHANNEL = {
     registries: [
         {
             name: 'User Registry',

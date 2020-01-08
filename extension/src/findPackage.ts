@@ -76,8 +76,7 @@ async function _findVersions(registries: readonly Registry[], name: string) {
 
 async function tryGetPackage(registry: Registry, name: string, version: string) {
     try {
-        const pkg = await registry.getPackageVersionMetadata(name, version);
-        return pkg;
+        return await registry.getPackage(name, version);
     } catch (ex) {
         if (ex.statusCode === 404) {
             // Ignore 404 errors. The registry does not have the package.

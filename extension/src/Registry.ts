@@ -164,8 +164,7 @@ export class Registry {
             }
 
             try {
-                const pkg = await this.getPackageVersionMetadata(result.name);
-                packages.push(pkg);
+                packages.push(await this.getPackage(result.name));
             } catch (ex) {
                 if (ex instanceof NotAnExtensionError) {
                     // Package is not an extension. Ignore.
@@ -178,7 +177,7 @@ export class Registry {
                     window.showErrorMessage(
                         localize(
                             'invalid.channel',
-                            '{0} Your "privateExtensions.channels" setting may be invalid.  {1} to fix.',
+                            '{0} Your "privateExtensions.channels" setting may be invalid. {1} to fix.',
                             ex.message,
                             settingsJsonLink,
                         ),
@@ -226,11 +225,14 @@ export class Registry {
      * If `version` is omitted, this gets the latest version for the user's selected channel.
      * @throws VersionMissingError if the given version does not exist.
      */
-    public async getPackageVersionMetadata(name: string, version?: string) {
+    public async getPackage(name: string, version?: string) {
         const metadata = await this.getPackageMetadata(name);
 
         assertType(metadata, PackageVersionData, `In package "${name}"`);
 
+        // Publisher is only available in the version-specific metadata
+        // Try to get publisher from latest release and use that to
+        // check for user-specified tracking channel.
         if (version === undefined) {
             const latest = lookupVersion(metadata, name, 'latest');
             if (typeof latest.publisher === 'string') {

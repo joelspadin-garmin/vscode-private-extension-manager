@@ -105,6 +105,7 @@ export class Package {
     /**
      * @param registry The `Registry` that contains the package.
      * @param manifest The version-specific package manifest for the extension.
+     * @param channel The NPM dist-tag this package is tracking, or a specific version it is pinned to.
      * @throws {NotAnExtensionError} `manifest` is not a Visual Studio Code extension.
      */
     constructor(registry: Registry, manifest: Record<string, unknown>, channel: string = 'latest') {
