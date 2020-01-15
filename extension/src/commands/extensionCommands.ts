@@ -153,6 +153,9 @@ export class InstallAnotherVersionCommand implements Command {
     private async getQuickPickItems(latest: Package) {
         const versions = await getPackageVersions(this.registryProvider, latest.extensionId);
 
+        // Sort newer versions to the top
+        versions.sort((a, b) => semver.rcompare(a.version, b.version));
+
         return versions.map(version => {
             const relativeTime = version.time ? getRelativeDateLabel(version.time) : '';
 
