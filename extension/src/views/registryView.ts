@@ -1,11 +1,10 @@
 import * as vscode from 'vscode';
-import { Disposable, Event, EventEmitter, TreeDataProvider, TreeItem, Uri } from 'vscode';
+import { Disposable, Event, EventEmitter, TreeDataProvider, TreeItem } from 'vscode';
 import * as nls from 'vscode-nls';
 
 import { Package, PackageState } from '../Package';
 import { Registry } from '../Registry';
 import { RegistryProvider } from '../RegistryProvider';
-import { getExtensionFileUri } from '../util';
 
 import { ExtensionDetailsView } from './extensionDetailsView';
 
@@ -18,26 +17,14 @@ const NO_EXTENSIONS_MESSAGE = localize('no.extensions.found', 'No extensions fou
 // the tree data providers to make it easier to check for updates without
 // needing panel view code?
 
-type Icon = string | Uri | { light: string | Uri; dark: string | Uri };
+type Icon = TreeItem['iconPath'];
 
 const EXTENSION_ICONS: Record<PackageState, Icon> = {
-    [PackageState.Available]: 'blank.svg',
-    [PackageState.Installed]: {
-        light: 'media/light/check.svg',
-        dark: 'media/dark/check.svg',
-    },
-    [PackageState.InstalledRemote]: {
-        light: 'media/light/remote.svg',
-        dark: 'media/dark/remote.svg',
-    },
-    [PackageState.Invalid]: {
-        light: 'media/light/warning.svg',
-        dark: 'media/dark/warning.svg',
-    },
-    [PackageState.UpdateAvailable]: {
-        light: 'media/light/info.svg',
-        dark: 'media/dark/info.svg',
-    },
+    [PackageState.Available]: undefined,
+    [PackageState.Installed]: new vscode.ThemeIcon('check'),
+    [PackageState.InstalledRemote]: new vscode.ThemeIcon('remote'),
+    [PackageState.Invalid]: new vscode.ThemeIcon('warning'),
+    [PackageState.UpdateAvailable]: new vscode.ThemeIcon('arrow-down'),
 };
 
 /**
@@ -296,7 +283,7 @@ class ExtensionItem extends BaseItem {
     }
 
     get iconPath() {
-        return relativeIcon(EXTENSION_ICONS[this.pkg.state]);
+        return EXTENSION_ICONS[this.pkg.state];
     }
 
     get tooltip() {
@@ -320,23 +307,4 @@ function elementToNode(element: Element): BaseItem {
     }
 
     throw new Error('Unexpected object: ' + element);
-}
-
-function relativeIcon(icon: Icon): Icon {
-    if (typeof icon === 'string' || icon instanceof Uri) {
-        return ensureUri(icon);
-    } else {
-        return {
-            light: ensureUri(icon.light),
-            dark: ensureUri(icon.dark),
-        };
-    }
-}
-
-function ensureUri(path: string | Uri): Uri {
-    if (path instanceof Uri) {
-        return path;
-    } else {
-        return getExtensionFileUri(path);
-    }
 }

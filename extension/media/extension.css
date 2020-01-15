@@ -89,3 +89,9 @@ body {
 .extension-editor > .body > .navbar > .monaco-action-bar > .actions-container > .action-item > .action-label:hover {
     color: var(--vscode-foreground);
 }
+
+.body > .content > .page {
+    padding: 10px 20px;
+    max-width: 780px;
+    margin: 0 auto;
+}

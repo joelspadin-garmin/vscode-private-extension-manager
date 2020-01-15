@@ -87,28 +87,19 @@
                 "command": "privateExtensions.configureWorkspaceRegistries",
                 "title": "%command.configureWorkspaceRegistries.title%",
                 "category": "%command.category%",
-                "icon": {
-                    "light": "media/light/edit.svg",
-                    "dark": "media/dark/edit.svg"
-                }
+                "icon": "$(edit)"
             },
             {
                 "command": "privateExtensions.configureRecommendedExtensions",
                 "title": "%command.configureRecommendedExtensions.title%",
                 "category": "%command.category%",
-                "icon": {
-                    "light": "media/light/edit.svg",
-                    "dark": "media/dark/edit.svg"
-                }
+                "icon": "$(edit)"
             },
             {
                 "command": "privateExtensions.refresh",
                 "title": "%command.refresh.title%",
                 "category": "%command.category%",
-                "icon": {
-                    "light": "media/light/refresh.svg",
-                    "dark": "media/dark/refresh.svg"
-                }
+                "icon": "$(refresh)"
             },
             {
                 "command": "privateExtensions.extension.install",
@@ -138,10 +129,7 @@
                 "command": "privateExtensions.registry.add",
                 "title": "%command.registry.add.title%",
                 "category": "%command.category%",
-                "icon": {
-                    "light": "media/light/new-folder.svg",
-                    "dark": "media/dark/new-folder.svg"
-                }
+                "icon": "$(new-folder)"
             },
             {
                 "command": "privateExtensions.registry.remove",
