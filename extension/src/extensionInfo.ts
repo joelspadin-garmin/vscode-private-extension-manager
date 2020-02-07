@@ -90,7 +90,7 @@ export async function getExtension(extensionId: string): Promise<ExtensionInfo |
     // We store undefined in the cache for an extension that is not installed,
     // so check for the presence of the key to differentiate between not
     // installed and no data cached for the extension.
-    if (extensionCache.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(extensionCache, key)) {
         return extensionCache[key];
     }
 
@@ -169,7 +169,7 @@ function onOtherExtensionsChanged() {
  */
 function clearCacheIf(predicate: (extension: ExtensionInfo | undefined) => boolean) {
     for (const key in extensionCache) {
-        if (extensionCache.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(extensionCache, key)) {
             if (predicate(extensionCache[key])) {
                 delete extensionCache[key];
             }

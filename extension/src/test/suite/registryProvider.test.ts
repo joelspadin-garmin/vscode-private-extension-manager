@@ -1,11 +1,11 @@
 import { assert, use } from 'chai';
-import * as chaiSubset from 'chai-subset';
+import chaiSubset = require('chai-subset');
 import * as chaiSubsetInOrder from 'chai-subset-in-order';
 import * as search from 'libnpmsearch';
 import { after, afterEach, before, beforeEach } from 'mocha';
 import * as nock from 'nock';
 import { SemVer } from 'semver';
-import * as sinon from 'sinon';
+import sinon = require('sinon');
 import * as vscode from 'vscode';
 import * as nls from 'vscode-nls';
 
@@ -124,7 +124,7 @@ suite('Registry Provider', function() {
         const expected = [
             EXPECT_PACKAGE.recommended1,
             EXPECT_PACKAGE.recommended2,
-            EXPECT_PACKAGE.test_insiders,
+            EXPECT_PACKAGE.testInsiders,
             EXPECT_PACKAGE.user,
         ];
 
@@ -374,7 +374,7 @@ const EXPECT_PACKAGE: Record<string, Partial<Package>> = {
         extensionId: 'test.test',
         version: new SemVer('1.0.0'),
     },
-    test_insiders: {
+    testInsiders: {
         extensionId: 'test.test',
         version: new SemVer('2.0.0-beta.0'),
     },

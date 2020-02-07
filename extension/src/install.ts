@@ -184,16 +184,13 @@ async function installExtensionById(registry: Registry | RegistryProvider, exten
  */
 function waitForExtensionChange(timeout: number): Promise<void> {
     return new Promise(resolve => {
-        let handle: NodeJS.Timeout;
-        let event: vscode.Disposable;
-
         function finished() {
             global.clearTimeout(handle);
             event.dispose();
             resolve();
         }
 
-        handle = global.setTimeout(finished, timeout);
-        event = extensionInfo.onDidChange(finished);
+        const handle = global.setTimeout(finished, timeout);
+        const event = extensionInfo.onDidChange(finished);
     });
 }

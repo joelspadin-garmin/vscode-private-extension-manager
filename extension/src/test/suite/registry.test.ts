@@ -1,5 +1,5 @@
 import { assert, use } from 'chai';
-import * as chaiSubset from 'chai-subset';
+import chaiSubset = require('chai-subset');
 import * as search from 'libnpmsearch';
 import { after, before, beforeEach } from 'mocha';
 import * as nock from 'nock';
@@ -162,7 +162,7 @@ suite('Registry Package Search', function() {
         assert.deepInclude(latest, EXPECT.baz);
 
         const versionOne = await registry.getPackage('baz', '1.0.0');
-        assert.deepInclude(versionOne, EXPECT.baz_old);
+        assert.deepInclude(versionOne, EXPECT.bazOld);
 
         const versionTwo = await registry.getPackage('baz', '2.0.0');
         assert.deepInclude(versionTwo, EXPECT.baz);
@@ -334,7 +334,7 @@ const EXPECT: Record<string, Partial<Package>> = {
         description: 'baz package',
         version: new SemVer('2.0.0'),
     },
-    baz_old: {
+    bazOld: {
         name: 'baz',
         displayName: 'baz',
         extensionId: 'test.baz',

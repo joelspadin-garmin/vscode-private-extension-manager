@@ -271,12 +271,12 @@ class FolderRegistryProvider implements Disposable {
             this.handleConfigChange();
         });
 
-        this.configFileWatcher.onDidDelete(uri => {
+        this.configFileWatcher.onDidDelete(() => {
             this.configFile = null;
             this.handleConfigChange();
         });
 
-        this.configFileWatcher.onDidChange(uri => {
+        this.configFileWatcher.onDidChange(() => {
             this.handleConfigChange();
         });
 

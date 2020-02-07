@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 import { afterEach, beforeEach } from 'mocha';
 import { SemVer } from 'semver';
-import * as sinon from 'sinon';
+import sinon = require('sinon');
 import * as vscode from 'vscode';
 import * as nls from 'vscode-nls';
 
@@ -579,8 +579,7 @@ suite('Package', function() {
     test('Invalid manifest: missing name', async function() {
         assert.throws(
             () => {
-                // @ts-ignore No need to use "pkg". Constructing it should throw.
-                const pkg = new Package(getDummyRegistry(), {
+                new Package(getDummyRegistry(), {
                     publisher: 'Test',
                     version: '1.2.3',
                     engines: { vscode: '1.38.0' },
@@ -595,8 +594,7 @@ suite('Package', function() {
     test('Invalid manifest: wrong name type', async function() {
         assert.throws(
             () => {
-                // @ts-ignore No need to use "pkg". Constructing it should throw.
-                const pkg = new Package(getDummyRegistry(), {
+                new Package(getDummyRegistry(), {
                     name: 42,
                     engines: { vscode: '1.38.0' },
                 });
@@ -609,8 +607,7 @@ suite('Package', function() {
     test('Invalid manifest: wrong displayName type', async function() {
         assert.throws(
             () => {
-                // @ts-ignore No need to use "pkg". Constructing it should throw.
-                const pkg = new Package(getDummyRegistry(), {
+                new Package(getDummyRegistry(), {
                     name: 'test-package',
                     displayName: 42,
                     engines: { vscode: '1.38.0' },
@@ -624,8 +621,7 @@ suite('Package', function() {
     test('Invalid manifest: wrong publisher type', async function() {
         assert.throws(
             () => {
-                // @ts-ignore No need to use "pkg". Constructing it should throw.
-                const pkg = new Package(getDummyRegistry(), {
+                new Package(getDummyRegistry(), {
                     name: 'test-package',
                     publisher: 42,
                     engines: { vscode: '1.38.0' },
@@ -639,8 +635,7 @@ suite('Package', function() {
     test('Invalid manifest: wrong files type', async function() {
         assert.throws(
             () => {
-                // @ts-ignore No need to use "pkg". Constructing it should throw.
-                const pkg = new Package(getDummyRegistry(), {
+                new Package(getDummyRegistry(), {
                     name: 'test-package',
                     files: ['foo.bar', 42],
                     engines: { vscode: '1.38.0' },
@@ -654,8 +649,7 @@ suite('Package', function() {
     test('Invalid manifest: missing engines.vscode', async function() {
         assert.throws(
             () => {
-                // @ts-ignore No need to use "pkg". Constructing it should throw.
-                const pkg = new Package(getDummyRegistry(), {
+                new Package(getDummyRegistry(), {
                     name: 'test-package',
                     publisher: 'Test',
                     version: '1.2.3',
@@ -669,8 +663,7 @@ suite('Package', function() {
     test('Invalid manifest: wrong engines.vscode type', async function() {
         assert.throws(
             () => {
-                // @ts-ignore No need to use "pkg". Constructing it should throw.
-                const pkg = new Package(getDummyRegistry(), {
+                new Package(getDummyRegistry(), {
                     name: 'test-package',
                     engines: { vscode: 42 },
                 });

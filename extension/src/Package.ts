@@ -108,7 +108,7 @@ export class Package {
      * @param channel The NPM dist-tag this package is tracking, or a specific version it is pinned to.
      * @throws {NotAnExtensionError} `manifest` is not a Visual Studio Code extension.
      */
-    constructor(registry: Registry, manifest: Record<string, unknown>, channel: string = 'latest') {
+    constructor(registry: Registry, manifest: Record<string, unknown>, channel = 'latest') {
         this.registry = registry;
 
         assertType(manifest, PackageManifest);

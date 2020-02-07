@@ -212,7 +212,7 @@ export class ExtensionDetailsView extends WebView<ExtensionData> {
      * Gets an HTML fragment with a list of actions to place in the action bar.
      */
     private async getActions() {
-        let actions: string[] = [];
+        const actions: string[] = [];
 
         if (this.pkg.isUpdateAvailable) {
             addActionButton(

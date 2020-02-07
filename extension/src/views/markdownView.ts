@@ -10,7 +10,7 @@ export class MarkdownView extends WebView<Uri> {
      * @param uriOrMarkdown The URI of a file to render, or a Markdown string to render.
      */
     public static async render(uriOrMarkdown: Uri | string) {
-        var document: string | vscode.TextDocument;
+        let document: string | vscode.TextDocument;
 
         if (uriOrMarkdown instanceof Uri) {
             document = await vscode.workspace.openTextDocument(uriOrMarkdown);

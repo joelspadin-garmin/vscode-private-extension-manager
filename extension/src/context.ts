@@ -4,4 +4,4 @@ export function setContext(ctx: ExtensionContext) {
     context = ctx;
 }
 
-export var context: ExtensionContext;
+export let context: ExtensionContext;

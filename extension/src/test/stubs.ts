@@ -1,5 +1,5 @@
 import * as path from 'path';
-import * as sinon from 'sinon';
+import sinon = require('sinon');
 import * as vscode from 'vscode';
 
 /**
@@ -140,7 +140,8 @@ class StubConfiguration implements vscode.WorkspaceConfiguration {
     update(
         section: string,
         value: any,
-        _configurationTarget?: boolean | vscode.ConfigurationTarget | undefined,
+        _configurationTarget?: boolean | vscode.ConfigurationTarget,
+        _overrideInLanguage?: boolean
     ): Thenable<void> {
         this.mockData[section] = value;
         return Promise.resolve();

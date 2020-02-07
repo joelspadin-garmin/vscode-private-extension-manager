@@ -60,8 +60,8 @@ export function memoize(target: any, key: string, descriptor: PropertyDescriptor
     const oldFunc = descriptor.value;
     const newFunc = memoizeOne(oldFunc);
 
-    descriptor.value = function() {
-        return newFunc.apply(this, arguments);
+    descriptor.value = function(...args: any[]) {
+        return newFunc.apply(this, ...args);
     };
 }
 

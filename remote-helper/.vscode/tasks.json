@@ -30,13 +30,7 @@
             "label": "lint",
             "type": "npm",
             "script": "lint",
-            "problemMatcher": [
-                {
-                    "base": "$tslint5",
-                    "owner": "typescript",
-                    "fileLocation": ["autoDetect", "${workspaceFolder}"]
-                }
-            ]
+            "problemMatcher": "$eslint-stylish"
         }
     ]
 }
