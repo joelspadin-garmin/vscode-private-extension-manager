@@ -153,29 +153,43 @@ as the `registries` array in `extensions.private.json`.
 You can use the **Private Extensions: Add Registry...** and
 **Private Extensions: Remove Registry** commands to quickly edit this setting.
 
-#### Custom Channels
+### Custom Channels
+
 It is possible to create tracking channels by using npm dist-tags when
 publishing a private extension. The tracked channel is used to determine when
 extension updates are available.
 
-*Tracking a Channel*<br>
-To specify a channel to track for an extension, add it to the `privateExtensions.channels` settings object as shown in the example below:
-```
-"privateExtensions.channels" :{
-    "publisherOne.extensionOne": "insiders",     // Tracks the 'insiders' dist-tag
-    "publisherTwo.extensionOne": "beta",         // Tracks the 'beta' dist-tag
-    "publisherOne.extensionTwo": "1.0.0"       // Pins the extension to version 1.0.0
+#### Tracking a Channel
+
+To specify a channel to track for an extension, add it to the `privateExtensions.channels` settings object. This is a dictionary where each key is an extension identifier
+(`"${publisher}.${name}"`) and each name is the dist-tag to track, as shown in
+the example below:
+
+```JSON
+"privateExtensions.channels": {
+    "garmin.example-1": "insiders", // Tracks the 'insiders' dist-tag
+    "garmin.example-2": "beta",     // Tracks the 'beta' dist-tag
+    "garmin.example-3": "1.0.0"     // Pins the extension to version 1.0.0
 }
 ```
-Note that the key is the extension identifier (given as '${publisher}.${name}') and the value is the desired channel.
 
-*Publishing to a Channel*<br>
+You can also pin an extension to a specific version by listing the version
+instead of a dist-tag. Private Extension Manager will not notify you of updates
+to a pinned extension, so you can use this to temporarily ignore newer versions
+of an extension.
+
+#### Publishing to a Channel
+
 To publish an extension to a channel, simply specify the channel name using
-[npm dist-tags](https://docs.npmjs.com/cli/dist-tag) when publishing.  By default, all packages will reference the `latest` tag.
+[npm dist-tags](https://docs.npmjs.com/cli/dist-tag) when publishing. By default,
+all packages will reference the `latest` tag.
+
 ```
 npm publish . --tag=insiders
 ```
-When publishing pre-release versions, it is reccomended to use pre-release sematic-versioning, such as **1.0.0-beta.0**.
+
+When publishing pre-release versions, it is reccomended to use pre-release
+sematic versioning, such as **1.0.0-beta.0**.
 
 ## Remote Development
 
@@ -189,3 +203,9 @@ extension. If it shows "Install Locally" for a workspace extension or vice versa
 [set the `extensionKind` property](https://code.visualstudio.com/api/advanced-topics/remote-extensions#incorrect-execution-location)
 in your extension's `package.json` to tell both VS Code and Private Extension
 Manager where the extension should be installed.
+
+## Privacy Statement
+
+When communicating with the private extension servers you have configured, the
+extension will not transmit any data beyond what is necessary to establish the
+connection. The extension will not transmit any data back to Garmin.

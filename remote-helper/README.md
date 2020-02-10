@@ -4,3 +4,6 @@
 
 This extension lets [Private Extension Manager](https://marketplace.visualstudio.com/items?itemName=Garmin.private-extension-manager)
 access information about the local machine when working in a remote workspace.
+
+See [Private Extension Manager](https://marketplace.visualstudio.com/items?itemName=Garmin.private-extension-manager)
+for more details.
