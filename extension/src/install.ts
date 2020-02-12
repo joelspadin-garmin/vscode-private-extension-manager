@@ -23,14 +23,20 @@ export async function installExtension(pkg: Package): Promise<Package>;
 /**
  * Installs the extension with the given ID, searching one or more registries
  * @param registry The registry containing the extension package, or a registry provider to search
- * @param extensionId The ID of the extension to install. May optionally contain an version tag
- *      such as "garmin.example-extension@1.0.0" to install a specific version of the extension.
+ * @param extensionId The ID of the extension to install.
+ * @param version Version or dist-tag such as "1.0.0" to find a specific version of the extension.
+ *              If omitted, returns the latest version for the user's selected release channel.
  * @returns the installed package.
  */
-export async function installExtension(registry: Registry | RegistryProvider, extensionId: string): Promise<Package>;
+export async function installExtension(
+    registry: Registry | RegistryProvider,
+    extensionId: string,
+    version?: string,
+): Promise<Package>;
 export async function installExtension(
     pkgOrRegistry: Package | Registry | RegistryProvider,
     extensionId?: string,
+    version?: string,
 ): Promise<Package> {
     if (pkgOrRegistry instanceof Package) {
         await installExtensionByPackage(pkgOrRegistry);
@@ -42,7 +48,7 @@ export async function installExtension(
             throw new TypeError('extensionId must be defined');
         }
 
-        return await installExtensionById(registry, extensionId);
+        return await installExtensionById(registry, extensionId, version);
     }
 }
 
@@ -167,11 +173,12 @@ async function installExtensionByPackage(pkg: Package) {
 /**
  * Installs the extension with the given ID, searching one or more registries
  * @param registry The registry containing the extension package, or a registry provider to search
- * @param extensionId The ID of the extension to install. May optionally contain an version tag
- *      such as "garmin.example-extension@1.0.0" to install a specific version of the extension.
+ * @param extensionId The ID of the extension to install.
+ * @param version Version or dist-tag such as "1.0.0" to find a specific version of the extension.
+ *              If omitted, returns the latest version for the user's selected release channel.
  */
-async function installExtensionById(registry: Registry | RegistryProvider, extensionId: string) {
-    const pkg = await findPackage(registry, extensionId);
+async function installExtensionById(registry: Registry | RegistryProvider, extensionId: string, version?: string) {
+    const pkg = await findPackage(registry, extensionId, version);
 
     await installExtensionByPackage(pkg);
 

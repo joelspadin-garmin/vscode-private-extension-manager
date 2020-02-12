@@ -156,12 +156,18 @@ You can use the **Private Extensions: Add Registry...** and
 ### Custom Channels
 
 It is possible to create tracking channels by using npm dist-tags when
-publishing a private extension. The tracked channel is used to determine when
-extension updates are available.
+publishing a private extension. This lets you publish pre-release or other
+special versions of an extension without updating all users to them. Only users
+who are tracking the specific release channel will get the updates.
 
 #### Tracking a Channel
 
-To specify a channel to track for an extension, add it to the `privateExtensions.channels` settings object. This is a dictionary where each key is an extension identifier
+To switch release channels for an extension, install the extension, then
+right-click it in the extensions list and select **Switch Release Channels...**.
+Alternatively, click the **Channel** button on the extension details page.
+
+You can manually select channels with the `privateExtensions.channels` settings
+object. This is a dictionary where each key is an extension identifier
 (`"${publisher}.${name}"`) and each name is the dist-tag to track, as shown in
 the example below:
 

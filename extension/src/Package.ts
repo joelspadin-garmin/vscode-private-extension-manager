@@ -7,9 +7,10 @@ import * as vscode from 'vscode';
 import * as nls from 'vscode-nls';
 
 import { getExtension } from './extensionInfo';
-import { Registry } from './Registry';
+import { Registry, VersionInfo } from './Registry';
+import { LATEST } from './releaseChannel';
 import { assertType, options } from './typeUtil';
-import { isNonEmptyArray } from './util';
+import { isNonEmptyArray, formatExtensionId } from './util';
 
 const README_GLOB = 'README?(.*)';
 const CHANGELOG_GLOB = 'CHANGELOG?(.*)';
@@ -24,6 +25,8 @@ export enum PackageState {
     Installed = 'installed',
     /** The latest version of the extension is already installed in the remote machine. */
     InstalledRemote = 'installed.remote',
+    /** The latest version of the extension is installed from a pre-release channel. */
+    InstalledPrerelease = 'installed.prerelease',
     /** The extension is installed and a newer version is available. */
     UpdateAvailable = 'update',
     /** The package is not a valid extension. */
@@ -108,7 +111,7 @@ export class Package {
      * @param channel The NPM dist-tag this package is tracking, or a specific version it is pinned to.
      * @throws {NotAnExtensionError} `manifest` is not a Visual Studio Code extension.
      */
-    constructor(registry: Registry, manifest: Record<string, unknown>, channel = 'latest') {
+    constructor(registry: Registry, manifest: Record<string, unknown>, channel = LATEST) {
         this.registry = registry;
 
         assertType(manifest, PackageManifest);
@@ -128,7 +131,7 @@ export class Package {
         // Match that behavior by normalizing everything to lowercase.
         this.isPublisherValid = !!manifest.publisher;
         this.publisher = manifest.publisher ?? localize('publisher.unknown', 'Unknown');
-        this.extensionId = `${this.publisher}.${this.name}`.toLowerCase();
+        this.extensionId = formatExtensionId(this.publisher, this.name);
 
         this.description = manifest.description ?? this.name;
         this.version = parseVersion(manifest.version) ?? new SemVer('0.0.0');
@@ -167,14 +170,20 @@ export class Package {
         if (this.isPublisherValid && this.vsixFile) {
             if (this.isUpdateAvailable) {
                 return PackageState.UpdateAvailable;
-            } else if (this.isInstalled) {
-                return this.isUiExtension ? PackageState.Installed : PackageState.InstalledRemote;
-            } else {
-                return PackageState.Available;
             }
-        } else {
-            return PackageState.Invalid;
+
+            if (this.isInstalled) {
+                if (this.channel !== LATEST) {
+                    return PackageState.InstalledPrerelease;
+                }
+
+                return this.isUiExtension ? PackageState.Installed : PackageState.InstalledRemote;
+            }
+
+            return PackageState.Available;
         }
+
+        return PackageState.Invalid;
     }
 
     /**
@@ -257,6 +266,13 @@ export class Package {
             readme: await findFile(directory, README_GLOB),
             changelog: await findFile(directory, CHANGELOG_GLOB),
         };
+    }
+
+    /**
+     * Gets the release channels available for the package.
+     */
+    public getChannels(): Promise<Record<string, VersionInfo>> {
+        return this.registry.getPackageChannels(this.name);
     }
 }
 

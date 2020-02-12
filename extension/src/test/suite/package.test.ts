@@ -390,6 +390,26 @@ suite('Package', function() {
         });
     });
 
+    test('Available: pre-release', async function() {
+        stubExtension('test.test-package');
+
+        const pkg = new Package(getDummyRegistry(), {
+            name: 'test-package',
+            publisher: 'Test',
+            version: '1.2.3-beta.0',
+            engines: { vscode: '1.38.0' },
+            files: ['extension.vsix'],
+        }, 'insiders');
+
+        await pkg.updateState();
+
+        assert.deepInclude(pkg, {
+            isInstalled: false,
+            installedVersion: null,
+            state: PackageState.Available,
+        });
+    });
+
     test('Installed: no remote', async function() {
         stubExtension('test.test-package', {
             packageJSON: {
@@ -466,6 +486,30 @@ suite('Package', function() {
         });
     });
 
+    test('Installed: pre-release', async function() {
+        stubExtension('test.test-package', {
+            packageJSON: {
+                version: '1.2.3-beta.0',
+            },
+        });
+
+        const pkg = new Package(getDummyRegistry(), {
+            name: 'test-package',
+            publisher: 'Test',
+            version: '1.2.3-beta.0',
+            engines: { vscode: '1.38.0' },
+            files: ['extension.vsix'],
+        }, 'insiders');
+
+        await pkg.updateState();
+
+        assert.deepInclude(pkg, {
+            isInstalled: true,
+            installedVersion: new SemVer('1.2.3-beta.0'),
+            state: PackageState.InstalledPrerelease,
+        });
+    });
+
     test('Update available: no remote', async function() {
         stubExtension('test.test-package', {
             packageJSON: {
@@ -536,6 +580,30 @@ suite('Package', function() {
         assert.deepInclude(pkg, {
             isInstalled: true,
             installedVersion: new SemVer('1.0.0'),
+            state: PackageState.UpdateAvailable,
+        });
+    });
+
+    test('Update available: pre-release', async function() {
+        stubExtension('test.test-package', {
+            packageJSON: {
+                version: '1.0.0-beta.0',
+            },
+        });
+
+        const pkg = new Package(getDummyRegistry(), {
+            name: 'test-package',
+            publisher: 'Test',
+            version: '1.2.3',
+            engines: { vscode: '1.38.0' },
+            files: ['extension.vsix'],
+        }, 'insiders');
+
+        await pkg.updateState();
+
+        assert.deepInclude(pkg, {
+            isInstalled: true,
+            installedVersion: new SemVer('1.0.0-beta.0'),
             state: PackageState.UpdateAvailable,
         });
     });

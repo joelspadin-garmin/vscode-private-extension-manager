@@ -13,6 +13,7 @@
     "command.extension.update.title": "Update",
     "command.extension.install.anotherVersion.title": "Install Another Version...",
     "command.extension.copyInformation.title": "Copy Extension Information",
+    "command.extension.switchChannels.title": "Switch Release Channels...",
     "command.registry.add.title": "Add User Registry...",
     "command.registry.remove.title": "Remove User Registry",
     "viewsContainers.activitybar.privateExtensions.title": "Private Extensions",

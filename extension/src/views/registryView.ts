@@ -23,6 +23,7 @@ const EXTENSION_ICONS: Record<PackageState, Icon> = {
     [PackageState.Available]: undefined,
     [PackageState.Installed]: new vscode.ThemeIcon('check'),
     [PackageState.InstalledRemote]: new vscode.ThemeIcon('remote'),
+    [PackageState.InstalledPrerelease]: new vscode.ThemeIcon('rocket'),
     [PackageState.Invalid]: new vscode.ThemeIcon('warning'),
     [PackageState.UpdateAvailable]: new vscode.ThemeIcon('arrow-down'),
 };

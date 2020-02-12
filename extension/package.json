@@ -122,6 +122,10 @@
                 "title": "%command.extension.install.anotherVersion.title%"
             },
             {
+                "command": "privateExtensions.extension.switchChannels",
+                "title": "%command.extension.switchChannels.title%"
+            },
+            {
                 "command": "privateExtensions.extension.copyInformation",
                 "title": "%command.extension.copyInformation.title%"
             },
@@ -208,6 +212,11 @@
                     "group": "installVersion"
                 },
                 {
+                    "command": "privateExtensions.extension.switchChannels",
+                    "when": "view =~ /^privateExtensions/ && viewItem =~ /installed|update/",
+                    "group": "installVersion"
+                },
+                {
                     "command": "privateExtensions.extension.copyInformation",
                     "when": "view =~ /^privateExtensions/ && viewItem =~ /extension/",
                     "group": "other"
@@ -237,6 +246,10 @@
                 },
                 {
                     "command": "privateExtensions.extension.install.anotherVersion",
+                    "when": "false"
+                },
+                {
+                    "command": "privateExtensions.extension.switchChannels",
                     "when": "false"
                 },
                 {

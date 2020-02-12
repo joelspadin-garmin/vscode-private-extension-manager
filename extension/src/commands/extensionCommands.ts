@@ -4,10 +4,11 @@ import * as nls from 'vscode-nls';
 
 import { Command } from '../commandManager';
 import { getExtension } from '../extensionInfo';
-import { findPackage, getPackageVersions } from '../findPackage';
+import { findPackage, getPackageChannels, getPackageVersions } from '../findPackage';
 import * as install from '../install';
 import { Package } from '../Package';
 import { RegistryProvider } from '../RegistryProvider';
+import { setReleaseChannel } from '../releaseChannel';
 import { RegistryView } from '../views/registryView';
 
 const localize = nls.loadMessageBundle();
@@ -106,7 +107,7 @@ export class InstallAnotherVersionCommand implements Command {
      * @param version The specific version to install. If omitted, this prompts the user to select a version.
      */
     public async execute(extensionOrId: Package | string, version?: string) {
-        const latest = await this.getLatestPackage(extensionOrId);
+        const latest = await getLatestPackage(this.registryProvider, extensionOrId);
 
         if (!version) {
             version = await this.showVersionPrompt(latest);
@@ -123,9 +124,7 @@ export class InstallAnotherVersionCommand implements Command {
                     ),
                 );
             } else {
-                const id = `${latest.extensionId}@${version}`;
-
-                const pkg = await install.installExtension(this.registryProvider, id);
+                const pkg = await install.installExtension(this.registryProvider, latest.extensionId, version);
 
                 // Assume that we always need to reload after installing a
                 // different version. This command won't be used frequently, and
@@ -134,12 +133,6 @@ export class InstallAnotherVersionCommand implements Command {
                 await showInstallReloadPrompt(pkg);
             }
         }
-    }
-
-    private async getLatestPackage(extensionOrId: Package | string) {
-        return extensionOrId instanceof Package
-            ? extensionOrId
-            : await findPackage(this.registryProvider, extensionOrId);
     }
 
     private async showVersionPrompt(latest: Package) {
@@ -170,6 +163,102 @@ export class InstallAnotherVersionCommand implements Command {
 }
 
 /**
+ * Switches which release channel to track for an extension.
+ */
+export class SwitchChannelsCommand implements Command {
+    public readonly id = 'privateExtensions.extension.switchChannels';
+
+    constructor(private readonly registryProvider: RegistryProvider) {}
+
+    /**
+     * @param extensionOrId Either the latest `Package` for an extension, or the ID of the extension to modify.
+     * @param channel The channel to switch to. If omitted, this prompts the user to select a version.
+     */
+    public async execute(extensionOrId: Package | string, channel?: string) {
+        const pkg = await getLatestPackage(this.registryProvider, extensionOrId);
+
+        if (!channel) {
+            channel = await this.showChannelPrompt(pkg);
+        }
+
+        if (channel) {
+            if (channel === pkg.channel) {
+                await vscode.window.showInformationMessage(
+                    localize(
+                        'package.already.tracking.channel',
+                        '{0} is already tracking {1}.',
+                        pkg.displayName,
+                        channel,
+                    ),
+                );
+            } else {
+                setReleaseChannel(pkg.extensionId, channel);
+
+                await this.showChannelChangedMessage(pkg, channel);
+            }
+        }
+    }
+
+    private async showChannelPrompt(latest: Package) {
+        const result = await vscode.window.showQuickPick(this.getQuickPickItems(latest), {
+            placeHolder: localize('select.channel', 'Select Release Channel'),
+        });
+
+        return result ? result.label : undefined;
+    }
+
+    private async getQuickPickItems(pkg: Package) {
+        const channels = await getPackageChannels(this.registryProvider, pkg.extensionId);
+
+        // Sort newer versions to the top
+        const sorted = [...channels.entries()].sort((a, b) => {
+            const version1 = a[1];
+            const version2 = b[1];
+            return semver.rcompare(version1.version, version2.version);
+        });
+
+        return sorted.map(([channel, version]) => {
+            const relativeTime = version.time ? getRelativeDateLabel(version.time) : '';
+            const currentTag = channel === pkg.channel ? ` (${localize('current', 'Current')})` : '';
+
+            return {
+                label: channel,
+                description: `${version.version} - ${relativeTime}${currentTag}`,
+            } as vscode.QuickPickItem;
+        });
+    }
+
+    private async showChannelChangedMessage(pkg: Package, channel: string) {
+        const items: string[] = [];
+
+        // If we aren't already at the latest version for the new channel, give
+        // the option to update to it.
+        const latest = await getLatestPackage(this.registryProvider, pkg.extensionId, channel);
+
+        // Update state first to ensure installedVersion is valid.
+        await pkg.updateState();
+        if (!pkg.installedVersion || semver.neq(pkg.installedVersion, latest.version)) {
+            items.push(localize('update.to.version', 'Update to version {0}', latest.version.toString()));
+        }
+
+        const doUpdate = await vscode.window.showInformationMessage(
+            localize('package.now.tracking.channel', '{0} is now tracking {1}.', pkg.displayName, channel),
+            ...items,
+        );
+
+        if (doUpdate) {
+            await installExtension(this.registryProvider, latest);
+
+            // Assume that we always need to reload after installing a
+            // different version. This command won't be used frequently, and
+            // checking if vscode updated to the specific version is more
+            // trouble than it's worth.
+            await showInstallReloadPrompt(latest);
+        }
+    }
+}
+
+/**
  * Copies extension information to the clipboard.
  */
 export class CopyExtensionInformationCommand implements Command {
@@ -189,6 +278,16 @@ export class CopyExtensionInformationCommand implements Command {
 
         await vscode.env.clipboard.writeText(clipboardStr);
     }
+}
+
+/**
+ * Gets the latest package for an extension.
+ * @param channel Release channel to track. If omitted, returns the latest version for the user's selected release channel.
+ */
+async function getLatestPackage(registryProvider: RegistryProvider, extensionOrId: Package | string, channel?: string) {
+    return extensionOrId instanceof Package
+        ? extensionOrId
+        : await findPackage(registryProvider, extensionOrId, channel);
 }
 
 /**

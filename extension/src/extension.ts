@@ -64,6 +64,7 @@ function registerCommands(
         new commands.UpdateExtensionCommand(registryProvider),
         new commands.UninstallExtensionCommand(),
         new commands.InstallAnotherVersionCommand(registryProvider),
+        new commands.SwitchChannelsCommand(registryProvider),
         new commands.CopyExtensionInformationCommand(),
 
         // Registry commands

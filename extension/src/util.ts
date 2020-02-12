@@ -105,3 +105,10 @@ export function getExtensionFileUri(extensionFile: string) {
 export function uriEquals(a: Uri, b: Uri) {
     return a.toString() === b.toString();
 }
+
+/**
+ * Returns an extension identifier given the publisher and extension name.
+ */
+export function formatExtensionId(publisher: string, name: string) {
+    return `${publisher}.${name}`.toLowerCase();
+}

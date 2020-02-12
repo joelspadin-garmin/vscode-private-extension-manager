@@ -6,6 +6,7 @@ import * as nls from 'vscode-nls';
 
 import * as extensionInfo from '../extensionInfo';
 import { Package } from '../Package';
+import { getReleaseChannel } from '../releaseChannel';
 import { getRemoteName } from '../remote';
 import { getNpmDownloadDir, readJSON } from '../util';
 
@@ -38,7 +39,18 @@ export class ExtensionDetailsView extends WebView<ExtensionData> {
     constructor() {
         super(getLocalResourceRoots());
 
-        this.disposable2 = Disposable.from(extensionInfo.onDidChange(() => this.refresh()));
+        this.disposable2 = Disposable.from(
+            // Refresh on changes to extension details, as the displayed extension
+            // may have been installed/uninstalled.
+            extensionInfo.onDidChange(() => this.refresh()),
+            // Refresh on changes to release channels, as the channel for the
+            // displayed extension may have changed.
+            vscode.workspace.onDidChangeConfiguration(e => {
+                if (e.affectsConfiguration('privateExtensions.channels')) {
+                    this.refresh();
+                }
+            }),
+        );
     }
 
     public dispose() {
@@ -128,9 +140,6 @@ export class ExtensionDetailsView extends WebView<ExtensionData> {
                                 'Extension identifier',
                             )}">
                                 ${this.pkg.extensionId}
-                            </span>
-                            <span class="identifier" title="${localize('extension.channel', 'Extension channel')}">
-                                ${this.pkg.channel}
                             </span>
                         </div>
                         <div class="subtitle">
@@ -232,6 +241,19 @@ export class ExtensionDetailsView extends WebView<ExtensionData> {
                 'privateExtensions.extension.uninstall',
                 this.pkg.extensionId,
             );
+
+            if (await packageHasChannels(this.pkg)) {
+                // Read from settings instead of the package, as the package's
+                // channel will be stale if the user just switched channels.
+                const channel = getReleaseChannel(this.pkg.extensionId);
+                addActionButton(
+                    actions,
+                    'channel',
+                    localize('extension.channel', 'Channel: {0}', channel),
+                    'privateExtensions.extension.switchChannels',
+                    this.pkg.extensionId,
+                );
+            }
         } else {
             await addInstallButton(actions, this.pkg);
         }
@@ -349,4 +371,9 @@ async function readManifest(uri: Uri): Promise<ExtensionManifest> {
     const manifest = await readJSON(uri);
 
     return ExtensionManifest.is(manifest) ? manifest : {};
+}
+
+async function packageHasChannels(pkg: Package) {
+    const channels = await pkg.getChannels();
+    return Object.keys(channels).length > 1;
 }

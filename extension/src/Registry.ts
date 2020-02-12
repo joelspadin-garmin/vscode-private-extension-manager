@@ -12,8 +12,9 @@ import { CancellationToken, Uri, window } from 'vscode';
 import * as nls from 'vscode-nls';
 
 import { NotAnExtensionError, Package } from './Package';
+import { getReleaseChannel, LATEST } from './releaseChannel';
 import { assertType, options } from './typeUtil';
-import { getConfig, getNpmCacheDir, getNpmDownloadDir, uriEquals } from './util';
+import { getNpmCacheDir, getNpmDownloadDir, uriEquals } from './util';
 
 const localize = nls.loadMessageBundle();
 
@@ -202,17 +203,35 @@ export class Registry {
     }
 
     /**
+     * Gets the release channels available for a package.
+     *
+     * This is a dictionary with channel names as keys and the latest version
+     * in each channel as values.
+     */
+    public async getPackageChannels(name: string): Promise<Record<string, VersionInfo>> {
+        const metadata = await this.getPackageMetadata(name);
+
+        if (PackageVersionData.is(metadata)) {
+            const results: Record<string, VersionInfo> = {};
+
+            for (const key in metadata['dist-tags']) {
+                results[key] = getVersionInfo(metadata, metadata['dist-tags'][key]);
+            }
+
+            return results;
+        } else {
+            return {};
+        }
+    }
+
+    /**
      * Gets the list of available versions for a package.
      */
     public async getPackageVersions(name: string): Promise<VersionInfo[]> {
         const metadata = await this.getPackageMetadata(name);
 
         if (PackageVersionData.is(metadata)) {
-            return Object.keys(metadata.versions).map(key => {
-                const version = new SemVer(key);
-                const time = getVersionTimestamp(metadata, key);
-                return { version, time };
-            });
+            return Object.keys(metadata.versions).map(key => getVersionInfo(metadata, key));
         } else {
             return [];
         }
@@ -234,11 +253,11 @@ export class Registry {
         // Try to get publisher from latest release and use that to
         // check for user-specified tracking channel.
         if (version === undefined) {
-            const latest = lookupVersion(metadata, name, 'latest');
+            const latest = lookupVersion(metadata, name, LATEST);
             if (typeof latest.publisher === 'string') {
                 version = getReleaseChannel(latest.publisher, name);
             } else {
-                version = 'latest';
+                version = LATEST;
             }
         }
 
@@ -289,6 +308,13 @@ function getVersionTimestamp(meta: PackageVersionData, key: string) {
     return time ? new Date(time) : undefined;
 }
 
+function getVersionInfo(metadata: PackageVersionData, version: string): VersionInfo {
+    return {
+        version: new SemVer(version),
+        time: getVersionTimestamp(metadata, version),
+    };
+}
+
 /**
     Finds the version-specific metadata for a package given a version
     or dist-tag.
@@ -306,11 +332,4 @@ function lookupVersion(metadata: PackageVersionData, name: string, versionOrTag:
     return result;
 }
 
-/**
- * Gets the user's selected release channel for an extension, or 'latest'.
- */
-function getReleaseChannel(publisher: string, name: string) {
-    const id = `${publisher}.${name}`.toLowerCase();
 
-    return getConfig().get<Record<string, string>>('channels')?.[id] ?? 'latest';
-}

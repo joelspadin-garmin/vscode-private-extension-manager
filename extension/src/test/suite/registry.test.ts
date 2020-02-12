@@ -9,6 +9,7 @@ import { Uri } from 'vscode';
 
 import { Package } from '../../Package';
 import { Registry, RegistrySource } from '../../Registry';
+import { LATEST } from '../../releaseChannel';
 import { clearCache, mockSearch, PackageMetadata } from '../util';
 
 use(chaiSubset);
@@ -158,7 +159,7 @@ suite('Registry Package Search', function() {
             registry: REGISTRY_URL,
         });
 
-        const latest = await registry.getPackage('baz', 'latest');
+        const latest = await registry.getPackage('baz', LATEST);
         assert.deepInclude(latest, EXPECT.baz);
 
         const versionOne = await registry.getPackage('baz', '1.0.0');
