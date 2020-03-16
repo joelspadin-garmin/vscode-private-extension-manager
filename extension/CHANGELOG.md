@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+- Added `enablePagination` option to work around servers that don't properly handle pagination options.
+
 ## 1.0.0
 
 - Changes for marketplace release

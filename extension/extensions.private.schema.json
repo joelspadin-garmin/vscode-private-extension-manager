@@ -25,6 +25,16 @@
                         "items": {
                             "type": "string"
                         }
+                    },
+                    "enablePagination": {
+                        "description": "Make search requests until the registry gives an empty response. Set to false to work around servers that don't properly implement the \"from\" parameter of the search API. You may also need to increase \"limit\" when disabling this.",
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "limit": {
+                        "description": "Number of results to limit each query to when requesting package results.",
+                        "type": "integer",
+                        "default": 20
                     }
                 }
             }

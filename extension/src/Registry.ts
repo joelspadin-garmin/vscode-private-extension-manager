@@ -18,9 +18,6 @@ import { getNpmCacheDir, getNpmDownloadDir, uriEquals } from './util';
 
 const localize = nls.loadMessageBundle();
 
-/** Maximum number of search results per request. */
-const QUERY_LIMIT = 100;
-
 export enum RegistrySource {
     /** Registry is defined by user settings. */
     User = 'user',
@@ -56,6 +53,22 @@ export interface RegistryOptions {
      * for special search qualifiers such as `keywords:`.
      */
     query: string | string[];
+
+    /**
+     * If true, keep requesting more package results from the registry until it
+     * gives an empty response. If false, make only one request.
+     *
+     * This defaults to true. Set it to false when using a server that doesn't
+     * properly handle the "from" parameter of the NPM search API.
+     */
+    enablePagination: boolean;
+
+    /**
+     * Number of results to limit each query to when requesting package results.
+     *
+     * Default: 20
+     */
+    limit: number;
 }
 
 export interface VersionInfo {
@@ -89,6 +102,7 @@ export class Registry {
     }
 
     public readonly query: string | string[];
+    public readonly enablePagination: boolean;
 
     public readonly options: Partial<Options>;
 
@@ -97,14 +111,17 @@ export class Registry {
         public readonly source: RegistrySource,
         options: Partial<RegistryOptions & Options>,
     ) {
-        const { query, ...searchOpts } = options;
+        const { query, enablePagination, ...searchOpts } = options;
 
         // '*' seems to work as a "get all packages" wildcard. If we just
         // leave the search text blank, it will return nothing.
         this.query = query ?? '*';
-        this.options = searchOpts;
+        this.enablePagination = enablePagination ?? true;
 
-        this.options.cache = getNpmCacheDir();
+        this.options = {
+            cache: getNpmCacheDir(),
+            ...searchOpts,
+        };
     }
 
     /**
@@ -120,6 +137,10 @@ export class Registry {
      * another registry.
      */
     public equals(other: Registry) {
+        if (this.enablePagination !== other.enablePagination) {
+            return false;
+        }
+
         if (!queryEquals(this.query, other.query)) {
             return false;
         }
@@ -274,9 +295,7 @@ export class Registry {
 
             const page = await npmsearch(query, {
                 ...this.options,
-                'prefer-online': true,
                 from,
-                limit: QUERY_LIMIT,
             });
 
             for (const item of page) {
@@ -285,7 +304,7 @@ export class Registry {
 
             // The server may ignore our query limit and return as many results
             // as it wants. We've collected everything when it returns nothing.
-            if (page.length === 0) {
+            if (page.length === 0 || !this.enablePagination) {
                 break;
             } else {
                 from += page.length;
