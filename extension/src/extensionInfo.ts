@@ -1,6 +1,10 @@
 import * as semver from 'semver';
 import * as vscode from 'vscode';
 
+import { context } from './context';
+import { getLogger } from './logger';
+import { Package } from './Package';
+
 /**
  * The data from `vscode.Extension` that is needed for managing extensions.
  */
@@ -26,6 +30,12 @@ export interface ExtensionInfo {
 }
 
 /**
+ * If an extension takes longer than this to install/uninstall, assume VS Code
+ * needs to be reloaded for it to take effect.
+ */
+const EXTENSION_CHANGE_TIMEOUT_MS = 2000;
+
+/**
  * Extension info returned by the remote helper extension.
  */
 interface RemoteHelperExtensionInfo {
@@ -34,94 +44,230 @@ interface RemoteHelperExtensionInfo {
     packageJSON: any;
 }
 
-/**
- * Cache the info for each extension (keyed by extension ID) so we don't have to
- * repeatedly message the remote helper extension and/or parse the version
- * string if extensions haven't changed.
- *
- * Note that the entry for an extension ID can be `undefined`, which indicates
- * that we have looked up the extension and it wasn't installed.
- */
-const extensionCache: Record<string, ExtensionInfo | undefined> = {};
+export class ExtensionInfoService implements vscode.Disposable {
+    private static readonly _onDidChangeOtherExtension = new vscode.EventEmitter<void>();
 
-let _onDidChange: vscode.EventEmitter<void>;
-let myExtensionKind: vscode.ExtensionKind;
+    // Commands can only be registered once, so map the command to an event that
+    // each new ExtensionInfoService instance can listen to.
+    private static _commandRegistered = false;
+    private static registerCommand() {
+        if (this._commandRegistered) {
+            return;
+        }
 
-/**
- * An event which fires when any extension on the local or remote machine
- * changes. This can happen when extensions are installed, uninstalled, enabled
- * or disabled.
- */
-export let onDidChange: vscode.Event<void>;
-
-export function init(): vscode.Disposable {
-    myExtensionKind = vscode.env.remoteName ? vscode.ExtensionKind.Workspace : vscode.ExtensionKind.UI;
-
-    _onDidChange = new vscode.EventEmitter<void>();
-    onDidChange = _onDidChange.event;
-
-    return vscode.Disposable.from(
-        _onDidChange,
-        vscode.extensions.onDidChange(onMyExtensionsChanged),
-        vscode.commands.registerCommand('_privateExtensionManager.notifyExtensionsChanged', onOtherExtensionsChanged),
-    );
-}
-
-/**
- * Clears the extension information cache, forcing subsequent calls to
- * `getExtension()` to query information for all extensions again.
- */
-export function clearCache() {
-    clearCacheIf(() => true);
-}
-
-/**
- * Get an extension by its full identifier in the form `publisher.name`.
- *
- * Unlike `vscode.extensions.getExtension()`, this can provide info for
- * extensions on both the local and remote machines, but it provides a limited
- * subset of the extension information.
- */
-export async function getExtension(extensionId: string): Promise<ExtensionInfo | undefined> {
-    // Extension IDs are case insensitive. Normalize the case for the key so our
-    // cache dictionary is also case insensitive.
-    const key = extensionId.toLowerCase();
-
-    // We store undefined in the cache for an extension that is not installed,
-    // so check for the presence of the key to differentiate between not
-    // installed and no data cached for the extension.
-    if (Object.prototype.hasOwnProperty.call(extensionCache, key)) {
-        return extensionCache[key];
-    }
-
-    const result = await getExtensionNoCache(extensionId);
-    extensionCache[key] = result;
-
-    return result;
-}
-
-async function getExtensionNoCache(extensionId: string): Promise<ExtensionInfo | undefined> {
-    // Check for an extension on this machine.
-    const extension = vscode.extensions.getExtension(extensionId);
-    if (extension) {
-        return toExtensionInfo(extension);
-    }
-
-    // If a remote is active, check for the extension on the other machine.
-    if (vscode.env.remoteName) {
         try {
-            const uiExtension = await vscode.commands.executeCommand<RemoteHelperExtensionInfo>(
-                '_privateExtensionManager.remoteHelper.getExtension',
-                extensionId,
+            context.subscriptions.push(
+                vscode.commands.registerCommand('_privateExtensionManager.notifyExtensionsChanged', () =>
+                    this._onDidChangeOtherExtension.fire(),
+                ),
             );
 
-            return uiExtension ? toExtensionInfo(uiExtension) : undefined;
+            this._commandRegistered = true;
         } catch (ex) {
-            console.warn('Failed to call remote helper', ex);
+            // This is normal during tests. The tests and any installed instance of
+            // the extension will both try to register the command. Tests stub the
+            // event emitter directly and do not use the command.
+            getLogger().log(`Failed to register remote extension listener:\n${ex}`);
         }
     }
 
-    return undefined;
+    private _onDidChange = new vscode.EventEmitter<void>();
+
+    /**
+     * An event which fires when any extension on the local or remote machine
+     * changes. This can happen when extensions are installed, uninstalled, enabled
+     * or disabled.
+     */
+    public readonly onDidChange = this._onDidChange.event;
+
+    /**
+     * An event which fires when any extension on the other machine changes when
+     * in a remote workspace.
+     *
+     * For testing use only. Use onDidChange instead.
+     */
+    public get onDidChangeOtherExtension() {
+        return ExtensionInfoService._onDidChangeOtherExtension.event;
+    }
+
+    /**
+     * Cache the info for each extension (keyed by extension ID) so we don't have to
+     * repeatedly message the remote helper extension and/or parse the version
+     * string if extensions haven't changed.
+     *
+     * Note that the entry for an extension ID can be `undefined`, which indicates
+     * that we have looked up the extension and it wasn't installed.
+     */
+    private readonly extensionCache: Record<string, ExtensionInfo | undefined> = {};
+
+    private disposable: vscode.Disposable;
+
+    private get myExtensionKind() {
+        return vscode.env.remoteName ? vscode.ExtensionKind.Workspace : vscode.ExtensionKind.UI;
+    }
+
+    constructor() {
+        ExtensionInfoService.registerCommand();
+
+        this.disposable = vscode.Disposable.from(
+            this._onDidChange,
+            vscode.extensions.onDidChange(this.onMyExtensionChanged, this),
+            this.onDidChangeOtherExtension(this.onOtherExtensionChanged, this),
+        );
+    }
+
+    public dispose() {
+        this.disposable.dispose();
+    }
+
+    /**
+     * Clears the extension information cache, forcing subsequent calls to
+     * `getExtension()` to query information for all extensions again.
+     */
+    public clearCache() {
+        this.clearCacheIf(() => true);
+    }
+
+    /**
+     * Get an extension by its full identifier in the form `publisher.name`.
+     *
+     * Unlike `vscode.extensions.getExtension()`, this can provide info for
+     * extensions on both the local and remote machines, but it provides a limited
+     * subset of the extension information.
+     */
+    public async getExtension(extensionId: string): Promise<ExtensionInfo | undefined> {
+        // Extension IDs are case insensitive. Normalize the case for the key so our
+        // cache dictionary is also case insensitive.
+        const key = extensionId.toLowerCase();
+
+        // We store undefined in the cache for an extension that is not installed,
+        // so check for the presence of the key to differentiate between not
+        // installed and no data cached for the extension.
+        if (Object.prototype.hasOwnProperty.call(this.extensionCache, key)) {
+            return this.extensionCache[key];
+        }
+
+        const result = await this.getExtensionNoCache(extensionId);
+        this.extensionCache[key] = result;
+
+        return result;
+    }
+
+    /**
+     * When installing or uninstalling an extension, the changes are not immediately
+     * reflected in the extensions API, nor do the commands to install/uninstall an
+     * extension report whether vscode needs to be loaded for the changes to take
+     * effect.
+     *
+     * This waits for `task` to complete and either:
+     * 1. `vscode.extensions.onDidChange()` fires.
+     * 2. `timeout` milliseconds elapse.
+     *
+     * Use this to wrap a task that installs or uninstalls extensions. Once it
+     * returns, either the changes should have taken effect or they weren't going to
+     * take effect. You should query the extensions API to see if the changes you
+     * expect have been made, and if not, prompt the user to reload the window.
+     *
+     * @returns The result of `task`.
+     */
+    public async waitForExtensionChange<T>(
+        task: Promise<T>,
+        timeout: number = EXTENSION_CHANGE_TIMEOUT_MS,
+    ): Promise<T> {
+        const wait = new Promise<void>(resolve => {
+            function finished() {
+                global.clearTimeout(handle);
+                event.dispose();
+                resolve();
+            }
+
+            const handle = global.setTimeout(finished, timeout);
+            const event = this.onDidChange(finished);
+        });
+
+        const [result] = await Promise.all([task, wait]);
+
+        return result;
+    }
+
+    /**
+     * Gets whether the currently-installed version of the extension is newer than
+     * the version of the given package.
+     */
+    public async didExtensionUpdate(pkg: Package) {
+        const extension = await this.getExtension(pkg.extensionId);
+        if (!extension) {
+            getLogger().log(`Error: Extension ${pkg.extensionId} missing after update`);
+            return false;
+        }
+
+        return extension.version > pkg.version;
+    }
+
+    /**
+     * Removes entries from the extension cache that match a predicate function.
+     */
+    private clearCacheIf(predicate: (extension: ExtensionInfo | undefined) => boolean) {
+        for (const key in this.extensionCache) {
+            if (Object.prototype.hasOwnProperty.call(this.extensionCache, key)) {
+                if (predicate(this.extensionCache[key])) {
+                    delete this.extensionCache[key];
+                }
+            }
+        }
+    }
+
+    private async getExtensionNoCache(extensionId: string): Promise<ExtensionInfo | undefined> {
+        // Check for an extension on this machine.
+        const extension = vscode.extensions.getExtension(extensionId);
+        if (extension) {
+            return toExtensionInfo(extension);
+        }
+
+        // If a remote is active, check for the extension on the other machine.
+        if (vscode.env.remoteName) {
+            try {
+                const uiExtension = await vscode.commands.executeCommand<RemoteHelperExtensionInfo>(
+                    '_privateExtensionManager.remoteHelper.getExtension',
+                    extensionId,
+                );
+
+                return uiExtension ? toExtensionInfo(uiExtension) : undefined;
+            } catch (ex) {
+                getLogger().log(`Warning: Failed to call remote helper:\n${ex}`);
+            }
+        }
+
+        return undefined;
+    }
+
+    /**
+     * Invalidates cached info for extensions on the same machine as the extension
+     * manager, and clears any extensions that are cached as being not installed.
+     *
+     * This should run whenever `vscode.extensions.onDidChange` event fires so that
+     * `getExtensions()` returns up-to-date info for updated, installed, or
+     * uninstalled extensions.
+     */
+    private onMyExtensionChanged() {
+        this.clearCacheIf(cache => cache === undefined || cache.extensionKind === this.myExtensionKind);
+
+        this._onDidChange.fire();
+    }
+
+    /**
+     * Invalidates cached info for extensions on the other machine, and clears any
+     * extensions that are cached as being not installed.
+     *
+     * This should run whenever the remote helper extension indicates that its
+     * `vscode.extensions.onDidChange` event fired, so that `getExtensions()`
+     * returns up-to-date info for updated, installed, or uninstalled extensions.
+     */
+    private onOtherExtensionChanged() {
+        this.clearCacheIf(cache => cache === undefined || cache.extensionKind !== this.myExtensionKind);
+
+        this._onDidChange.fire();
+    }
 }
 
 function toExtensionInfo(extension: vscode.Extension<any> | RemoteHelperExtensionInfo): ExtensionInfo {
@@ -134,45 +280,4 @@ function toExtensionInfo(extension: vscode.Extension<any> | RemoteHelperExtensio
         extensionKind: extension.extensionKind,
         version: semver.parse(extension.packageJSON.version) || new semver.SemVer('0.0.0'),
     };
-}
-
-/**
- * Invalidates cached info for extensions on the same machine as the extension
- * manager, and clears any extensions that are cached as being not installed.
- *
- * This should run whenever `vscode.extensions.onDidChange` event fires so that
- * `getExtensions()` returns up-to-date info for updated, installed, or
- * uninstalled extensions.
- */
-function onMyExtensionsChanged() {
-    clearCacheIf(cache => cache === undefined || cache.extensionKind === myExtensionKind);
-
-    _onDidChange.fire();
-}
-
-/**
- * Invalidates cached info for extensions on the other machine, and clears any
- * extensions that are cached as being not installed.
- *
- * This should run whenever the remote helper extension indicates that its
- * `vscode.extensions.onDidChange` event fired, so that `getExtensions()`
- * returns up-to-date info for updated, installed, or uninstalled extensions.
- */
-function onOtherExtensionsChanged() {
-    clearCacheIf(cache => cache === undefined || cache.extensionKind !== myExtensionKind);
-
-    _onDidChange.fire();
-}
-
-/**
- * Removes entries from the extension cache that match a predicate function.
- */
-function clearCacheIf(predicate: (extension: ExtensionInfo | undefined) => boolean) {
-    for (const key in extensionCache) {
-        if (Object.prototype.hasOwnProperty.call(extensionCache, key)) {
-            if (predicate(extensionCache[key])) {
-                delete extensionCache[key];
-            }
-        }
-    }
 }

@@ -1,12 +1,13 @@
 import { assert, use } from 'chai';
 import chaiSubset = require('chai-subset');
 import * as search from 'libnpmsearch';
-import { after, before, beforeEach } from 'mocha';
+import { after, afterEach, before, beforeEach } from 'mocha';
 import * as nock from 'nock';
 import { SemVer } from 'semver';
 import * as vscode from 'vscode';
 import { Uri } from 'vscode';
 
+import { ExtensionInfoService } from '../../extensionInfo';
 import { Package } from '../../Package';
 import { Registry, RegistrySource } from '../../Registry';
 import { LATEST } from '../../releaseChannel';
@@ -18,6 +19,7 @@ suite('Registry Package Search', function() {
     vscode.window.showInformationMessage(`Start ${this.title} tests`);
 
     let scope: nock.Scope;
+    let extensionInfo: ExtensionInfoService;
 
     before(function() {
         // Tests should complete quickly since we're mocking all network
@@ -55,13 +57,19 @@ suite('Registry Package Search', function() {
     });
 
     beforeEach(function() {
+        extensionInfo = new ExtensionInfoService();
+
         // Ensure that cached results from a previous test do not affect the
         // next test.
         clearCache();
     });
 
+    afterEach(function() {
+        extensionInfo.dispose();
+    });
+
     test('Create registry', async function() {
-        const registry = new Registry('test', RegistrySource.Workspace, {
+        const registry = new Registry(extensionInfo, 'test', RegistrySource.Workspace, {
             registry: REGISTRY_URL,
             query: 'query',
             otp: 123456,
@@ -77,7 +85,7 @@ suite('Registry Package Search', function() {
     });
 
     test('Get all packages', async function() {
-        const registry = new Registry('test', RegistrySource.User, {
+        const registry = new Registry(extensionInfo, 'test', RegistrySource.User, {
             registry: REGISTRY_URL,
         });
 
@@ -89,7 +97,7 @@ suite('Registry Package Search', function() {
     });
 
     test('Get keyword 1', async function() {
-        const registry = new Registry('test', RegistrySource.User, {
+        const registry = new Registry(extensionInfo, 'test', RegistrySource.User, {
             registry: REGISTRY_URL,
             query: 'keywords:foo',
         });
@@ -102,7 +110,7 @@ suite('Registry Package Search', function() {
     });
 
     test('Get keyword 2', async function() {
-        const registry = new Registry('test', RegistrySource.User, {
+        const registry = new Registry(extensionInfo, 'test', RegistrySource.User, {
             registry: REGISTRY_URL,
             query: 'keywords:bar',
         });
@@ -115,7 +123,7 @@ suite('Registry Package Search', function() {
     });
 
     test('Get keyword 3', async function() {
-        const registry = new Registry('test', RegistrySource.User, {
+        const registry = new Registry(extensionInfo, 'test', RegistrySource.User, {
             registry: REGISTRY_URL,
             query: 'keywords:b-packages',
         });
@@ -128,7 +136,7 @@ suite('Registry Package Search', function() {
     });
 
     test('Get two keywords with string', async function() {
-        const registry = new Registry('test', RegistrySource.User, {
+        const registry = new Registry(extensionInfo, 'test', RegistrySource.User, {
             registry: REGISTRY_URL,
             query: 'keywords:foo keywords:bar',
         });
@@ -142,7 +150,7 @@ suite('Registry Package Search', function() {
 
     test('Get two keywords with array', async function() {
         // query = ['term1', 'term2'] should be identical to 'term1 term2'.
-        const registry = new Registry('test', RegistrySource.User, {
+        const registry = new Registry(extensionInfo, 'test', RegistrySource.User, {
             registry: REGISTRY_URL,
             query: ['keywords:foo', 'keywords:bar'],
         });
@@ -155,7 +163,7 @@ suite('Registry Package Search', function() {
     });
 
     test('Get package metadata', async function() {
-        const registry = new Registry('test', RegistrySource.User, {
+        const registry = new Registry(extensionInfo, 'test', RegistrySource.User, {
             registry: REGISTRY_URL,
         });
 

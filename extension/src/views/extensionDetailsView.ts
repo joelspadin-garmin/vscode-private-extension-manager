@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import { Disposable, Uri } from 'vscode';
 import * as nls from 'vscode-nls';
 
-import * as extensionInfo from '../extensionInfo';
+import { ExtensionInfoService } from '../extensionInfo';
 import { Package } from '../Package';
 import { getReleaseChannel } from '../releaseChannel';
 import { getRemoteName } from '../remote';
@@ -36,13 +36,13 @@ interface ExtensionData {
 export class ExtensionDetailsView extends WebView<ExtensionData> {
     private disposable2: Disposable;
 
-    constructor() {
+    constructor(private readonly extensionInfo: ExtensionInfoService) {
         super(getLocalResourceRoots());
 
         this.disposable2 = Disposable.from(
             // Refresh on changes to extension details, as the displayed extension
             // may have been installed/uninstalled.
-            extensionInfo.onDidChange(() => this.refresh()),
+            this.extensionInfo.onDidChange(this.refresh, this),
             // Refresh on changes to release channels, as the channel for the
             // displayed extension may have changed.
             vscode.workspace.onDidChangeConfiguration(e => {

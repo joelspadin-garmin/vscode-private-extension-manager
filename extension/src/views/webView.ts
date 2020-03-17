@@ -2,6 +2,7 @@ import { isAbsolute } from 'path';
 import * as vscode from 'vscode';
 import { Disposable, WebviewPanel } from 'vscode';
 
+import { getLogger } from '../logger';
 import { getExtensionFileUri, memoize } from '../util';
 
 export abstract class WebView<T> implements Disposable {
@@ -188,7 +189,7 @@ async function getUiPlatform(): Promise<NodeJS.Platform> {
                 return uiPlatform;
             }
         } catch (ex) {
-            console.warn('Failed to call remote helper', ex);
+            getLogger().log(`Warning: Failed to call remote helper:\n${ex}`);
         }
     }
 

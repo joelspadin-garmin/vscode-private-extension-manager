@@ -2,7 +2,9 @@ import * as vscode from 'vscode';
 import { Disposable } from 'vscode';
 import * as nls from 'vscode-nls';
 
-import * as install from './install';
+import { ExtensionInfoService } from './extensionInfo';
+import { updateExtensions } from './install';
+import { getLogger } from './logger';
 import { Package } from './Package';
 import { RegistryProvider } from './RegistryProvider';
 import { getConfig } from './util';
@@ -23,7 +25,10 @@ export class UpdateChecker implements Disposable {
         return this.intervalMS > 0;
     }
 
-    public constructor(private readonly registryProvider: RegistryProvider) {
+    public constructor(
+        private readonly registryProvider: RegistryProvider,
+        private readonly extensionInfo: ExtensionInfoService,
+    ) {
         this.intervalMS = getUpdateIntervalMS();
 
         this.disposable = Disposable.from(
@@ -76,7 +81,7 @@ export class UpdateChecker implements Disposable {
         const updates = await this.getPackagesWithUpdates();
 
         if (updates.length > 0) {
-            await install.updateExtensions(updates);
+            await updateExtensions(this.extensionInfo, updates);
         } else {
             await this.showNoUpdatesMessage();
         }
@@ -89,7 +94,7 @@ export class UpdateChecker implements Disposable {
 
         if (this.isAutomaticUpdateEnabled) {
             this.checkInterval = global.setInterval(() => {
-                console.log('Automatic update check');
+                getLogger().log('Starting automatic update check');
                 this.checkForUpdates(true);
             }, this.intervalMS);
         }
@@ -127,7 +132,7 @@ export class UpdateChecker implements Disposable {
         if (response === showUpdates) {
             await vscode.commands.executeCommand('privateExtensions.extensions.focus');
         } else if (response === updateAll) {
-            await install.updateExtensions(updates);
+            await updateExtensions(this.extensionInfo, updates);
         }
     }
 }

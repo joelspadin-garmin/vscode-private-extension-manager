@@ -6,7 +6,6 @@ import { promisify } from 'util';
 import * as vscode from 'vscode';
 import * as nls from 'vscode-nls';
 
-import { getExtension } from './extensionInfo';
 import { Registry, VersionInfo } from './Registry';
 import { LATEST } from './releaseChannel';
 import { assertType, options } from './typeUtil';
@@ -149,7 +148,7 @@ export class Package {
      * installed version.
      */
     public async updateState() {
-        const extension = await getExtension(this.extensionId);
+        const extension = await this.registry.extensionInfo.getExtension(this.extensionId);
         if (extension) {
             this._isInstalled = true;
             this._installedExtensionKind = extension.extensionKind;

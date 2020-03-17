@@ -11,6 +11,8 @@ import { SemVer } from 'semver';
 import { CancellationToken, Uri, window } from 'vscode';
 import * as nls from 'vscode-nls';
 
+import { ExtensionInfoService } from './extensionInfo';
+import { getLogger } from './logger';
 import { NotAnExtensionError, Package } from './Package';
 import { getReleaseChannel, LATEST } from './releaseChannel';
 import { assertType, options } from './typeUtil';
@@ -107,6 +109,7 @@ export class Registry {
     public readonly options: Partial<Options>;
 
     constructor(
+        public readonly extensionInfo: ExtensionInfoService,
         public readonly name: string,
         public readonly source: RegistrySource,
         options: Partial<RegistryOptions & Options>,
@@ -205,7 +208,7 @@ export class Registry {
                         ),
                     );
                 } else {
-                    console.warn(`Discarding package ${result.name}:`, ex);
+                    getLogger().log(`Warning: Discarding package ${result.name}:\n${ex}`);
                 }
             }
         }

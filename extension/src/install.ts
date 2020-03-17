@@ -1,19 +1,13 @@
 import * as vscode from 'vscode';
 import * as nls from 'vscode-nls';
 
-import * as extensionInfo from './extensionInfo';
+import { ExtensionInfoService } from './extensionInfo';
 import { findPackage } from './findPackage';
 import { Package } from './Package';
 import { Registry } from './Registry';
 import { RegistryProvider } from './RegistryProvider';
 
 const localize = nls.loadMessageBundle();
-
-/**
- * If an extension takes longer than this to install/uninstall, assume VS Code
- * needs to be reloaded for it to take effect.
- */
-const EXTENSION_CHANGE_TIMEOUT_MS = 2000;
 
 /**
  * Installs the given extension package.
@@ -69,7 +63,7 @@ export async function uninstallExtension(pkgOrExtId: Package | string) {
  * user to reload the window if necessary.
  * @param packages The packages to update.
  */
-export async function updateExtensions(packages: Package[]) {
+export async function updateExtensions(extensionInfo: ExtensionInfoService, packages: Package[]) {
     const increment = 100 / packages.length;
 
     await vscode.window.withProgress(
@@ -84,14 +78,14 @@ export async function updateExtensions(packages: Package[]) {
                     break;
                 }
 
-                await wrapExtensionChange(installExtension(pkg));
+                await extensionInfo.waitForExtensionChange(installExtension(pkg));
 
                 progress.report({ increment });
             }
         },
     );
 
-    if (!packages.every(didExtensionUpdate)) {
+    if (!packages.every(pkg => extensionInfo.didExtensionUpdate(pkg))) {
         await showReloadPrompt(
             localize(
                 'reload.to.complete.update.all',
@@ -101,19 +95,7 @@ export async function updateExtensions(packages: Package[]) {
     }
 }
 
-/**
- * Gets whether the currently-installed version of the extension is newer than
- * the version of the given package.
- */
-export async function didExtensionUpdate(pkg: Package) {
-    const extension = await extensionInfo.getExtension(pkg.extensionId);
-    if (!extension) {
-        console.error(`Extension ${pkg.extensionId} missing after update`);
-        return false;
-    }
 
-    return extension.version > pkg.version;
-}
 
 /**
  * Displays a message with a button to reload vscode.
@@ -124,34 +106,6 @@ export async function showReloadPrompt(message: string) {
     if (reload) {
         vscode.commands.executeCommand('workbench.action.reloadWindow');
     }
-}
-
-/**
- * When installing or uninstalling an extension, the changes are not immediately
- * reflected in the extensions API, nor do the commands to install/uninstall an
- * extension report whether vscode needs to be loaded for the changes to take
- * effect.
- *
- * This waits for `task` to complete and either:
- * 1. `vscode.extensions.onDidChange()` fires.
- * 2. `timeout` milliseconds elapse.
- *
- * Use this to wrap a task that installs or uninstalls extensions. Once it
- * returns, either the changes should have taken effect or they weren't going to
- * take effect. You should query the extensions API to see if the changes you
- * expect have been made, and if not, prompt the user to reload the window.
- *
- * @returns The result of `task`.
- */
-export async function wrapExtensionChange<T>(
-    task: Promise<T>,
-    timeout: number = EXTENSION_CHANGE_TIMEOUT_MS,
-): Promise<T> {
-    const wait = waitForExtensionChange(timeout);
-
-    const [result] = await Promise.all([task, wait]);
-
-    return result;
 }
 
 /**
@@ -183,21 +137,4 @@ async function installExtensionById(registry: Registry | RegistryProvider, exten
     await installExtensionByPackage(pkg);
 
     return pkg;
-}
-
-/**
- * Wait for either `vscode.extensions.onDidChange()` to fire or `timeout`
- * milliseconds to elapse.
- */
-function waitForExtensionChange(timeout: number): Promise<void> {
-    return new Promise(resolve => {
-        function finished() {
-            global.clearTimeout(handle);
-            event.dispose();
-            resolve();
-        }
-
-        const handle = global.setTimeout(finished, timeout);
-        const event = extensionInfo.onDidChange(finished);
-    });
 }

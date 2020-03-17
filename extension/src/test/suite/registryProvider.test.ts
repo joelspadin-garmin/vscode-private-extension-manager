@@ -9,6 +9,7 @@ import sinon = require('sinon');
 import * as vscode from 'vscode';
 import * as nls from 'vscode-nls';
 
+import { ExtensionInfoService } from '../../extensionInfo';
 import { Package } from '../../Package';
 import { Registry, RegistrySource } from '../../Registry';
 import { RegistryProvider } from '../../RegistryProvider';
@@ -26,6 +27,7 @@ suite('Registry Provider', function() {
 
     let scope1: nock.Scope;
     let scope2: nock.Scope;
+    let extensionInfo: ExtensionInfoService;
 
     before(function() {
         this.timeout(2000);
@@ -60,19 +62,22 @@ suite('Registry Provider', function() {
     });
 
     beforeEach(function() {
+        extensionInfo = new ExtensionInfoService();
+
         // Ensure that cached results from a previous test do not affect the
         // next test.
         clearCache();
     });
 
     afterEach(function() {
+        extensionInfo.dispose();
         sinon.restore();
     });
 
     test('Get registries', async function() {
         stubGlobalConfiguration('privateExtensions', USER_REGISTRY_CONFIG);
 
-        const provider = new RegistryProvider();
+        const provider = new RegistryProvider(extensionInfo);
 
         const registries = provider.getRegistries();
 
@@ -87,7 +92,7 @@ suite('Registry Provider', function() {
     test('Get recommendations', async function() {
         stubGlobalConfiguration('privateExtensions', USER_REGISTRY_CONFIG);
 
-        const provider = new RegistryProvider();
+        const provider = new RegistryProvider(extensionInfo);
 
         const recommendations = provider.getRecommendedExtensions();
         const expected = new Set(['test.recommended1', 'test.recommended2']);
@@ -98,7 +103,7 @@ suite('Registry Provider', function() {
     test('Get unique packages', async function() {
         stubGlobalConfiguration('privateExtensions', USER_REGISTRY_CONFIG);
 
-        const provider = new RegistryProvider();
+        const provider = new RegistryProvider(extensionInfo);
 
         const packages = await provider.getUniquePackages();
         packages.sort(Package.compare);
@@ -117,7 +122,7 @@ suite('Registry Provider', function() {
     test('Tracking custom channel', async function() {
         stubGlobalConfiguration('privateExtensions', USER_REGISTRY_CONFIG_CHANNEL);
 
-        const provider = new RegistryProvider();
+        const provider = new RegistryProvider(extensionInfo);
         const packages = await provider.getUniquePackages();
         packages.sort(Package.compare);
 
@@ -137,7 +142,7 @@ suite('Registry Provider', function() {
             registries: 42,
         });
 
-        const provider = new RegistryProvider();
+        const provider = new RegistryProvider(extensionInfo);
         const type = 'Array<{ name: string, registry?: string }>';
 
         assert.throws(
@@ -154,7 +159,7 @@ suite('Registry Provider', function() {
             registries: [{ registry: USER_REGISTRY_URL }],
         });
 
-        const provider = new RegistryProvider();
+        const provider = new RegistryProvider(extensionInfo);
 
         assert.throws(
             () => {
@@ -170,7 +175,7 @@ suite('Registry Provider', function() {
             registries: [{ name: 42 }],
         });
 
-        const provider = new RegistryProvider();
+        const provider = new RegistryProvider(extensionInfo);
 
         assert.throws(
             () => {
@@ -186,7 +191,7 @@ suite('Registry Provider', function() {
             registries: [{ name: 'User Registry', registry: 42 }],
         });
 
-        const provider = new RegistryProvider();
+        const provider = new RegistryProvider(extensionInfo);
 
         assert.throws(
             () => {
@@ -205,7 +210,7 @@ suite('Registry Provider', function() {
             ],
         });
 
-        const provider = new RegistryProvider();
+        const provider = new RegistryProvider(extensionInfo);
 
         assert.throws(
             () => {

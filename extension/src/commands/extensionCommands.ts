@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import * as nls from 'vscode-nls';
 
 import { Command } from '../commandManager';
-import { getExtension } from '../extensionInfo';
+import { ExtensionInfoService } from '../extensionInfo';
 import { findPackage, getPackageChannels, getPackageVersions } from '../findPackage';
 import * as install from '../install';
 import { Package } from '../Package';
@@ -32,14 +32,17 @@ export class ShowExtensionCommand implements Command {
 export class InstallExtensionCommand implements Command {
     public readonly id = 'privateExtensions.extension.install';
 
-    constructor(private readonly registryProvider: RegistryProvider) {}
+    constructor(
+        private readonly registryProvider: RegistryProvider,
+        private readonly extensionInfo: ExtensionInfoService,
+    ) {}
 
     public async execute(extensionOrId: Package | string) {
-        const pkg = await install.wrapExtensionChange(installExtension(this.registryProvider, extensionOrId));
+        const pkg = await this.extensionInfo.waitForExtensionChange(installExtension(this.registryProvider, extensionOrId));
 
         // If vscode could immediately load the extension, it should be visible
         // to the extensions API now. If not, we need to reload.
-        if (!(await getExtension(pkg.extensionId))) {
+        if (!(await this.extensionInfo.getExtension(pkg.extensionId))) {
             await showInstallReloadPrompt(pkg);
         }
     }
@@ -51,15 +54,15 @@ export class InstallExtensionCommand implements Command {
 export class UpdateExtensionCommand implements Command {
     public readonly id = 'privateExtensions.extension.update';
 
-    constructor(private readonly registryProvider: RegistryProvider) {}
+    constructor(private readonly registryProvider: RegistryProvider, private readonly extensionInfo: ExtensionInfoService) {}
 
     public async execute(extensionOrId: Package | string) {
-        const pkg = await install.wrapExtensionChange(installExtension(this.registryProvider, extensionOrId));
+        const pkg = await this.extensionInfo.waitForExtensionChange(installExtension(this.registryProvider, extensionOrId));
 
         // If vscode could immediately load the updated extension, we should see
         // the new version number reflected in the extensions API. If not, we
         // need to reload.
-        if (!(await install.didExtensionUpdate(pkg))) {
+        if (!(await this.extensionInfo.didExtensionUpdate(pkg))) {
             await install.showReloadPrompt(
                 localize(
                     'reload.to.complete.update',
@@ -77,12 +80,14 @@ export class UpdateExtensionCommand implements Command {
 export class UninstallExtensionCommand implements Command {
     public readonly id = 'privateExtensions.extension.uninstall';
 
+    constructor(private readonly extensionInfo: ExtensionInfoService) {}
+
     public async execute(extensionOrId: Package | string) {
-        const extensionId = await install.wrapExtensionChange(install.uninstallExtension(extensionOrId));
+        const extensionId = await this.extensionInfo.waitForExtensionChange(install.uninstallExtension(extensionOrId));
 
         // If vscode could immediately unload the extension, it should no longer
         // be visible to the extensions API now. If it is, we need to reload.
-        if (await getExtension(extensionId)) {
+        if (await this.extensionInfo.getExtension(extensionId)) {
             await install.showReloadPrompt(
                 localize(
                     'reload.to.complete.uninstall',

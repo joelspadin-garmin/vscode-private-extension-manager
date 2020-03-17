@@ -2,66 +2,104 @@ import * as path from 'path';
 import sinon = require('sinon');
 import * as vscode from 'vscode';
 
-/**
- * Stubs `vscode.extension.getExtension()` for a given extension ID so it
- * returns values from the given mock data object.
- * @param extensionId The extension to stub.
- * @param mockData The extension data to return. If `undefined`, the stub will
- *      return `undefined`, indicating that the extension is not installed.
- */
-export function stubExtension<T>(extensionId: string, mockData?: Partial<vscode.Extension<T>>) {
-    let result: vscode.Extension<any> | undefined;
+import { ExtensionInfoService } from '../extensionInfo';
 
-    if (mockData) {
-        result = {
-            id: extensionId,
-            extensionPath: path.resolve('.', 'tmp', extensionId),
-            isActive: false,
-            packageJSON: {},
-            extensionKind: vscode.env.remoteName ? vscode.ExtensionKind.Workspace : vscode.ExtensionKind.UI,
-            exports: {},
-            activate: () => Promise.resolve(mockData.exports ?? {}),
-            ...mockData,
-        };
-    }
-
-    return sinon
-        .stub(vscode.extensions, 'getExtension')
-        .withArgs(extensionId)
-        .returns(result);
-}
+const DEFAULT_PACKAGE_JSON = {
+    version: '1.0.0',
+};
 
 /**
- * Stubs `vscode.extension.getExtension()` for a given extension ID so it
- * returns that the extension is not installed on the remote machine (where the
- * extension manager runs), then stubs the
- * `_privateExtensionManager.remoteHelper.getExtension` command so it returns
- * data from the given mock data object.
- * @param extensionId The extension to stub.
- * @param mockData The extension data to return. If `undefined`, the stub will
- *      return `undefined`, indicating that the extension is not installed locally.
+ * Holds stubs that are common to most tests and may need to be changed multiple
+ * times though a test.
  */
-export function stubLocalExtension(extensionId: string, mockData?: Partial<vscode.Extension<any>>) {
-    let result: Partial<vscode.Extension<any>> | undefined;
+export class CommonStubs implements vscode.Disposable {
+    public getExtensionStub: sinon.SinonStub<[string], vscode.Extension<unknown> | undefined>;
+    public executeCommandStub: sinon.SinonStub<[string, ...any[]], Thenable<unknown>>;
 
-    if (mockData) {
-        result = {
-            id: extensionId,
-            packageJSON: {},
-            extensionKind: vscode.ExtensionKind.UI,
-            ...mockData,
-        };
+    public onDidChangeMyExtension = new vscode.EventEmitter<void>();
+    public onDidChangeOtherExtension = new vscode.EventEmitter<void>();
+
+    private disposable: vscode.Disposable;
+
+    constructor() {
+        this.getExtensionStub = sinon.stub(vscode.extensions, 'getExtension');
+        this.executeCommandStub = sinon.stub(vscode.commands, 'executeCommand');
+
+        // Replace event emitters for extension change events with our own that
+        // we can fire from a test.
+        sinon.stub(vscode.extensions, 'onDidChange').get(() => this.onDidChangeMyExtension.event);
+        sinon
+            .stub(ExtensionInfoService.prototype, 'onDidChangeOtherExtension')
+            .get(() => this.onDidChangeOtherExtension.event);
+
+        this.disposable = vscode.Disposable.from(this.onDidChangeMyExtension, this.onDidChangeOtherExtension);
     }
 
-    sinon
-        .stub(vscode.extensions, 'getExtension')
-        .withArgs(extensionId)
-        .returns(undefined);
+    public dispose() {
+        this.disposable.dispose();
+    }
 
-    return sinon
-        .stub(vscode.commands, 'executeCommand')
-        .withArgs('_privateExtensionManager.remoteHelper.getExtension', extensionId)
-        .resolves(result);
+    /**
+     * Stubs `vscode.extension.getExtension()` for a given extension ID so it
+     * returns values from the given mock data object.
+     * @param extensionId The extension to stub.
+     * @param mockData The extension data to return. If `undefined`, the stub will
+     *      return `undefined`, indicating that the extension is not installed.
+     *      Use `{}` if an extension should appear to be installed, but the
+     *      extension details don't matter.
+     */
+    public stubExtension<T>(extensionId: string, mockData?: Partial<vscode.Extension<T>>) {
+        let result: vscode.Extension<any> | undefined;
+
+        if (mockData) {
+            result = {
+                id: extensionId,
+                extensionPath: path.resolve('.', 'tmp', extensionId),
+                isActive: false,
+                packageJSON: DEFAULT_PACKAGE_JSON,
+                extensionKind: vscode.env.remoteName ? vscode.ExtensionKind.Workspace : vscode.ExtensionKind.UI,
+                exports: {},
+                activate: () => Promise.resolve(mockData.exports ?? {}),
+                ...mockData,
+            };
+        }
+
+        this.getExtensionStub.withArgs(extensionId).returns(result);
+    }
+
+    /**
+     * Stubs `vscode.extension.getExtension()` for a given extension ID so it
+     * returns that the extension is not installed on the remote machine (where the
+     * extension manager runs), then stubs the
+     * `_privateExtensionManager.remoteHelper.getExtension` command so it returns
+     * data from the given mock data object.
+     *
+     * You must also use `stubRemoteName()` so the extension appears to be
+     * running in a remote workspace.
+     * @param extensionId The extension to stub.
+     * @param mockData The extension data to return. If `undefined`, the stub will
+     *      return `undefined`, indicating that the extension is not installed locally.
+     *      Use `{}` if an extension should appear to be installed, but the
+     *      extension details don't matter.
+     */
+    public stubLocalExtension(extensionId: string, mockData?: Partial<vscode.Extension<any>>) {
+        let result: Partial<vscode.Extension<any>> | undefined;
+
+        if (mockData) {
+            result = {
+                id: extensionId,
+                packageJSON: DEFAULT_PACKAGE_JSON,
+                extensionKind: vscode.ExtensionKind.UI,
+                ...mockData,
+            };
+        }
+
+        this.getExtensionStub.withArgs(extensionId).returns(undefined);
+
+        this.executeCommandStub
+            .withArgs('_privateExtensionManager.remoteHelper.getExtension', extensionId)
+            .resolves(result);
+    }
 }
 
 /**
@@ -141,7 +179,7 @@ class StubConfiguration implements vscode.WorkspaceConfiguration {
         section: string,
         value: any,
         _configurationTarget?: boolean | vscode.ConfigurationTarget,
-        _overrideInLanguage?: boolean
+        _overrideInLanguage?: boolean,
     ): Thenable<void> {
         this.mockData[section] = value;
         return Promise.resolve();

@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
-import { Disposable, Event, EventEmitter, TreeDataProvider, TreeItem } from 'vscode';
+import { Disposable, EventEmitter, TreeDataProvider, TreeItem } from 'vscode';
 import * as nls from 'vscode-nls';
 
+import { ExtensionInfoService } from '../extensionInfo';
 import { Package, PackageState } from '../Package';
 import { Registry } from '../Registry';
 import { RegistryProvider } from '../RegistryProvider';
@@ -37,7 +38,10 @@ export class RegistryView implements Disposable {
     private recommendedProvider: RecommendedProvider;
     private extensionView: ExtensionDetailsView;
 
-    constructor(protected readonly registryProvider: RegistryProvider) {
+    constructor(
+        protected readonly registryProvider: RegistryProvider,
+        private readonly extensionInfo: ExtensionInfoService,
+    ) {
         this.extensionsProvider = new ExtensionsProvider(registryProvider);
         const extensionsTree = vscode.window.createTreeView('privateExtensions.extensions', {
             treeDataProvider: this.extensionsProvider,
@@ -49,7 +53,7 @@ export class RegistryView implements Disposable {
             treeDataProvider: this.recommendedProvider,
         });
 
-        this.extensionView = new ExtensionDetailsView();
+        this.extensionView = new ExtensionDetailsView(this.extensionInfo);
 
         this.disposable = Disposable.from(
             extensionsTree,
@@ -90,7 +94,7 @@ type Element = Registry | Package | string;
  */
 class ExtensionsProvider implements TreeDataProvider<Element>, Disposable {
     private _onDidChangeTreeData = new EventEmitter<Element | undefined>();
-    public readonly onDidChangeTreeData: Event<Element | undefined> = this._onDidChangeTreeData.event;
+    public readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
     protected disposable: Disposable;
 
@@ -160,7 +164,7 @@ class ExtensionsProvider implements TreeDataProvider<Element>, Disposable {
  */
 class RecommendedProvider implements TreeDataProvider<Element>, Disposable {
     private _onDidChangeTreeData = new EventEmitter<Element | undefined>();
-    public readonly onDidChangeTreeData: Event<Element | undefined> = this._onDidChangeTreeData.event;
+    public readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
     private disposable: Disposable;
 

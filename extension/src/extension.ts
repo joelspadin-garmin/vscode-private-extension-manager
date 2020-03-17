@@ -4,7 +4,7 @@ import * as nls from 'vscode-nls';
 import { CommandManager } from './commandManager';
 import * as commands from './commands/index';
 import { setContext } from './context';
-import * as extensionInfo from './extensionInfo';
+import { ExtensionInfoService } from './extensionInfo';
 import { ExtensionsFileFeatures } from './extensionsFileFeatures';
 import { RegistryProvider } from './RegistryProvider';
 import { UpdateChecker } from './UpdateChecker';
@@ -25,17 +25,17 @@ nls.config({ messageFormat: nls.MessageFormat.file })();
 export function activate(context: vscode.ExtensionContext) {
     setContext(context);
 
-    const disposable = extensionInfo.init();
-    const registryProvider = new RegistryProvider();
-    const registryView = new RegistryView(registryProvider);
-    const updateChecker = new UpdateChecker(registryProvider);
+    const extensionInfo = new ExtensionInfoService();
+    const registryProvider = new RegistryProvider(extensionInfo);
+    const registryView = new RegistryView(registryProvider, extensionInfo);
+    const updateChecker = new UpdateChecker(registryProvider, extensionInfo);
 
     context.subscriptions.push(
-        disposable,
+        extensionInfo,
         registryProvider,
         registryView,
         updateChecker,
-        registerCommands(registryProvider, registryView, updateChecker),
+        registerCommands(registryProvider, registryView, updateChecker, extensionInfo),
         registerLanguageFeatures(registryProvider),
     );
 }
@@ -50,6 +50,7 @@ function registerCommands(
     registryProvider: RegistryProvider,
     registryView: RegistryView,
     updateChecker: UpdateChecker,
+    extensionInfo: ExtensionInfoService,
 ): vscode.Disposable {
     const commandManager = new CommandManager();
 
@@ -60,9 +61,9 @@ function registerCommands(
 
         // Extension commands
         new commands.ShowExtensionCommand(registryView),
-        new commands.InstallExtensionCommand(registryProvider),
-        new commands.UpdateExtensionCommand(registryProvider),
-        new commands.UninstallExtensionCommand(),
+        new commands.InstallExtensionCommand(registryProvider, extensionInfo),
+        new commands.UpdateExtensionCommand(registryProvider, extensionInfo),
+        new commands.UninstallExtensionCommand(extensionInfo),
         new commands.InstallAnotherVersionCommand(registryProvider),
         new commands.SwitchChannelsCommand(registryProvider),
         new commands.CopyExtensionInformationCommand(),

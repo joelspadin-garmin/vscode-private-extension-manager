@@ -2,9 +2,11 @@ import * as fs from 'fs';
 import * as t from 'io-ts';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { Disposable, Event, EventEmitter } from 'vscode';
+import { Disposable, EventEmitter } from 'vscode';
 import * as nls from 'vscode-nls';
 
+import { ExtensionInfoService } from './extensionInfo';
+import { getLogger } from './logger';
 import { Package } from './Package';
 import { Registry, RegistrySource } from './Registry';
 import { assertType, options } from './typeUtil';
@@ -37,14 +39,14 @@ export class RegistryProvider implements Disposable {
     /**
      * An event that is emitted when the registry configuration changes.
      */
-    public readonly onDidChangeRegistries: Event<void> = this._onDidChangeRegistries.event;
+    public readonly onDidChangeRegistries = this._onDidChangeRegistries.event;
 
     private disposable: Disposable;
     private folders: FolderRegistryProvider[] = [];
     private isStale = true;
     private userRegistries: Registry[] = [];
 
-    constructor() {
+    constructor(private readonly extensionInfo: ExtensionInfoService) {
         this.disposable = Disposable.from(
             vscode.workspace.onDidChangeWorkspaceFolders(this.onDidChangeWorkspaceFolders, this),
             vscode.workspace.onDidChangeConfiguration(this.onDidChangeConfiguration, this),
@@ -192,7 +194,7 @@ export class RegistryProvider implements Disposable {
 
         for (const item of userRegistries) {
             const { name, ...options } = item;
-            this.userRegistries.push(new Registry(name, RegistrySource.User, options));
+            this.userRegistries.push(new Registry(this.extensionInfo, name, RegistrySource.User, options));
         }
     }
 
@@ -215,9 +217,9 @@ export class RegistryProvider implements Disposable {
     private addFolder(folder: vscode.WorkspaceFolder) {
         const idx = this.folders.findIndex(value => value.folder === folder);
         if (idx >= 0) {
-            console.error('Already have folder:', folder.uri);
+            getLogger().log(`Error: Already have folder "${folder.uri}"`);
         } else {
-            const provider = new FolderRegistryProvider(folder);
+            const provider = new FolderRegistryProvider(folder, this.extensionInfo);
             this.folders.push(provider);
 
             provider.onDidChangeRegistries(() => this._onDidChangeRegistries.fire());
@@ -242,7 +244,7 @@ class FolderRegistryProvider implements Disposable {
     /**
      * An event that is emitted when the registry configuration changes.
      */
-    public readonly onDidChangeRegistries: Event<void> = this._onDidChangeRegistries.event;
+    public readonly onDidChangeRegistries = this._onDidChangeRegistries.event;
 
     private static readonly ConfigGlobPattern = 'extensions.private.json';
 
@@ -254,7 +256,7 @@ class FolderRegistryProvider implements Disposable {
     private registries: Registry[] = [];
     private recommendedExtensions: string[] = [];
 
-    constructor(public readonly folder: vscode.WorkspaceFolder) {
+    constructor(public readonly folder: vscode.WorkspaceFolder, private readonly extensionInfo: ExtensionInfoService) {
         this.configFolder = path.join(folder.uri.fsPath, '.vscode');
 
         const configFilePath = path.join(this.configFolder, FolderRegistryProvider.ConfigGlobPattern);
@@ -332,7 +334,7 @@ class FolderRegistryProvider implements Disposable {
         if (config.registries) {
             for (const registry of config.registries) {
                 const { name, ...options } = registry;
-                this.registries.push(new Registry(name, RegistrySource.Workspace, options));
+                this.registries.push(new Registry(this.extensionInfo, name, RegistrySource.Workspace, options));
             }
         }
 

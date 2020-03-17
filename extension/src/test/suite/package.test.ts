@@ -5,30 +5,49 @@ import sinon = require('sinon');
 import * as vscode from 'vscode';
 import * as nls from 'vscode-nls';
 
-import * as extensionInfo from '../../extensionInfo';
+import { ExtensionInfoService } from '../../extensionInfo';
 import { NotAnExtensionError, Package, PackageState } from '../../Package';
 import { Registry, RegistrySource } from '../../Registry';
-import { stubExtension, stubGlobalConfiguration, stubLocalExtension, stubRemoteName } from '../stubs';
+import {
+    CommonStubs,
+    stubGlobalConfiguration,
+    stubRemoteName,
+} from '../stubs';
 
 nls.config({ locale: 'pseudo' });
 
 suite('Package', function() {
     vscode.window.showInformationMessage(`Start ${this.title} tests`);
 
+    let stubs: CommonStubs;
+    let extensionInfo: ExtensionInfoService;
+
+    /**
+     * Returns a generic `Registry` which won't function, but is sufficient for most
+     * tests on `Package` objects.
+     */
+    function getDummyRegistry() {
+        return new Registry(extensionInfo, 'test', RegistrySource.Workspace, {
+            registry: 'localhost',
+        });
+    }
+
     beforeEach(function() {
+        stubs = new CommonStubs();
+        extensionInfo = new ExtensionInfoService();
+
         // Unless a test specifies otherwise, we are not in a remote workspace.
         stubRemoteName(undefined);
-
-        // Don't allow cached extension info to affect tests.
-        extensionInfo.clearCache();
     });
 
     afterEach(function() {
+        extensionInfo.dispose();
+        stubs.dispose();
         sinon.restore();
     });
 
     test('Metadata', async function() {
-        stubExtension('test.test-package');
+        stubs.stubExtension('test.test-package');
 
         const registry = getDummyRegistry();
         const pkg = new Package(registry, {
@@ -56,7 +75,7 @@ suite('Package', function() {
     });
 
     test('Available: no remote', async function() {
-        stubExtension('test.test-package');
+        stubs.stubExtension('test.test-package');
 
         const pkg = new Package(getDummyRegistry(), {
             name: 'test-package',
@@ -77,7 +96,7 @@ suite('Package', function() {
 
     test('Available: extensionKind = [ui]', async function() {
         stubRemoteName('test-remote');
-        stubLocalExtension('test.test-package');
+        stubs.stubLocalExtension('test.test-package');
 
         const pkg = new Package(getDummyRegistry(), {
             name: 'test-package',
@@ -98,7 +117,7 @@ suite('Package', function() {
 
     test('Available: extensionKind = [ui, workspace]', async function() {
         stubRemoteName('test-remote');
-        stubLocalExtension('test.test-package');
+        stubs.stubLocalExtension('test.test-package');
 
         const pkg = new Package(getDummyRegistry(), {
             name: 'test-package',
@@ -119,7 +138,7 @@ suite('Package', function() {
 
     test('Available: extensionKind = [workspace]', async function() {
         stubRemoteName('test-remote');
-        stubLocalExtension('test.test-package');
+        stubs.stubLocalExtension('test.test-package');
 
         const pkg = new Package(getDummyRegistry(), {
             name: 'test-package',
@@ -141,7 +160,7 @@ suite('Package', function() {
     // Backwards compatibility with old type for extensionKind.
     test('Available: extensionKind = "ui"', async function() {
         stubRemoteName('test-remote');
-        stubLocalExtension('test.test-package');
+        stubs.stubLocalExtension('test.test-package');
 
         const pkg = new Package(getDummyRegistry(), {
             name: 'test-package',
@@ -163,7 +182,7 @@ suite('Package', function() {
     // Backwards compatibility with old type for extensionKind.
     test('Available: extensionKind = "workspace"', async function() {
         stubRemoteName('test-remote');
-        stubLocalExtension('test.test-package');
+        stubs.stubLocalExtension('test.test-package');
 
         const pkg = new Package(getDummyRegistry(), {
             name: 'test-package',
@@ -184,7 +203,7 @@ suite('Package', function() {
 
     test('Available: remote.extensionKind = [ui]', async function() {
         stubRemoteName('test-remote');
-        stubLocalExtension('test.test-package');
+        stubs.stubLocalExtension('test.test-package');
         stubGlobalConfiguration({
             'remote.extensionKind': {
                 'test.test-package': ['ui'],
@@ -209,7 +228,7 @@ suite('Package', function() {
 
     test('Available: remote.extensionKind = [ui, workspace]', async function() {
         stubRemoteName('test-remote');
-        stubLocalExtension('test.test-package');
+        stubs.stubLocalExtension('test.test-package');
         stubGlobalConfiguration({
             'remote.extensionKind': {
                 'test.test-package': ['ui', 'workspace'],
@@ -234,7 +253,7 @@ suite('Package', function() {
 
     test('Available: remote.extensionKind = [workspace]', async function() {
         stubRemoteName('test-remote');
-        stubLocalExtension('test.test-package');
+        stubs.stubLocalExtension('test.test-package');
         stubGlobalConfiguration({
             'remote.extensionKind': {
                 'test.test-package': ['workspace'],
@@ -260,7 +279,7 @@ suite('Package', function() {
     // Backwards compatibility with old type for extensionKind.
     test('Available: remote.extensionKind = "ui"', async function() {
         stubRemoteName('test-remote');
-        stubLocalExtension('test.test-package');
+        stubs.stubLocalExtension('test.test-package');
         stubGlobalConfiguration({
             'remote.extensionKind': {
                 'test.test-package': 'ui',
@@ -286,7 +305,7 @@ suite('Package', function() {
     // Backwards compatibility with old type for extensionKind.
     test('Available: remote.extensionKind = "workspace"', async function() {
         stubRemoteName('test-remote');
-        stubLocalExtension('test.test-package');
+        stubs.stubLocalExtension('test.test-package');
         stubGlobalConfiguration({
             'remote.extensionKind': {
                 'test.test-package': 'workspace',
@@ -311,7 +330,7 @@ suite('Package', function() {
 
     test('Available: no contributions -> ui', async function() {
         stubRemoteName('test-remote');
-        stubLocalExtension('test.test-package');
+        stubs.stubLocalExtension('test.test-package');
 
         const pkg = new Package(getDummyRegistry(), {
             name: 'test-package',
@@ -329,7 +348,7 @@ suite('Package', function() {
 
     test('Available: main defined -> workspace', async function() {
         stubRemoteName('test-remote');
-        stubLocalExtension('test.test-package');
+        stubs.stubLocalExtension('test.test-package');
 
         const pkg = new Package(getDummyRegistry(), {
             name: 'test-package',
@@ -350,7 +369,7 @@ suite('Package', function() {
 
     test('Available: extension dependencies -> workspace', async function() {
         stubRemoteName('test-remote');
-        stubLocalExtension('test.test-package');
+        stubs.stubLocalExtension('test.test-package');
 
         const pkg = new Package(getDummyRegistry(), {
             name: 'test-package',
@@ -371,7 +390,7 @@ suite('Package', function() {
 
     test('Available: extension pack -> workspace', async function() {
         stubRemoteName('test-remote');
-        stubLocalExtension('test.test-package');
+        stubs.stubLocalExtension('test.test-package');
 
         const pkg = new Package(getDummyRegistry(), {
             name: 'test-package',
@@ -391,15 +410,19 @@ suite('Package', function() {
     });
 
     test('Available: pre-release', async function() {
-        stubExtension('test.test-package');
+        stubs.stubExtension('test.test-package');
 
-        const pkg = new Package(getDummyRegistry(), {
-            name: 'test-package',
-            publisher: 'Test',
-            version: '1.2.3-beta.0',
-            engines: { vscode: '1.38.0' },
-            files: ['extension.vsix'],
-        }, 'insiders');
+        const pkg = new Package(
+            getDummyRegistry(),
+            {
+                name: 'test-package',
+                publisher: 'Test',
+                version: '1.2.3-beta.0',
+                engines: { vscode: '1.38.0' },
+                files: ['extension.vsix'],
+            },
+            'insiders',
+        );
 
         await pkg.updateState();
 
@@ -411,7 +434,7 @@ suite('Package', function() {
     });
 
     test('Installed: no remote', async function() {
-        stubExtension('test.test-package', {
+        stubs.stubExtension('test.test-package', {
             packageJSON: {
                 version: '1.2.3',
             },
@@ -436,7 +459,7 @@ suite('Package', function() {
 
     test('Installed: remote', async function() {
         stubRemoteName('test-remote');
-        stubExtension('test.test-package', {
+        stubs.stubExtension('test.test-package', {
             packageJSON: {
                 version: '1.2.3',
             },
@@ -462,7 +485,7 @@ suite('Package', function() {
 
     test('Installed: local', async function() {
         stubRemoteName('test-remote');
-        stubLocalExtension('test.test-package', {
+        stubs.stubLocalExtension('test.test-package', {
             packageJSON: {
                 version: '1.2.3',
             },
@@ -487,19 +510,23 @@ suite('Package', function() {
     });
 
     test('Installed: pre-release', async function() {
-        stubExtension('test.test-package', {
+        stubs.stubExtension('test.test-package', {
             packageJSON: {
                 version: '1.2.3-beta.0',
             },
         });
 
-        const pkg = new Package(getDummyRegistry(), {
-            name: 'test-package',
-            publisher: 'Test',
-            version: '1.2.3-beta.0',
-            engines: { vscode: '1.38.0' },
-            files: ['extension.vsix'],
-        }, 'insiders');
+        const pkg = new Package(
+            getDummyRegistry(),
+            {
+                name: 'test-package',
+                publisher: 'Test',
+                version: '1.2.3-beta.0',
+                engines: { vscode: '1.38.0' },
+                files: ['extension.vsix'],
+            },
+            'insiders',
+        );
 
         await pkg.updateState();
 
@@ -511,7 +538,7 @@ suite('Package', function() {
     });
 
     test('Update available: no remote', async function() {
-        stubExtension('test.test-package', {
+        stubs.stubExtension('test.test-package', {
             packageJSON: {
                 version: '1.0.0',
             },
@@ -536,7 +563,7 @@ suite('Package', function() {
 
     test('Update available: remote', async function() {
         stubRemoteName('test-remote');
-        stubExtension('test.test-package', {
+        stubs.stubExtension('test.test-package', {
             packageJSON: {
                 version: '1.0.0',
             },
@@ -561,7 +588,7 @@ suite('Package', function() {
 
     test('Update available: local', async function() {
         stubRemoteName('test-remote');
-        stubLocalExtension('test.test-package', {
+        stubs.stubLocalExtension('test.test-package', {
             packageJSON: {
                 version: '1.0.0',
             },
@@ -585,19 +612,23 @@ suite('Package', function() {
     });
 
     test('Update available: pre-release', async function() {
-        stubExtension('test.test-package', {
+        stubs.stubExtension('test.test-package', {
             packageJSON: {
                 version: '1.0.0-beta.0',
             },
         });
 
-        const pkg = new Package(getDummyRegistry(), {
-            name: 'test-package',
-            publisher: 'Test',
-            version: '1.2.3',
-            engines: { vscode: '1.38.0' },
-            files: ['extension.vsix'],
-        }, 'insiders');
+        const pkg = new Package(
+            getDummyRegistry(),
+            {
+                name: 'test-package',
+                publisher: 'Test',
+                version: '1.2.3',
+                engines: { vscode: '1.38.0' },
+                files: ['extension.vsix'],
+            },
+            'insiders',
+        );
 
         await pkg.updateState();
 
@@ -609,7 +640,7 @@ suite('Package', function() {
     });
 
     test('Missing publisher', async function() {
-        stubExtension('test.test-package');
+        stubs.stubExtension('test.test-package');
 
         const pkg = new Package(getDummyRegistry(), {
             name: 'test-package',
@@ -627,7 +658,7 @@ suite('Package', function() {
     });
 
     test('Missing .vsix file', async function() {
-        stubExtension('test.test-package');
+        stubs.stubExtension('test.test-package');
 
         const pkg = new Package(getDummyRegistry(), {
             name: 'test-package',
@@ -741,13 +772,3 @@ suite('Package', function() {
         );
     });
 });
-
-/**
- * Returns a generic `Registry` which won't function, but is sufficient for most
- * tests on `Package` objects.
- */
-function getDummyRegistry() {
-    return new Registry('test', RegistrySource.Workspace, {
-        registry: 'localhost',
-    });
-}
