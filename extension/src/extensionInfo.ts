@@ -1,9 +1,12 @@
 import * as semver from 'semver';
 import * as vscode from 'vscode';
+import * as nls from 'vscode-nls';
 
 import { context } from './context';
 import { getLogger } from './logger';
 import { Package } from './Package';
+
+const localize = nls.loadMessageBundle();
 
 /**
  * The data from `vscode.Extension` that is needed for managing extensions.
@@ -67,7 +70,13 @@ export class ExtensionInfoService implements vscode.Disposable {
             // This is normal during tests. The tests and any installed instance of
             // the extension will both try to register the command. Tests stub the
             // event emitter directly and do not use the command.
-            getLogger().log(`Failed to register remote extension listener:\n${ex}`);
+            getLogger().log(
+                localize(
+                    'warn.register.fail',
+                    'Warning: Failed to register remote extension listener:\n{0}',
+                    ex.toString(),
+                ),
+            );
         }
     }
 
@@ -197,7 +206,9 @@ export class ExtensionInfoService implements vscode.Disposable {
     public async didExtensionUpdate(pkg: Package) {
         const extension = await this.getExtension(pkg.extensionId);
         if (!extension) {
-            getLogger().log(`Error: Extension ${pkg.extensionId} missing after update`);
+            getLogger().log(
+                localize('error.extension.missing', 'Error: Extension {0} missing after update', pkg.extensionId),
+            );
             return false;
         }
 
@@ -234,7 +245,9 @@ export class ExtensionInfoService implements vscode.Disposable {
 
                 return uiExtension ? toExtensionInfo(uiExtension) : undefined;
             } catch (ex) {
-                getLogger().log(`Warning: Failed to call remote helper:\n${ex}`);
+                getLogger().log(
+                    localize('warn.remote.helper.fail', 'Failed to call remote helper:\n{0}', ex.toString()),
+                );
             }
         }
 
@@ -272,7 +285,9 @@ export class ExtensionInfoService implements vscode.Disposable {
 
 function toExtensionInfo(extension: vscode.Extension<any> | RemoteHelperExtensionInfo): ExtensionInfo {
     if (typeof extension.packageJSON.version !== 'string') {
-        throw new TypeError(`Package for extension ${extension.id} is missing version`);
+        throw new TypeError(
+            localize('package.missing.version', 'Package for extension {0} is missing version', extension.id),
+        );
     }
 
     return {

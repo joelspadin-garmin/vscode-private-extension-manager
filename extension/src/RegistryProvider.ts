@@ -217,7 +217,9 @@ export class RegistryProvider implements Disposable {
     private addFolder(folder: vscode.WorkspaceFolder) {
         const idx = this.folders.findIndex(value => value.folder === folder);
         if (idx >= 0) {
-            getLogger().log(`Error: Already have folder "${folder.uri}"`);
+            getLogger().log(
+                localize('error.already.have.folder', 'Error: Already have folder "{0}"', folder.uri.toString()),
+            );
         } else {
             const provider = new FolderRegistryProvider(folder, this.extensionInfo);
             this.folders.push(provider);

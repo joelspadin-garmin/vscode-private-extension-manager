@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Added `enablePagination` option to work around servers that don't properly handle pagination options.
+- A warning is now shown if a server returns too many results instead of continuing to make requests forever.
 
 ## 1.0.0
 

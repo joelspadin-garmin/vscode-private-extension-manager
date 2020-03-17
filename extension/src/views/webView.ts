@@ -1,9 +1,12 @@
 import { isAbsolute } from 'path';
 import * as vscode from 'vscode';
 import { Disposable, WebviewPanel } from 'vscode';
+import * as nls from 'vscode-nls';
 
 import { getLogger } from '../logger';
 import { getExtensionFileUri, memoize } from '../util';
+
+const localize = nls.loadMessageBundle();
 
 export abstract class WebView<T> implements Disposable {
     private panel?: WebviewPanel;
@@ -189,7 +192,9 @@ async function getUiPlatform(): Promise<NodeJS.Platform> {
                 return uiPlatform;
             }
         } catch (ex) {
-            getLogger().log(`Warning: Failed to call remote helper:\n${ex}`);
+            getLogger().log(
+                localize('warn.remote.helper.fail', 'Warning: Failed to call remote helper:\n{0}', ex.toString()),
+            );
         }
     }
 

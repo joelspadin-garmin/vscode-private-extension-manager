@@ -94,7 +94,7 @@ export class UpdateChecker implements Disposable {
 
         if (this.isAutomaticUpdateEnabled) {
             this.checkInterval = global.setInterval(() => {
-                getLogger().log('Starting automatic update check');
+                getLogger().log(localize('start.update.check', 'Starting automatic update check'));
                 this.checkForUpdates(true);
             }, this.intervalMS);
         }

@@ -20,6 +20,12 @@ import { getNpmCacheDir, getNpmDownloadDir, uriEquals } from './util';
 
 const localize = nls.loadMessageBundle();
 
+/**
+ * Don't try to request any more packages than this. If we get this many results,
+ * we're probably talking to a server that doesn't understand pagination.
+ */
+const MAX_RESULTS = 1000;
+
 export enum RegistrySource {
     /** Registry is defined by user settings. */
     User = 'user',
@@ -208,7 +214,14 @@ export class Registry {
                         ),
                     );
                 } else {
-                    getLogger().log(`Warning: Discarding package ${result.name}:\n${ex}`);
+                    getLogger().log(
+                        localize(
+                            'warn.discarding.package',
+                            'Warning: Discarding package {0}:\n{1}',
+                            result.name,
+                            ex.toString(),
+                        ),
+                    );
                 }
             }
         }
@@ -291,7 +304,7 @@ export class Registry {
 
     private async *findMatchingPackages(query: string | readonly string[], token?: CancellationToken) {
         let from = 0;
-        while (true) {
+        while (from < MAX_RESULTS) {
             if (token?.isCancellationRequested) {
                 break;
             }
@@ -312,6 +325,18 @@ export class Registry {
             } else {
                 from += page.length;
             }
+        }
+
+        if (from >= MAX_RESULTS) {
+            window.showWarningMessage(
+                localize(
+                    'warn.too.many.results',
+                    'Private extension registry {0} returned too many results. If your server does not handle ' +
+                        'pagination, add \'"enablePagination": false\' to your registry configuration. ' +
+                        'If this returns too few results, adjust "limit" as well.',
+                    this.uri?.toString(),
+                ),
+            );
         }
     }
 }
@@ -353,5 +378,3 @@ function lookupVersion(metadata: PackageVersionData, name: string, versionOrTag:
 
     return result;
 }
-
-
