@@ -4,6 +4,7 @@ import * as search from 'libnpmsearch';
 import { after, afterEach, before, beforeEach } from 'mocha';
 import * as nock from 'nock';
 import { SemVer } from 'semver';
+import 'source-map-support/register';
 import * as vscode from 'vscode';
 import { Uri } from 'vscode';
 

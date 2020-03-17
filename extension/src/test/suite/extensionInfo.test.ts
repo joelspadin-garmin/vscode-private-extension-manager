@@ -1,6 +1,7 @@
 import { assert } from 'chai';
 import { afterEach, beforeEach } from 'mocha';
 import sinon = require('sinon');
+import 'source-map-support/register';
 import * as vscode from 'vscode';
 
 import { ExtensionInfoService } from '../../extensionInfo';

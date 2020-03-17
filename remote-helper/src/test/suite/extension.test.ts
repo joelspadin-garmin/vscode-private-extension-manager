@@ -1,5 +1,6 @@
 import * as assert from 'assert';
 import { before } from 'mocha';
+import 'source-map-support/register';
 import * as vscode from 'vscode';
 
 suite('Extension Test Suite', function() {
