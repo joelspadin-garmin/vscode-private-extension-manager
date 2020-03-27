@@ -1,7 +1,6 @@
 import * as cacache from 'cacache';
 import * as search from 'libnpmsearch';
 import * as nock from 'nock';
-import * as pacote from 'pacote';
 import * as querystring from 'querystring';
 import * as url from 'url';
 
@@ -41,7 +40,6 @@ export interface PackageMetadata {
  */
 export function clearCache() {
     cacache.clearMemoized();
-    pacote.clearMemoized();
 }
 
 /**
