@@ -2,7 +2,7 @@
     "name": "private-extension-manager-remote-helper",
     "displayName": "Private Extension Manager: Remote Helper",
     "description": "Lets Private Extension Manager work in remote workspaces.",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "publisher": "garmin",
     "license": "Apache-2.0",
     "author": {

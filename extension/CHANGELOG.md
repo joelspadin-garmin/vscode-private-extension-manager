@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## 1.1.0
 
 - **Breaking change**: [npm-registry-fetch](https://github.com/npm/npm-registry-fetch#-fetch-options)
   has removed several option aliases. If you use any registry options other than
