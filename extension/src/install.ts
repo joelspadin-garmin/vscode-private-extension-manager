@@ -85,7 +85,7 @@ export async function updateExtensions(extensionInfo: ExtensionInfoService, pack
         },
     );
 
-    if (!packages.every(pkg => extensionInfo.didExtensionUpdate(pkg))) {
+    if (!packages.every((pkg) => extensionInfo.didExtensionUpdate(pkg))) {
         await showReloadPrompt(
             localize(
                 'reload.to.complete.update.all',
@@ -94,8 +94,6 @@ export async function updateExtensions(extensionInfo: ExtensionInfoService, pack
         );
     }
 }
-
-
 
 /**
  * Displays a message with a button to reload vscode.

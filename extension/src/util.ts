@@ -40,7 +40,7 @@ export function getNpmDownloadDir() {
  * Deletes the contents of `getNpmDownloadDir()`.
  */
 export function deleteNpmDownloads() {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
         const downloadDir = getNpmDownloadDir();
         rimraf(downloadDir, () => resolve());
     });
@@ -60,7 +60,7 @@ export function memoize(target: any, key: string, descriptor: PropertyDescriptor
     const oldFunc = descriptor.value;
     const newFunc = memoizeOne(oldFunc);
 
-    descriptor.value = function(...args: any[]) {
+    descriptor.value = function (...args: any[]) {
         return newFunc.apply(this, ...args);
     };
 }

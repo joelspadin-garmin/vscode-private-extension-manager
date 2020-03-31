@@ -3,10 +3,10 @@ import { before } from 'mocha';
 import 'source-map-support/register';
 import * as vscode from 'vscode';
 
-suite('Extension Test Suite', function() {
+suite('Extension Test Suite', function () {
     vscode.window.showInformationMessage('Start all tests.');
 
-    before(function() {
+    before(function () {
         const extension = vscode.extensions.getExtension('garmin.private-extension-manager-remote-helper');
 
         if (!extension) {
@@ -18,7 +18,7 @@ suite('Extension Test Suite', function() {
         }
     });
 
-    test('Get Package JSON', async function() {
+    test('Get Package JSON', async function () {
         const extension = await vscode.commands.executeCommand<Partial<vscode.Extension<any>>>(
             '_privateExtensionManager.remoteHelper.getExtension',
             'garmin.private-extension-manager-remote-helper',
@@ -32,7 +32,7 @@ suite('Extension Test Suite', function() {
         assert.strictEqual(typeof extension?.packageJSON.version, 'string');
     });
 
-    test('Get Platform', async function() {
+    test('Get Platform', async function () {
         const platform = await vscode.commands.executeCommand<string>(
             '_privateExtensionManager.remoteHelper.getPlatform',
         );

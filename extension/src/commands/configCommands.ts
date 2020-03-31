@@ -70,7 +70,7 @@ async function writeTemplateIfEmpty(editor: vscode.TextEditor) {
         return;
     }
 
-    await editor.edit(editBuilder => {
+    await editor.edit((editBuilder) => {
         editBuilder.insert(new vscode.Position(0, 0), ExtensionsConfigurationInitialContent);
     });
 

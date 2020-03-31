@@ -23,14 +23,14 @@ use(chaiSubsetInOrder);
 nls.config({ locale: 'pseudo' });
 
 // Test suite should be run inside workspace test-fixtures/fixture1
-suite('Registry Provider', function() {
+suite('Registry Provider', function () {
     vscode.window.showInformationMessage(`Start ${this.title} tests`);
 
     let scope1: nock.Scope;
     let scope2: nock.Scope;
     let extensionInfo: ExtensionInfoService;
 
-    before(function() {
+    before(function () {
         this.timeout(2000);
 
         // Mock data for registries in extensions.private.json
@@ -54,7 +54,7 @@ suite('Registry Provider', function() {
         scope2.get('/user').reply(200, USER_PACKAGE.user);
     });
 
-    after(function() {
+    after(function () {
         // Ensure that every mock response defined above was used at least once.
         scope1.done();
         scope2.done();
@@ -62,7 +62,7 @@ suite('Registry Provider', function() {
         nock.cleanAll();
     });
 
-    beforeEach(function() {
+    beforeEach(function () {
         extensionInfo = new ExtensionInfoService();
 
         // Ensure that cached results from a previous test do not affect the
@@ -70,12 +70,12 @@ suite('Registry Provider', function() {
         clearCache();
     });
 
-    afterEach(function() {
+    afterEach(function () {
         extensionInfo.dispose();
         sinon.restore();
     });
 
-    test('Get registries', async function() {
+    test('Get registries', async function () {
         stubGlobalConfiguration('privateExtensions', USER_REGISTRY_CONFIG);
 
         const provider = new RegistryProvider(extensionInfo);
@@ -90,7 +90,7 @@ suite('Registry Provider', function() {
         assert.lengthOf(registries, expected.length);
     });
 
-    test('Get recommendations', async function() {
+    test('Get recommendations', async function () {
         stubGlobalConfiguration('privateExtensions', USER_REGISTRY_CONFIG);
 
         const provider = new RegistryProvider(extensionInfo);
@@ -101,7 +101,7 @@ suite('Registry Provider', function() {
         assert.deepStrictEqual(recommendations, expected);
     });
 
-    test('Get unique packages', async function() {
+    test('Get unique packages', async function () {
         stubGlobalConfiguration('privateExtensions', USER_REGISTRY_CONFIG);
 
         const provider = new RegistryProvider(extensionInfo);
@@ -120,7 +120,7 @@ suite('Registry Provider', function() {
         assert.lengthOf(packages, expected.length);
     });
 
-    test('Tracking custom channel', async function() {
+    test('Tracking custom channel', async function () {
         stubGlobalConfiguration('privateExtensions', USER_REGISTRY_CONFIG_CHANNEL);
 
         const provider = new RegistryProvider(extensionInfo);
@@ -138,7 +138,7 @@ suite('Registry Provider', function() {
         assert.lengthOf(packages, expected.length);
     });
 
-    test('Invalid user config: wrong type', async function() {
+    test('Invalid user config: wrong type', async function () {
         stubGlobalConfiguration('privateExtensions', {
             registries: 42,
         });
@@ -155,7 +155,7 @@ suite('Registry Provider', function() {
         );
     });
 
-    test('Invalid user config: missing name', async function() {
+    test('Invalid user config: missing name', async function () {
         stubGlobalConfiguration('privateExtensions', {
             registries: [{ registry: USER_REGISTRY_URL }],
         });
@@ -171,7 +171,7 @@ suite('Registry Provider', function() {
         );
     });
 
-    test('Invalid user config: wrong name type', async function() {
+    test('Invalid user config: wrong name type', async function () {
         stubGlobalConfiguration('privateExtensions', {
             registries: [{ name: 42 }],
         });
@@ -187,7 +187,7 @@ suite('Registry Provider', function() {
         );
     });
 
-    test('Invalid user config: wrong registry type', async function() {
+    test('Invalid user config: wrong registry type', async function () {
         stubGlobalConfiguration('privateExtensions', {
             registries: [{ name: 'User Registry', registry: 42 }],
         });
@@ -203,7 +203,7 @@ suite('Registry Provider', function() {
         );
     });
 
-    test('Invalid user config: mixed values', async function() {
+    test('Invalid user config: mixed values', async function () {
         stubGlobalConfiguration('privateExtensions', {
             registries: [
                 { name: 'User Registry 1', registry: USER_REGISTRY_URL },

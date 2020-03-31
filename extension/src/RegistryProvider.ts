@@ -61,7 +61,7 @@ export class RegistryProvider implements Disposable {
 
     public dispose() {
         this.disposable.dispose();
-        this.folders.map(f => f.dispose());
+        this.folders.map((f) => f.dispose());
     }
 
     /**
@@ -148,7 +148,7 @@ export class RegistryProvider implements Disposable {
     public addUserRegistry(name: string, registry: string) {
         const userRegistries = this.getUserRegistryConfig();
 
-        if (userRegistries.some(other => name === other.name)) {
+        if (userRegistries.some((other) => name === other.name)) {
             throw new Error(localize('registry.exists', 'A registry named "{0}" already exists', name));
         }
 
@@ -162,7 +162,7 @@ export class RegistryProvider implements Disposable {
 
     public removeUserRegistry(name: string) {
         const userRegistries = this.getUserRegistryConfig();
-        const newRegistries = userRegistries.filter(registry => registry.name !== name);
+        const newRegistries = userRegistries.filter((registry) => registry.name !== name);
 
         if (newRegistries.length === userRegistries.length) {
             throw new Error(localize('registry.does.not.exist', 'No registry named "{0}" exists.', name));
@@ -209,13 +209,13 @@ export class RegistryProvider implements Disposable {
     }
 
     private onDidChangeWorkspaceFolders(e: vscode.WorkspaceFoldersChangeEvent) {
-        e.removed.map(folder => this.removeFolder(folder));
-        e.added.map(folder => this.addFolder(folder));
+        e.removed.map((folder) => this.removeFolder(folder));
+        e.added.map((folder) => this.addFolder(folder));
         this._onDidChangeRegistries.fire();
     }
 
     private addFolder(folder: vscode.WorkspaceFolder) {
-        const idx = this.folders.findIndex(value => value.folder === folder);
+        const idx = this.folders.findIndex((value) => value.folder === folder);
         if (idx >= 0) {
             getLogger().log(
                 localize('error.already.have.folder', 'Error: Already have folder "{0}"', folder.uri.toString()),
@@ -229,10 +229,10 @@ export class RegistryProvider implements Disposable {
     }
 
     private removeFolder(folder: vscode.WorkspaceFolder) {
-        const idx = this.folders.findIndex(value => value.folder === folder);
+        const idx = this.folders.findIndex((value) => value.folder === folder);
         if (idx >= 0) {
             const removed = this.folders.splice(idx, 1);
-            removed.map(f => f.dispose());
+            removed.map((f) => f.dispose());
         }
     }
 }
@@ -270,7 +270,7 @@ class FolderRegistryProvider implements Disposable {
             this.configFile = null;
         }
 
-        this.configFileWatcher.onDidCreate(uri => {
+        this.configFileWatcher.onDidCreate((uri) => {
             this.configFile = uri;
             this.handleConfigChange();
         });
@@ -351,7 +351,7 @@ class FolderRegistryProvider implements Disposable {
  */
 function dedupeRegistries(registries: readonly Registry[]) {
     return registries.reduce<Registry[]>((list, item) => {
-        if (list.findIndex(other => item.equals(other)) === -1) {
+        if (list.findIndex((other) => item.equals(other)) === -1) {
             list.push(item);
         }
 

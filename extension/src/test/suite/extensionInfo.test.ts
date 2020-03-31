@@ -7,24 +7,24 @@ import * as vscode from 'vscode';
 import { ExtensionInfoService } from '../../extensionInfo';
 import { stubRemoteName, CommonStubs } from '../stubs';
 
-suite('Extension Info', function() {
+suite('Extension Info', function () {
     vscode.window.showInformationMessage(`Start ${this.title} tests`);
 
     let stubs: CommonStubs;
     let extensionInfo: ExtensionInfoService;
 
-    beforeEach(function() {
+    beforeEach(function () {
         stubs = new CommonStubs();
         extensionInfo = new ExtensionInfoService();
     });
 
-    afterEach(function() {
+    afterEach(function () {
         extensionInfo.dispose();
         stubs.dispose();
         sinon.restore();
     });
 
-    test('Get extension: workspace', async function() {
+    test('Get extension: workspace', async function () {
         stubs.stubExtension('test.foo', {});
         stubs.stubExtension('test.bar', {});
         stubs.stubExtension('test.baz', undefined);
@@ -41,7 +41,7 @@ suite('Extension Info', function() {
         assert.isUndefined(baz);
     });
 
-    test('Get extension: local', async function() {
+    test('Get extension: local', async function () {
         stubRemoteName('test-remote');
         stubs.stubLocalExtension('test.foo', {});
         stubs.stubLocalExtension('test.bar', {});
@@ -55,7 +55,7 @@ suite('Extension Info', function() {
         assert.strictEqual(bar?.id, 'test.bar');
     });
 
-    test('Get extension: mixed', async function() {
+    test('Get extension: mixed', async function () {
         stubRemoteName('test-remote');
         stubs.stubExtension('test.foo', {});
         stubs.stubLocalExtension('test.bar', {});
@@ -69,7 +69,7 @@ suite('Extension Info', function() {
         assert.strictEqual(bar?.id, 'test.bar');
     });
 
-    test('Extensions changed: workspace', async function() {
+    test('Extensions changed: workspace', async function () {
         stubs.stubExtension('test.foo', {
             packageJSON: {
                 version: '1.0.0',
@@ -95,7 +95,7 @@ suite('Extension Info', function() {
         assert.strictEqual(foo2?.version.format(), '2.0.0');
     });
 
-    test('Extensions changed: local', async function() {
+    test('Extensions changed: local', async function () {
         stubRemoteName('test-remote');
         stubs.stubLocalExtension('test.foo', {
             packageJSON: {
@@ -122,7 +122,7 @@ suite('Extension Info', function() {
         assert.strictEqual(foo2?.version.format(), '2.0.0');
     });
 
-    test('Wrap extension change', async function() {
+    test('Wrap extension change', async function () {
         stubs.stubExtension('test.foo', {
             packageJSON: {
                 version: '1.0.0',
@@ -151,7 +151,7 @@ suite('Extension Info', function() {
         assert.strictEqual(foo2?.version.format(), '2.0.0');
     });
 
-    test('Wrap extension change: timeout', async function() {
+    test('Wrap extension change: timeout', async function () {
         stubs.stubExtension('test.foo', {
             packageJSON: {
                 version: '1.0.0',
@@ -175,7 +175,7 @@ suite('Extension Info', function() {
 });
 
 function delay(callback: () => void, timeout = 100) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
         setTimeout(() => {
             callback();
             resolve();

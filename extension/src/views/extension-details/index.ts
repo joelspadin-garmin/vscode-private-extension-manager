@@ -8,7 +8,7 @@ function initTab(id: string, index: number) {
     const page = document.querySelector(`#${id}`) as HTMLElement;
 
     link.addEventListener('click', () => setTab(index));
-    link.addEventListener('keypress', e => {
+    link.addEventListener('keypress', (e) => {
         if (e.key === ' ' || e.key === 'Enter') {
             setTab(index);
         }

@@ -17,7 +17,7 @@ export class AddUserRegistryCommand implements Command {
         const registry = await vscode.window.showInputBox({
             prompt: localize('registry.url.prompt', 'Enter the URL of the NPM registry.'),
             placeHolder: localize('registry.url.placeholder', 'https://my-private.registry'),
-            validateInput: value => (isWebUri(value) ? null : localize('must.be.url', 'Value must be a valid URL.')),
+            validateInput: (value) => (isWebUri(value) ? null : localize('must.be.url', 'Value must be a valid URL.')),
             ignoreFocusOut: true,
         });
 
@@ -82,7 +82,7 @@ export class RemoveUserRegistryCommand implements Command {
         }
 
         const items = registries.map(
-            registry =>
+            (registry) =>
                 ({
                     label: registry.name,
                     description: registry.uri?.toString(),
@@ -95,7 +95,7 @@ export class RemoveUserRegistryCommand implements Command {
         });
 
         if (selected) {
-            return registries.find(registry => registry.name === selected.label);
+            return registries.find((registry) => registry.name === selected.label);
         } else {
             return undefined;
         }

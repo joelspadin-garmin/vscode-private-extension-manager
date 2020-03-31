@@ -183,7 +183,7 @@ export class ExtensionInfoService implements vscode.Disposable {
         task: Promise<T>,
         timeout: number = EXTENSION_CHANGE_TIMEOUT_MS,
     ): Promise<T> {
-        const wait = new Promise<void>(resolve => {
+        const wait = new Promise<void>((resolve) => {
             function finished() {
                 global.clearTimeout(handle);
                 event.dispose();
@@ -263,7 +263,7 @@ export class ExtensionInfoService implements vscode.Disposable {
      * uninstalled extensions.
      */
     private onMyExtensionChanged() {
-        this.clearCacheIf(cache => cache === undefined || cache.extensionKind === this.myExtensionKind);
+        this.clearCacheIf((cache) => cache === undefined || cache.extensionKind === this.myExtensionKind);
 
         this._onDidChange.fire();
     }
@@ -277,7 +277,7 @@ export class ExtensionInfoService implements vscode.Disposable {
      * returns up-to-date info for updated, installed, or uninstalled extensions.
      */
     private onOtherExtensionChanged() {
-        this.clearCacheIf(cache => cache === undefined || cache.extensionKind !== this.myExtensionKind);
+        this.clearCacheIf((cache) => cache === undefined || cache.extensionKind !== this.myExtensionKind);
 
         this._onDidChange.fire();
     }

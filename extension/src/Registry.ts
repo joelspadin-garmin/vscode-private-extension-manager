@@ -226,7 +226,7 @@ export class Registry {
             }
         }
 
-        await Promise.all(packages.map(pkg => pkg.updateState()));
+        await Promise.all(packages.map((pkg) => pkg.updateState()));
 
         return packages;
     }
@@ -268,7 +268,7 @@ export class Registry {
         const metadata = await this.getPackageMetadata(name);
 
         if (PackageVersionData.is(metadata)) {
-            return Object.keys(metadata.versions).map(key => getVersionInfo(metadata, key));
+            return Object.keys(metadata.versions).map((key) => getVersionInfo(metadata, key));
         } else {
             return [];
         }

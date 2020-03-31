@@ -11,8 +11,8 @@ const localize = nls.loadMessageBundle();
  */
 function getOptionsTypeName(required: t.Props, optional: t.Props) {
     const propNames = [
-        ...Object.keys(required).map(k => `${k}: ${required[k].name}`),
-        ...Object.keys(optional).map(k => `${k}?: ${optional[k].name}`),
+        ...Object.keys(required).map((k) => `${k}: ${required[k].name}`),
+        ...Object.keys(optional).map((k) => `${k}?: ${optional[k].name}`),
     ].join(', ');
 
     return `{ ${propNames} }`;
@@ -24,7 +24,7 @@ function getOptionsTypeName(required: t.Props, optional: t.Props) {
  * intersection itself to hide the inner codec.
  */
 function spliceOptionsContext(u: unknown, c: t.Context, errors: t.Errors) {
-    return errors.map(e => t.getValidationError(u, [...c, ...e.context.slice(1)]));
+    return errors.map((e) => t.getValidationError(u, [...c, ...e.context.slice(1)]));
 }
 
 /**
@@ -67,8 +67,8 @@ export function options<R extends t.Props, O extends t.Props>(
  */
 export function formatError(error: t.ValidationError) {
     const path = error.context
-        .map(c => c.key)
-        .filter(key => key.length > 0)
+        .map((c) => c.key)
+        .filter((key) => key.length > 0)
         .join('.');
 
     const errorContext = error.context[error.context.length - 1];
@@ -100,7 +100,7 @@ export function assertType<T>(
 ): asserts obj is T {
     const result = type.decode(obj);
     if (isLeft(result)) {
-        let message = result.left.map(error => formatError(error)).join(', ');
+        let message = result.left.map((error) => formatError(error)).join(', ');
         if (context) {
             message = localize('error.context', '{0}: {1}', context, message);
         }

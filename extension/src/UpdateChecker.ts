@@ -110,7 +110,7 @@ export class UpdateChecker implements Disposable {
     private async getPackagesWithUpdates() {
         const packages = await this.registryProvider.getUniquePackages();
 
-        return packages.filter(pkg => pkg.isUpdateAvailable);
+        return packages.filter((pkg) => pkg.isUpdateAvailable);
     }
 
     private async showNoUpdatesMessage() {

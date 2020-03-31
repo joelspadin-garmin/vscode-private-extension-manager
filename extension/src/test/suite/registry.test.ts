@@ -16,13 +16,13 @@ import { clearCache, mockSearch, PackageMetadata } from '../util';
 
 use(chaiSubset);
 
-suite('Registry Package Search', function() {
+suite('Registry Package Search', function () {
     vscode.window.showInformationMessage(`Start ${this.title} tests`);
 
     let scope: nock.Scope;
     let extensionInfo: ExtensionInfoService;
 
-    before(function() {
+    before(function () {
         // Tests should complete quickly since we're mocking all network
         // requests. If any test takes more than a couple seconds, it probably
         // isn't going to complete at all.
@@ -50,14 +50,14 @@ suite('Registry Package Search', function() {
         // TODO: add mock tarball responses and test package downloads.
     });
 
-    after(function() {
+    after(function () {
         // Ensure that every mock response defined above was used at least once.
         scope.done();
 
         nock.cleanAll();
     });
 
-    beforeEach(function() {
+    beforeEach(function () {
         extensionInfo = new ExtensionInfoService();
 
         // Ensure that cached results from a previous test do not affect the
@@ -65,11 +65,11 @@ suite('Registry Package Search', function() {
         clearCache();
     });
 
-    afterEach(function() {
+    afterEach(function () {
         extensionInfo.dispose();
     });
 
-    test('Create registry', async function() {
+    test('Create registry', async function () {
         const registry = new Registry(extensionInfo, 'test', RegistrySource.Workspace, {
             registry: REGISTRY_URL,
             query: 'query',
@@ -85,7 +85,7 @@ suite('Registry Package Search', function() {
         });
     });
 
-    test('Get all packages', async function() {
+    test('Get all packages', async function () {
         const registry = new Registry(extensionInfo, 'test', RegistrySource.User, {
             registry: REGISTRY_URL,
         });
@@ -97,7 +97,7 @@ suite('Registry Package Search', function() {
         assert.lengthOf(results, expected.length);
     });
 
-    test('Get keyword 1', async function() {
+    test('Get keyword 1', async function () {
         const registry = new Registry(extensionInfo, 'test', RegistrySource.User, {
             registry: REGISTRY_URL,
             query: 'keywords:foo',
@@ -110,7 +110,7 @@ suite('Registry Package Search', function() {
         assert.lengthOf(results, expected.length);
     });
 
-    test('Get keyword 2', async function() {
+    test('Get keyword 2', async function () {
         const registry = new Registry(extensionInfo, 'test', RegistrySource.User, {
             registry: REGISTRY_URL,
             query: 'keywords:bar',
@@ -123,7 +123,7 @@ suite('Registry Package Search', function() {
         assert.lengthOf(results, expected.length);
     });
 
-    test('Get keyword 3', async function() {
+    test('Get keyword 3', async function () {
         const registry = new Registry(extensionInfo, 'test', RegistrySource.User, {
             registry: REGISTRY_URL,
             query: 'keywords:b-packages',
@@ -136,7 +136,7 @@ suite('Registry Package Search', function() {
         assert.lengthOf(results, expected.length);
     });
 
-    test('Get two keywords with string', async function() {
+    test('Get two keywords with string', async function () {
         const registry = new Registry(extensionInfo, 'test', RegistrySource.User, {
             registry: REGISTRY_URL,
             query: 'keywords:foo keywords:bar',
@@ -149,7 +149,7 @@ suite('Registry Package Search', function() {
         assert.lengthOf(results, expected.length);
     });
 
-    test('Get two keywords with array', async function() {
+    test('Get two keywords with array', async function () {
         // query = ['term1', 'term2'] should be identical to 'term1 term2'.
         const registry = new Registry(extensionInfo, 'test', RegistrySource.User, {
             registry: REGISTRY_URL,
@@ -163,7 +163,7 @@ suite('Registry Package Search', function() {
         assert.lengthOf(results, expected.length);
     });
 
-    test('Get package metadata', async function() {
+    test('Get package metadata', async function () {
         const registry = new Registry(extensionInfo, 'test', RegistrySource.User, {
             registry: REGISTRY_URL,
         });

@@ -9,15 +9,11 @@ import * as nls from 'vscode-nls';
 import { ExtensionInfoService } from '../../extensionInfo';
 import { NotAnExtensionError, Package, PackageState } from '../../Package';
 import { Registry, RegistrySource } from '../../Registry';
-import {
-    CommonStubs,
-    stubGlobalConfiguration,
-    stubRemoteName,
-} from '../stubs';
+import { CommonStubs, stubGlobalConfiguration, stubRemoteName } from '../stubs';
 
 nls.config({ locale: 'pseudo' });
 
-suite('Package', function() {
+suite('Package', function () {
     vscode.window.showInformationMessage(`Start ${this.title} tests`);
 
     let stubs: CommonStubs;
@@ -33,7 +29,7 @@ suite('Package', function() {
         });
     }
 
-    beforeEach(function() {
+    beforeEach(function () {
         stubs = new CommonStubs();
         extensionInfo = new ExtensionInfoService();
 
@@ -41,13 +37,13 @@ suite('Package', function() {
         stubRemoteName(undefined);
     });
 
-    afterEach(function() {
+    afterEach(function () {
         extensionInfo.dispose();
         stubs.dispose();
         sinon.restore();
     });
 
-    test('Metadata', async function() {
+    test('Metadata', async function () {
         stubs.stubExtension('test.test-package');
 
         const registry = getDummyRegistry();
@@ -75,7 +71,7 @@ suite('Package', function() {
         });
     });
 
-    test('Available: no remote', async function() {
+    test('Available: no remote', async function () {
         stubs.stubExtension('test.test-package');
 
         const pkg = new Package(getDummyRegistry(), {
@@ -95,7 +91,7 @@ suite('Package', function() {
         });
     });
 
-    test('Available: extensionKind = [ui]', async function() {
+    test('Available: extensionKind = [ui]', async function () {
         stubRemoteName('test-remote');
         stubs.stubLocalExtension('test.test-package');
 
@@ -116,7 +112,7 @@ suite('Package', function() {
         });
     });
 
-    test('Available: extensionKind = [ui, workspace]', async function() {
+    test('Available: extensionKind = [ui, workspace]', async function () {
         stubRemoteName('test-remote');
         stubs.stubLocalExtension('test.test-package');
 
@@ -137,7 +133,7 @@ suite('Package', function() {
         });
     });
 
-    test('Available: extensionKind = [workspace]', async function() {
+    test('Available: extensionKind = [workspace]', async function () {
         stubRemoteName('test-remote');
         stubs.stubLocalExtension('test.test-package');
 
@@ -159,7 +155,7 @@ suite('Package', function() {
     });
 
     // Backwards compatibility with old type for extensionKind.
-    test('Available: extensionKind = "ui"', async function() {
+    test('Available: extensionKind = "ui"', async function () {
         stubRemoteName('test-remote');
         stubs.stubLocalExtension('test.test-package');
 
@@ -181,7 +177,7 @@ suite('Package', function() {
     });
 
     // Backwards compatibility with old type for extensionKind.
-    test('Available: extensionKind = "workspace"', async function() {
+    test('Available: extensionKind = "workspace"', async function () {
         stubRemoteName('test-remote');
         stubs.stubLocalExtension('test.test-package');
 
@@ -202,7 +198,7 @@ suite('Package', function() {
         });
     });
 
-    test('Available: remote.extensionKind = [ui]', async function() {
+    test('Available: remote.extensionKind = [ui]', async function () {
         stubRemoteName('test-remote');
         stubs.stubLocalExtension('test.test-package');
         stubGlobalConfiguration({
@@ -227,7 +223,7 @@ suite('Package', function() {
         });
     });
 
-    test('Available: remote.extensionKind = [ui, workspace]', async function() {
+    test('Available: remote.extensionKind = [ui, workspace]', async function () {
         stubRemoteName('test-remote');
         stubs.stubLocalExtension('test.test-package');
         stubGlobalConfiguration({
@@ -252,7 +248,7 @@ suite('Package', function() {
         });
     });
 
-    test('Available: remote.extensionKind = [workspace]', async function() {
+    test('Available: remote.extensionKind = [workspace]', async function () {
         stubRemoteName('test-remote');
         stubs.stubLocalExtension('test.test-package');
         stubGlobalConfiguration({
@@ -278,7 +274,7 @@ suite('Package', function() {
     });
 
     // Backwards compatibility with old type for extensionKind.
-    test('Available: remote.extensionKind = "ui"', async function() {
+    test('Available: remote.extensionKind = "ui"', async function () {
         stubRemoteName('test-remote');
         stubs.stubLocalExtension('test.test-package');
         stubGlobalConfiguration({
@@ -304,7 +300,7 @@ suite('Package', function() {
     });
 
     // Backwards compatibility with old type for extensionKind.
-    test('Available: remote.extensionKind = "workspace"', async function() {
+    test('Available: remote.extensionKind = "workspace"', async function () {
         stubRemoteName('test-remote');
         stubs.stubLocalExtension('test.test-package');
         stubGlobalConfiguration({
@@ -329,7 +325,7 @@ suite('Package', function() {
         });
     });
 
-    test('Available: no contributions -> ui', async function() {
+    test('Available: no contributions -> ui', async function () {
         stubRemoteName('test-remote');
         stubs.stubLocalExtension('test.test-package');
 
@@ -347,7 +343,7 @@ suite('Package', function() {
         assert.strictEqual(pkg.isUiExtension, true);
     });
 
-    test('Available: main defined -> workspace', async function() {
+    test('Available: main defined -> workspace', async function () {
         stubRemoteName('test-remote');
         stubs.stubLocalExtension('test.test-package');
 
@@ -368,7 +364,7 @@ suite('Package', function() {
         });
     });
 
-    test('Available: extension dependencies -> workspace', async function() {
+    test('Available: extension dependencies -> workspace', async function () {
         stubRemoteName('test-remote');
         stubs.stubLocalExtension('test.test-package');
 
@@ -389,7 +385,7 @@ suite('Package', function() {
         });
     });
 
-    test('Available: extension pack -> workspace', async function() {
+    test('Available: extension pack -> workspace', async function () {
         stubRemoteName('test-remote');
         stubs.stubLocalExtension('test.test-package');
 
@@ -410,7 +406,7 @@ suite('Package', function() {
         });
     });
 
-    test('Available: pre-release', async function() {
+    test('Available: pre-release', async function () {
         stubs.stubExtension('test.test-package');
 
         const pkg = new Package(
@@ -434,7 +430,7 @@ suite('Package', function() {
         });
     });
 
-    test('Installed: no remote', async function() {
+    test('Installed: no remote', async function () {
         stubs.stubExtension('test.test-package', {
             packageJSON: {
                 version: '1.2.3',
@@ -458,7 +454,7 @@ suite('Package', function() {
         });
     });
 
-    test('Installed: remote', async function() {
+    test('Installed: remote', async function () {
         stubRemoteName('test-remote');
         stubs.stubExtension('test.test-package', {
             packageJSON: {
@@ -484,7 +480,7 @@ suite('Package', function() {
         });
     });
 
-    test('Installed: local', async function() {
+    test('Installed: local', async function () {
         stubRemoteName('test-remote');
         stubs.stubLocalExtension('test.test-package', {
             packageJSON: {
@@ -510,7 +506,7 @@ suite('Package', function() {
         });
     });
 
-    test('Installed: pre-release', async function() {
+    test('Installed: pre-release', async function () {
         stubs.stubExtension('test.test-package', {
             packageJSON: {
                 version: '1.2.3-beta.0',
@@ -538,7 +534,7 @@ suite('Package', function() {
         });
     });
 
-    test('Update available: no remote', async function() {
+    test('Update available: no remote', async function () {
         stubs.stubExtension('test.test-package', {
             packageJSON: {
                 version: '1.0.0',
@@ -562,7 +558,7 @@ suite('Package', function() {
         });
     });
 
-    test('Update available: remote', async function() {
+    test('Update available: remote', async function () {
         stubRemoteName('test-remote');
         stubs.stubExtension('test.test-package', {
             packageJSON: {
@@ -587,7 +583,7 @@ suite('Package', function() {
         });
     });
 
-    test('Update available: local', async function() {
+    test('Update available: local', async function () {
         stubRemoteName('test-remote');
         stubs.stubLocalExtension('test.test-package', {
             packageJSON: {
@@ -612,7 +608,7 @@ suite('Package', function() {
         });
     });
 
-    test('Update available: pre-release', async function() {
+    test('Update available: pre-release', async function () {
         stubs.stubExtension('test.test-package', {
             packageJSON: {
                 version: '1.0.0-beta.0',
@@ -640,7 +636,7 @@ suite('Package', function() {
         });
     });
 
-    test('Missing publisher', async function() {
+    test('Missing publisher', async function () {
         stubs.stubExtension('test.test-package');
 
         const pkg = new Package(getDummyRegistry(), {
@@ -658,7 +654,7 @@ suite('Package', function() {
         });
     });
 
-    test('Missing .vsix file', async function() {
+    test('Missing .vsix file', async function () {
         stubs.stubExtension('test.test-package');
 
         const pkg = new Package(getDummyRegistry(), {
@@ -676,7 +672,7 @@ suite('Package', function() {
         });
     });
 
-    test('Invalid manifest: missing name', async function() {
+    test('Invalid manifest: missing name', async function () {
         assert.throws(
             () => {
                 new Package(getDummyRegistry(), {
@@ -691,7 +687,7 @@ suite('Package', function() {
         );
     });
 
-    test('Invalid manifest: wrong name type', async function() {
+    test('Invalid manifest: wrong name type', async function () {
         assert.throws(
             () => {
                 new Package(getDummyRegistry(), {
@@ -704,7 +700,7 @@ suite('Package', function() {
         );
     });
 
-    test('Invalid manifest: wrong displayName type', async function() {
+    test('Invalid manifest: wrong displayName type', async function () {
         assert.throws(
             () => {
                 new Package(getDummyRegistry(), {
@@ -718,7 +714,7 @@ suite('Package', function() {
         );
     });
 
-    test('Invalid manifest: wrong publisher type', async function() {
+    test('Invalid manifest: wrong publisher type', async function () {
         assert.throws(
             () => {
                 new Package(getDummyRegistry(), {
@@ -732,7 +728,7 @@ suite('Package', function() {
         );
     });
 
-    test('Invalid manifest: wrong files type', async function() {
+    test('Invalid manifest: wrong files type', async function () {
         assert.throws(
             () => {
                 new Package(getDummyRegistry(), {
@@ -746,7 +742,7 @@ suite('Package', function() {
         );
     });
 
-    test('Invalid manifest: missing engines.vscode', async function() {
+    test('Invalid manifest: missing engines.vscode', async function () {
         assert.throws(
             () => {
                 new Package(getDummyRegistry(), {
@@ -760,7 +756,7 @@ suite('Package', function() {
         );
     });
 
-    test('Invalid manifest: wrong engines.vscode type', async function() {
+    test('Invalid manifest: wrong engines.vscode type', async function () {
         assert.throws(
             () => {
                 new Package(getDummyRegistry(), {

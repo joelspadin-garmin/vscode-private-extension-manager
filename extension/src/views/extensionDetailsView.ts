@@ -45,7 +45,7 @@ export class ExtensionDetailsView extends WebView<ExtensionData> {
             this.extensionInfo.onDidChange(this.refresh, this),
             // Refresh on changes to release channels, as the channel for the
             // displayed extension may have changed.
-            vscode.workspace.onDidChangeConfiguration(e => {
+            vscode.workspace.onDidChangeConfiguration((e) => {
                 if (e.affectsConfiguration('privateExtensions.channels')) {
                     this.refresh();
                 }

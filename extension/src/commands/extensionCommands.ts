@@ -38,7 +38,9 @@ export class InstallExtensionCommand implements Command {
     ) {}
 
     public async execute(extensionOrId: Package | string) {
-        const pkg = await this.extensionInfo.waitForExtensionChange(installExtension(this.registryProvider, extensionOrId));
+        const pkg = await this.extensionInfo.waitForExtensionChange(
+            installExtension(this.registryProvider, extensionOrId),
+        );
 
         // If vscode could immediately load the extension, it should be visible
         // to the extensions API now. If not, we need to reload.
@@ -54,10 +56,15 @@ export class InstallExtensionCommand implements Command {
 export class UpdateExtensionCommand implements Command {
     public readonly id = 'privateExtensions.extension.update';
 
-    constructor(private readonly registryProvider: RegistryProvider, private readonly extensionInfo: ExtensionInfoService) {}
+    constructor(
+        private readonly registryProvider: RegistryProvider,
+        private readonly extensionInfo: ExtensionInfoService,
+    ) {}
 
     public async execute(extensionOrId: Package | string) {
-        const pkg = await this.extensionInfo.waitForExtensionChange(installExtension(this.registryProvider, extensionOrId));
+        const pkg = await this.extensionInfo.waitForExtensionChange(
+            installExtension(this.registryProvider, extensionOrId),
+        );
 
         // If vscode could immediately load the updated extension, we should see
         // the new version number reflected in the extensions API. If not, we
@@ -154,7 +161,7 @@ export class InstallAnotherVersionCommand implements Command {
         // Sort newer versions to the top
         versions.sort((a, b) => semver.rcompare(a.version, b.version));
 
-        return versions.map(version => {
+        return versions.map((version) => {
             const relativeTime = version.time ? getRelativeDateLabel(version.time) : '';
 
             const currentTag = semver.eq(version.version, latest.version) ? ` (${localize('current', 'Current')})` : '';
@@ -279,7 +286,7 @@ export class CopyExtensionInformationCommand implements Command {
             ? localize('extensionInfoRegistry', 'Registry: {0}', extension.registry.uri.toString())
             : null;
 
-        const clipboardStr = [name, id, description, version, publisher, registry].filter(x => !!x).join('\n');
+        const clipboardStr = [name, id, description, version, publisher, registry].filter((x) => !!x).join('\n');
 
         await vscode.env.clipboard.writeText(clipboardStr);
     }

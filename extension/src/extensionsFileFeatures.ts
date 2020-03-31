@@ -119,7 +119,7 @@ export class ExtensionsFileFeatures implements Disposable, vscode.CompletionItem
             },
         ];
 
-        return completionItems.map(item => ({ ...commonProps, ...item }));
+        return completionItems.map((item) => ({ ...commonProps, ...item }));
     }
 
     /**
@@ -145,7 +145,7 @@ export class ExtensionsFileFeatures implements Disposable, vscode.CompletionItem
         const packages = await this.registryProvider.getUniquePackages();
 
         const items = packages.map(
-            pkg =>
+            (pkg) =>
                 ({
                     label: `"${pkg.extensionId}"`,
                     detail: pkg.displayName,
@@ -180,5 +180,5 @@ function updateStringCompletionItems(
 
     const range = new vscode.Range(start, end);
 
-    return items.map(item => ({ ...item, range }));
+    return items.map((item) => ({ ...item, range }));
 }

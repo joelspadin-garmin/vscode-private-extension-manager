@@ -66,7 +66,7 @@ async function _findVersions(registries: readonly Registry[], name: string) {
         const versions = await tryGetVersions(registry, name);
 
         if (versions) {
-            versions.forEach(v => results.set(v.version.toString(), v));
+            versions.forEach((v) => results.set(v.version.toString(), v));
         }
     }
 

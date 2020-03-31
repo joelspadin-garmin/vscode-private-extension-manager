@@ -52,8 +52,8 @@ export function clearCache() {
 export function mockSearch(scope: nock.Scope, text: string, results: readonly search.Result[]) {
     scope
         .get('/-/v1/search')
-        .query(query => query.text === text)
-        .reply(200, uri => {
+        .query((query) => query.text === text)
+        .reply(200, (uri) => {
             const { from, size } = parseSearchSlice(uri);
             const slice = results.slice(from, from + size);
 
@@ -84,7 +84,7 @@ function parseSearchSlice(uri: string) {
  * Wraps the given search results in a detailed result object.
  */
 function detailedResults(results: readonly search.Result[]): { objects: search.DetailedResult[] } {
-    const objects = results.map(pkg => {
+    const objects = results.map((pkg) => {
         return {
             score: {
                 detail: {
