@@ -1,5 +1,12 @@
 # Change Log
 
+## 1.2.0
+
+- Temporarily reverted npm-registry-fetch to the previous version, as it wasn't working with some registries.
+- Added welcome views for when no registries are configured.
+- Cache cleaning slowed startup down too much and is no longer automatic. It can
+  now be run manually with the **Private Extensions: Clean NPM Cache** command.
+
 ## 1.1.0
 
 - **Breaking change**: [npm-registry-fetch](https://github.com/npm/npm-registry-fetch#-fetch-options)
