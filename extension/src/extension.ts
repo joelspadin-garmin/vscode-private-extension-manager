@@ -1,4 +1,3 @@
-import cacache = require('cacache');
 import * as vscode from 'vscode';
 import * as nls from 'vscode-nls';
 
@@ -9,7 +8,7 @@ import { ExtensionInfoService } from './extensionInfo';
 import { ExtensionsFileFeatures } from './extensionsFileFeatures';
 import { RegistryProvider } from './RegistryProvider';
 import { UpdateChecker } from './UpdateChecker';
-import { deleteNpmDownloads, getNpmCacheDir } from './util';
+import { deleteNpmDownloads } from './util';
 import { RegistryView } from './views/registryView';
 
 // TODO: notify user if extensions.private.json recommends extensions that are
@@ -36,8 +35,6 @@ export function activate(context: vscode.ExtensionContext) {
         registerCommands(registryProvider, registryView, updateChecker, extensionInfo),
         registerLanguageFeatures(registryProvider),
     );
-
-    verifyCache();
 }
 
 export async function deactivate() {
@@ -78,6 +75,9 @@ function registerCommands(
         // Configuration commands
         new commands.ConfigureWorkspaceRegistries(),
         new commands.ConfigureRecommendedExtensions(),
+
+        // Other commands
+        new commands.CleanCacheCommand(),
     );
 
     return commandManager;
@@ -85,12 +85,4 @@ function registerCommands(
 
 function registerLanguageFeatures(registryProvider: RegistryProvider): vscode.Disposable {
     return vscode.Disposable.from(new ExtensionsFileFeatures(registryProvider));
-}
-
-async function verifyCache() {
-    const cache = getNpmCacheDir();
-    if (cache) {
-        const stats = await cacache.verify(cache);
-        console.log('Cleaned private extension manager cache:', stats);
-    }
 }

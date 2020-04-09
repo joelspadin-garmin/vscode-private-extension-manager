@@ -5,6 +5,7 @@
     "configuration.updateCheckInterval.description": "Number of seconds between checks for updates to private extensions. Set to 0 to disable automatic update checks.",
     "command.category": "Private Extensions",
     "command.checkForUpdates.title": "Check for Extension Updates",
+    "command.cleanCache.title": "Clean NPM Cache",
     "command.configureWorkspaceRegistries.title": "Configure Workspace Registries",
     "command.configureRecommendedExtensions.title": "Configure Recommended Extensions",
     "command.refresh.title": "Refresh",

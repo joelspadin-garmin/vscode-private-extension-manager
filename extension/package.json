@@ -84,6 +84,11 @@
                 "category": "%command.category%"
             },
             {
+                "command": "privateExtensions.cleanCache",
+                "title": "%command.cleanCache.title%",
+                "category": "%command.category%"
+            },
+            {
                 "command": "privateExtensions.configureWorkspaceRegistries",
                 "title": "%command.configureWorkspaceRegistries.title%",
                 "category": "%command.category%",
