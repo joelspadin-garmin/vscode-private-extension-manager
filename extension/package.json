@@ -14,7 +14,7 @@
         "directory": "extension"
     },
     "engines": {
-        "vscode": "^1.43.0"
+        "vscode": "^1.44.0"
     },
     "extensionKind": [
         "workspace"
@@ -162,11 +162,31 @@
                 }
             ]
         },
+        "viewsWelcome": [
+            {
+                "view": "privateExtensions.extensions",
+                "contents": "%views.privateExtensions.extensions.noExtensions%"
+            },
+            {
+                "view": "privateExtensions.extensions",
+                "contents": "%views.privateExtensions.extensions.configure%",
+                "when": "workbenchState != empty"
+            },
+            {
+                "view": "privateExtensions.recommended",
+                "contents": "%views.privateExtensions.recommended.noExtensions%"
+            },
+            {
+                "view": "privateExtensions.recommended",
+                "contents": "%views.privateExtensions.recommended.configure%",
+                "when": "workbenchState != empty"
+            }
+        ],
         "menus": {
             "view/title": [
                 {
                     "command": "privateExtensions.configureWorkspaceRegistries",
-                    "when": "view == privateExtensions.extensions",
+                    "when": "view == privateExtensions.extensions && workbenchState != empty",
                     "group": "navigation"
                 },
                 {
@@ -186,7 +206,7 @@
                 },
                 {
                     "command": "privateExtensions.configureRecommendedExtensions",
-                    "when": "view == privateExtensions.recommended",
+                    "when": "view == privateExtensions.recommended && workbenchState != empty",
                     "group": "navigation"
                 }
             ],
@@ -288,7 +308,7 @@
         "@types/sinon": "^7.5.2",
         "@types/source-map-support": "^0.5.1",
         "@types/valid-url": "^1.0.3",
-        "@types/vscode": "^1.43.0",
+        "@types/vscode": "^1.44.0",
         "@typescript-eslint/eslint-plugin": "^2.26.0",
         "@typescript-eslint/parser": "^2.26.0",
         "chai": "^4.2.0",

@@ -11,7 +11,6 @@ import { ExtensionDetailsView } from './extensionDetailsView';
 
 const localize = nls.loadMessageBundle();
 
-const NO_REGISTRIES_MESSAGE = localize('no.registries.found', 'No registries found.');
 const NO_EXTENSIONS_MESSAGE = localize('no.extensions.found', 'No extensions found.');
 
 // TODO: should we build the tree of registries and extensions separately from
@@ -142,7 +141,7 @@ class ExtensionsProvider implements TreeDataProvider<Element>, Disposable {
         const children = this.getRegistries();
 
         if (children.length === 0) {
-            return [NO_REGISTRIES_MESSAGE];
+            return null;
         }
 
         if (children.length === 1) {
@@ -209,13 +208,13 @@ class RecommendedProvider implements TreeDataProvider<Element>, Disposable {
         return extensions;
     }
 
-    private async getRootChildren(): Promise<Element[]> {
+    private async getRootChildren(): Promise<Element[] | null> {
         const extensions = await this.getRecommendedExtensions();
 
         if (extensions.length > 0) {
             return extensions;
         } else {
-            return [NO_EXTENSIONS_MESSAGE];
+            return null;
         }
     }
 }

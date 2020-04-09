@@ -18,5 +18,9 @@
     "command.registry.remove.title": "Remove User Registry",
     "viewsContainers.activitybar.privateExtensions.title": "Private Extensions",
     "views.privateExtensions.extensions.name": "Extensions",
-    "views.privateExtensions.recommended.name": "Recommended"
+    "views.privateExtensions.extensions.noExtensions": "No private extensions found. [learn more](https://github.com/joelspadin-garmin/vscode-private-extension-manager/tree/master/extension#readme)",
+    "views.privateExtensions.extensions.configure": "[Configure Workspace Registries](command:privateExtensions.configureWorkspaceRegistries)",
+    "views.privateExtensions.recommended.name": "Recommended",
+    "views.privateExtensions.recommended.noExtensions": "No recommended extensions found.",
+    "views.privateExtensions.recommended.configure": "[Configure Recommended Extensions](command:privateExtensions.configureRecommendedExtensions)"
 }
