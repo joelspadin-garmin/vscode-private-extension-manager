@@ -149,6 +149,10 @@ You may have multiple workspace folders that contain an `extensions.private.json
 file. The extension manager will display the registries and recommendations from
 all of them.
 
+**Note:** if the `query` option is omitted, the query text will be a single
+asterisk. Some registry servers such as Verdaccio do not respond to this with
+all available packages, so you may need to set `query` to get any results at all.
+
 ### User Configuration
 
 Each user may also specify registries to use regardless of which workspace is
@@ -214,6 +218,27 @@ extension. If it shows "Install Locally" for a workspace extension or vice versa
 [set the `extensionKind` property](https://code.visualstudio.com/api/advanced-topics/remote-extensions#incorrect-execution-location)
 in your extension's `package.json` to tell both VS Code and Private Extension
 Manager where the extension should be installed.
+
+## Troubleshooting
+
+If you are successfully connecting to a private NPM registry and don't see any
+errors, but you don't see any extensions either, first open the Output panel
+(Ctrl+Shift+U) and check the dropdown list for "Private Extension Manager".
+If it is present, it may contain information as to why extension packages are
+being discarded.
+
+If packages aren't being discarded, they may not be found to begin with. If you
+do not specify a `query` or other options in your registry configuration, the
+default search query is:
+
+```
+{registry-url}/-/v1/search?text=*&size=20&from=0
+```
+
+Check how your registry server responds to this. Some servers such as Verdaccio
+do not respond to `text=*` with a list of all packages, so you may need to
+change the `query` option for your registry (see the **Workspace Configuration**)
+section above.
 
 ## Privacy Statement
 
