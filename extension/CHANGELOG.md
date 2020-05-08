@@ -1,5 +1,10 @@
 # Change Log
 
+## Unreleased
+
+- Changed recommended extensions to not be hidden when installed. Fixed "no recommended extensions found"
+  message when there are recommended extensions, but they are all installed.
+
 ## 1.2.0
 
 - Temporarily reverted npm-registry-fetch to the previous version, as it wasn't working with some registries.
