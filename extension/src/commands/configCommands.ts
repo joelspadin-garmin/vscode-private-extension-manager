@@ -13,7 +13,7 @@ import { pickWorkspaceFolder } from '../workspace';
 export class ConfigureWorkspaceRegistries implements Command {
     public readonly id = 'privateExtensions.configureWorkspaceRegistries';
 
-    public async execute() {
+    public async execute(): Promise<void> {
         await openExtensionsFileToElement('registries');
     }
 }
@@ -24,7 +24,7 @@ export class ConfigureWorkspaceRegistries implements Command {
 export class ConfigureRecommendedExtensions implements Command {
     public readonly id = 'privateExtensions.configureRecommendedExtensions';
 
-    public async execute() {
+    public async execute(): Promise<void> {
         await openExtensionsFileToElement('recommendations');
     }
 }

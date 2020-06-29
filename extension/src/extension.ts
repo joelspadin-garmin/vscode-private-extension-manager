@@ -19,7 +19,7 @@ import { RegistryView } from './views/registryView';
 
 nls.config({ messageFormat: nls.MessageFormat.file })();
 
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext): void {
     setContext(context);
 
     const extensionInfo = new ExtensionInfoService();
@@ -37,7 +37,7 @@ export function activate(context: vscode.ExtensionContext) {
     );
 }
 
-export async function deactivate() {
+export async function deactivate(): Promise<void> {
     // TODO: should we have some sort of lock file or ref count so we don't
     // delete the cache if another instance of vscode is still active?
     await deleteNpmDownloads();

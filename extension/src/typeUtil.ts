@@ -40,6 +40,7 @@ function spliceOptionsContext(u: unknown, c: t.Context, errors: t.Errors) {
  * ])
  * ```
  */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function options<R extends t.Props, O extends t.Props>(
     required: R,
     optional: O,
@@ -65,7 +66,7 @@ export function options<R extends t.Props, O extends t.Props>(
 /**
  * Formats an io-ts error as a localized string.
  */
-export function formatError(error: t.ValidationError) {
+export function formatError(error: t.ValidationError): string {
     const path = error.context
         .map((c) => c.key)
         .filter((key) => key.length > 0)

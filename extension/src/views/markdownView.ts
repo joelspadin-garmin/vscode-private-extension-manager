@@ -9,7 +9,7 @@ export class MarkdownView extends WebView<Uri> {
      * Renders the given Markdown file or string as HTML.
      * @param uriOrMarkdown The URI of a file to render, or a Markdown string to render.
      */
-    public static async render(uriOrMarkdown: Uri | string) {
+    public static async render(uriOrMarkdown: Uri | string): Promise<string> {
         let document: string | vscode.TextDocument;
 
         if (uriOrMarkdown instanceof Uri) {
@@ -21,24 +21,24 @@ export class MarkdownView extends WebView<Uri> {
         return (await vscode.commands.executeCommand('markdown.api.render', document)) as string;
     }
 
-    public async show(file: Uri, title?: string) {
+    public async show(file: Uri, title?: string): Promise<void> {
         title = title ?? path.basename(file.fsPath);
 
-        super.internalShow(file, title);
+        await super.internalShow(file, title);
     }
 
-    public get file() {
+    public get file(): Uri {
         return this.data;
     }
 
-    protected async getHead(nonce: string) {
+    protected async getHead(nonce: string): Promise<string> {
         return `
             ${await super.getHead(nonce)}
             <link rel="stylesheet" href="${this.mediaUri}/markdown.css">
             `;
     }
 
-    protected async getBody() {
+    protected async getBody(): Promise<string> {
         return await MarkdownView.render(this.file);
     }
 }

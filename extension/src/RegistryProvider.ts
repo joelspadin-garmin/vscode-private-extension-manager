@@ -59,7 +59,7 @@ export class RegistryProvider implements Disposable {
         }
     }
 
-    public dispose() {
+    public dispose(): void {
         this.disposable.dispose();
         this.folders.map((f) => f.dispose());
     }
@@ -71,7 +71,7 @@ export class RegistryProvider implements Disposable {
      *
      * This also fires the `onDidChangeRegistries` event.
      */
-    public refresh() {
+    public refresh(): void {
         this.isStale = true;
 
         for (const folder of this.folders) {
@@ -86,7 +86,7 @@ export class RegistryProvider implements Disposable {
      *
      * This includes registries defined in user settings.
      */
-    public getRegistries() {
+    public getRegistries(): Registry[] {
         const registries: Registry[] = [];
 
         // dedupeRegistries() keeps the first item for each duplicate registry.
@@ -117,7 +117,7 @@ export class RegistryProvider implements Disposable {
      * Gets a list of extension IDs for extensions recommended for users of the
      * current workspace.
      */
-    public getRecommendedExtensions() {
+    public getRecommendedExtensions(): Set<string> {
         const extensions = new Set<string>();
 
         for (const folder of this.folders) {
@@ -133,7 +133,7 @@ export class RegistryProvider implements Disposable {
      * Gets all packages with unique extension IDs from all registries
      * for the current workspace.
      */
-    public async getUniquePackages() {
+    public async getUniquePackages(): Promise<Package[]> {
         const results = new Map<string, Package>();
 
         for (const registry of this.getRegistries()) {
@@ -145,7 +145,7 @@ export class RegistryProvider implements Disposable {
         return [...results.values()];
     }
 
-    public addUserRegistry(name: string, registry: string) {
+    public addUserRegistry(name: string, registry: string): void {
         const userRegistries = this.getUserRegistryConfig();
 
         if (userRegistries.some((other) => name === other.name)) {
@@ -160,7 +160,7 @@ export class RegistryProvider implements Disposable {
         this.setUserRegistryConfig(userRegistries);
     }
 
-    public removeUserRegistry(name: string) {
+    public removeUserRegistry(name: string): void {
         const userRegistries = this.getUserRegistryConfig();
         const newRegistries = userRegistries.filter((registry) => registry.name !== name);
 

@@ -6,7 +6,7 @@ export class CheckForUpdatesCommand implements Command {
 
     public constructor(private readonly updateChecker: UpdateChecker) {}
 
-    public async execute() {
+    public async execute(): Promise<void> {
         await this.updateChecker.checkForUpdates();
     }
 }
@@ -16,7 +16,7 @@ export class UpdateAllExtensionsCommand implements Command {
 
     public constructor(private readonly updateChecker: UpdateChecker) {}
 
-    public async execute() {
+    public async execute(): Promise<void> {
         await this.updateChecker.updateAll();
     }
 }

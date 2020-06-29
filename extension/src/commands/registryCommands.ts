@@ -13,7 +13,7 @@ export class AddUserRegistryCommand implements Command {
 
     public constructor(private readonly registryProvider: RegistryProvider) {}
 
-    public async execute() {
+    public async execute(): Promise<void> {
         const registry = await vscode.window.showInputBox({
             prompt: localize('registry.url.prompt', 'Enter the URL of the NPM registry.'),
             placeHolder: localize('registry.url.placeholder', 'https://my-private.registry'),
@@ -56,7 +56,7 @@ export class RemoveUserRegistryCommand implements Command {
 
     public constructor(private readonly registryProvider: RegistryProvider) {}
 
-    public async execute(registry?: Registry) {
+    public async execute(registry?: Registry): Promise<void> {
         if (!registry) {
             registry = await this.showUserRegistryPrompt();
 

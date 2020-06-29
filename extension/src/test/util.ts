@@ -38,7 +38,7 @@ export interface PackageMetadata {
 /**
  * Clears the caches for NPM requests.
  */
-export function clearCache() {
+export function clearCache(): void {
     cacache.clearMemoized();
 }
 
@@ -49,7 +49,7 @@ export function clearCache() {
  * @param text Search text to match.
  * @param results Package results to reply with.
  */
-export function mockSearch(scope: nock.Scope, text: string, results: readonly search.Result[]) {
+export function mockSearch(scope: nock.Scope, text: string, results: readonly search.Result[]): void {
     scope
         .get('/-/v1/search')
         .query((query) => query.text === text)

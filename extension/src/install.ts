@@ -51,7 +51,7 @@ export async function installExtension(
  * @param pkgOrExtId The package or extension ID of the extension to uninstall.
  * @returns the ID of the uninstalled extension.
  */
-export async function uninstallExtension(pkgOrExtId: Package | string) {
+export async function uninstallExtension(pkgOrExtId: Package | string): Promise<string> {
     const extensionId = pkgOrExtId instanceof Package ? pkgOrExtId.extensionId : pkgOrExtId;
     await vscode.commands.executeCommand('workbench.extensions.uninstallExtension', extensionId);
 
@@ -63,7 +63,7 @@ export async function uninstallExtension(pkgOrExtId: Package | string) {
  * user to reload the window if necessary.
  * @param packages The packages to update.
  */
-export async function updateExtensions(extensionInfo: ExtensionInfoService, packages: Package[]) {
+export async function updateExtensions(extensionInfo: ExtensionInfoService, packages: Package[]): Promise<void> {
     const increment = 100 / packages.length;
 
     await vscode.window.withProgress(
@@ -99,7 +99,7 @@ export async function updateExtensions(extensionInfo: ExtensionInfoService, pack
  * Displays a message with a button to reload vscode.
  * @param message The message to display.
  */
-export async function showReloadPrompt(message: string) {
+export async function showReloadPrompt(message: string): Promise<void> {
     const reload = await vscode.window.showInformationMessage(message, localize('reload.now', 'Reload Now'));
     if (reload) {
         vscode.commands.executeCommand('workbench.action.reloadWindow');

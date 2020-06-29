@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('_privateExtensionManager.remoteHelper.getExtension', (extensionId: string) => {
             const extension = vscode.extensions.getExtension(extensionId);
@@ -23,6 +23,6 @@ export function activate(context: vscode.ExtensionContext) {
     );
 }
 
-export function deactivate() {
+export function deactivate(): void {
     // Nothing to do.
 }

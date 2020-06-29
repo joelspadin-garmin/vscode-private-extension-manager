@@ -4,20 +4,20 @@ import memoizeOne from 'memoize-one';
 import * as path from 'path';
 import rimraf = require('rimraf');
 import { promisify } from 'util';
-import { Uri, workspace } from 'vscode';
+import { Uri, workspace, WorkspaceConfiguration } from 'vscode';
 
 import { context } from './context';
 
 const readFile = promisify(fs.readFile);
 
-export function getConfig() {
+export function getConfig(): WorkspaceConfiguration {
     return workspace.getConfiguration('privateExtensions');
 }
 
 /**
  * Gets the cache directory for NPM web requests.
  */
-export function getNpmCacheDir() {
+export function getNpmCacheDir(): string | undefined {
     if (context) {
         return path.join(context.globalStoragePath, 'cache');
     } else {
@@ -28,7 +28,7 @@ export function getNpmCacheDir() {
 /**
  * Gets a temporary directory to which NPM packages can be downloaded.
  */
-export function getNpmDownloadDir() {
+export function getNpmDownloadDir(): string {
     if (context) {
         return path.join(context.globalStoragePath, 'packages');
     } else {
@@ -39,7 +39,7 @@ export function getNpmDownloadDir() {
 /**
  * Deletes the contents of `getNpmDownloadDir()`.
  */
-export function deleteNpmDownloads() {
+export function deleteNpmDownloads(): Promise<void> {
     return new Promise((resolve) => {
         const downloadDir = getNpmDownloadDir();
         rimraf(downloadDir, () => resolve());
@@ -49,14 +49,14 @@ export function deleteNpmDownloads() {
 /**
  * Gets whether an object is an array and is not empty.
  */
-export function isNonEmptyArray(arg: any): arg is any[] {
+export function isNonEmptyArray(arg: unknown): arg is unknown[] {
     return Array.isArray(arg) && arg.length > 0;
 }
 
 /**
  * Decorator to memoize a function using `memoizeOne`.
  */
-export function memoize(target: any, key: string, descriptor: PropertyDescriptor) {
+export function memoize(_target: unknown, _key: string, descriptor: PropertyDescriptor): void {
     const oldFunc = descriptor.value;
     const newFunc = memoizeOne(oldFunc);
 
@@ -71,7 +71,7 @@ export function memoize(target: any, key: string, descriptor: PropertyDescriptor
  * The JSON file may contain non-standard elements such as comments and trailing
  * commas.
  */
-export async function readJSON(file: string | Uri) {
+export async function readJSON(file: string | Uri): Promise<any> {
     file = file instanceof Uri ? file.fsPath : file;
 
     const text = await readFile(file, 'utf8');
@@ -84,7 +84,7 @@ export async function readJSON(file: string | Uri) {
  * The JSON file may contain non-standard elements such as comments and trailing
  * commas.
  */
-export function readJSONSync(file: string | Uri) {
+export function readJSONSync(file: string | Uri): any {
     file = file instanceof Uri ? file.fsPath : file;
 
     const text = fs.readFileSync(file, 'utf8');
@@ -95,20 +95,20 @@ export function readJSONSync(file: string | Uri) {
  * Gets a Uri to a file belonging to this extension.
  * @param extensionFile Relative path to the file.
  */
-export function getExtensionFileUri(extensionFile: string) {
+export function getExtensionFileUri(extensionFile: string): Uri {
     return Uri.file(context.asAbsolutePath(extensionFile));
 }
 
 /**
  * Compares two `Uri` objects for equality.
  */
-export function uriEquals(a: Uri, b: Uri) {
+export function uriEquals(a: Uri, b: Uri): boolean {
     return a.toString() === b.toString();
 }
 
 /**
  * Returns an extension identifier given the publisher and extension name.
  */
-export function formatExtensionId(publisher: string, name: string) {
+export function formatExtensionId(publisher: string, name: string): string {
     return `${publisher}.${name}`.toLowerCase();
 }

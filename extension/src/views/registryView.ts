@@ -65,14 +65,14 @@ export class RegistryView implements Disposable {
         setImmediate(() => this.refresh());
     }
 
-    public dispose() {
+    public dispose(): void {
         this.disposable.dispose();
     }
 
     /**
      * Reloads the tree views and the extension details view if it is open.
      */
-    public refresh() {
+    public refresh(): void {
         // Refreshing the registry provider will trigger all tree views to update.
         this.registryProvider.refresh();
 
@@ -81,7 +81,7 @@ export class RegistryView implements Disposable {
         }
     }
 
-    public async showExtension(pkg: Package) {
+    public async showExtension(pkg: Package): Promise<void> {
         await this.extensionView.show(pkg);
     }
 }
@@ -125,7 +125,7 @@ class ExtensionsProvider implements TreeDataProvider<Element>, Disposable {
 
     public refresh() {
         this.children = undefined;
-        this._onDidChangeTreeData.fire();
+        this._onDidChangeTreeData.fire(undefined);
     }
 
     public getRegistries() {
@@ -192,7 +192,7 @@ class RecommendedProvider implements TreeDataProvider<Element>, Disposable {
     }
 
     public refresh() {
-        this._onDidChangeTreeData.fire();
+        this._onDidChangeTreeData.fire(undefined);
     }
 
     protected async getRecommendedExtensions() {

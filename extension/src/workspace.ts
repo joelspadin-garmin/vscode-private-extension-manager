@@ -8,7 +8,7 @@ const localize = nls.loadMessageBundle();
  * select one and returns it. If there is only one folder, this returns it
  * immediately. If there are no folders, this returns `undefined`.
  */
-export async function pickWorkspaceFolder() {
+export async function pickWorkspaceFolder(): Promise<vscode.WorkspaceFolder | undefined> {
     const folders = vscode.workspace.workspaceFolders;
 
     if (!folders?.length) {

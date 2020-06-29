@@ -45,7 +45,7 @@ export class ExtensionsFileFeatures implements Disposable, vscode.CompletionItem
         this.disposable = Disposable.from(vscode.languages.registerCompletionItemProvider(DocumentSelector, this, '"'));
     }
 
-    public dispose() {
+    public dispose(): void {
         this.disposable.dispose();
 
         if (this.cacheEvents) {

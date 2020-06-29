@@ -44,7 +44,7 @@ export class UpdateChecker implements Disposable {
         }
     }
 
-    public dispose() {
+    public dispose(): void {
         this.disposable.dispose();
 
         if (this.initTimeout) {
@@ -64,7 +64,7 @@ export class UpdateChecker implements Disposable {
      * @param isAutomaticCheck `true` if this is an automatic check and it
      *      should run silently in the background unless an update is available.
      */
-    public async checkForUpdates(isAutomaticCheck = false) {
+    public async checkForUpdates(isAutomaticCheck = false): Promise<void> {
         const updates = await this.getPackagesWithUpdates();
 
         if (updates.length > 0) {
@@ -77,7 +77,7 @@ export class UpdateChecker implements Disposable {
     /**
      * Checks for any out-of-date extensions and updates them if any are found.
      */
-    public async updateAll() {
+    public async updateAll(): Promise<void> {
         const updates = await this.getPackagesWithUpdates();
 
         if (updates.length > 0) {

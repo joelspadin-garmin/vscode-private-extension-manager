@@ -21,7 +21,7 @@ export class ShowExtensionCommand implements Command {
 
     constructor(private readonly registryView: RegistryView) {}
 
-    public async execute(extension: Package) {
+    public async execute(extension: Package): Promise<void> {
         await this.registryView.showExtension(extension);
     }
 }
@@ -37,7 +37,7 @@ export class InstallExtensionCommand implements Command {
         private readonly extensionInfo: ExtensionInfoService,
     ) {}
 
-    public async execute(extensionOrId: Package | string) {
+    public async execute(extensionOrId: Package | string): Promise<void> {
         const pkg = await this.extensionInfo.waitForExtensionChange(
             installExtension(this.registryProvider, extensionOrId),
         );
@@ -61,7 +61,7 @@ export class UpdateExtensionCommand implements Command {
         private readonly extensionInfo: ExtensionInfoService,
     ) {}
 
-    public async execute(extensionOrId: Package | string) {
+    public async execute(extensionOrId: Package | string): Promise<void> {
         const pkg = await this.extensionInfo.waitForExtensionChange(
             installExtension(this.registryProvider, extensionOrId),
         );
@@ -89,7 +89,7 @@ export class UninstallExtensionCommand implements Command {
 
     constructor(private readonly extensionInfo: ExtensionInfoService) {}
 
-    public async execute(extensionOrId: Package | string) {
+    public async execute(extensionOrId: Package | string): Promise<void> {
         const extensionId = await this.extensionInfo.waitForExtensionChange(install.uninstallExtension(extensionOrId));
 
         // If vscode could immediately unload the extension, it should no longer
@@ -118,7 +118,7 @@ export class InstallAnotherVersionCommand implements Command {
      * @param extensionOrId Either the latest `Package` for an extension, or the ID of the extension to install.
      * @param version The specific version to install. If omitted, this prompts the user to select a version.
      */
-    public async execute(extensionOrId: Package | string, version?: string) {
+    public async execute(extensionOrId: Package | string, version?: string): Promise<void> {
         const latest = await getLatestPackage(this.registryProvider, extensionOrId);
 
         if (!version) {
@@ -186,7 +186,7 @@ export class SwitchChannelsCommand implements Command {
      * @param extensionOrId Either the latest `Package` for an extension, or the ID of the extension to modify.
      * @param channel The channel to switch to. If omitted, this prompts the user to select a version.
      */
-    public async execute(extensionOrId: Package | string, channel?: string) {
+    public async execute(extensionOrId: Package | string, channel?: string): Promise<void> {
         const pkg = await getLatestPackage(this.registryProvider, extensionOrId);
 
         if (!channel) {
@@ -276,7 +276,7 @@ export class SwitchChannelsCommand implements Command {
 export class CopyExtensionInformationCommand implements Command {
     public readonly id = 'privateExtensions.extension.copyInformation';
 
-    public async execute(extension: Package) {
+    public async execute(extension: Package): Promise<void> {
         const name = localize('extensionInfoName', 'Name: {0}', extension.displayName);
         const id = localize('extensionInfoId', 'Id: {0}', extension.extensionId);
         const description = localize('extensionInfoDescription', 'Description: {0}', extension.description);

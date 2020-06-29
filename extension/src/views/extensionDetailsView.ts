@@ -53,19 +53,19 @@ export class ExtensionDetailsView extends WebView<ExtensionData> {
         );
     }
 
-    public dispose() {
+    public dispose(): void {
         super.dispose();
         this.disposable2.dispose();
     }
 
-    public async refresh() {
+    public async refresh(): Promise<void> {
         if (this.visible) {
             await this.pkg.updateState();
             await super.refresh();
         }
     }
 
-    public async show(pkg: Package) {
+    public async show(pkg: Package): Promise<void> {
         await pkg.updateState();
 
         const { manifest, readme, changelog } = await pkg.getContents();
@@ -80,30 +80,30 @@ export class ExtensionDetailsView extends WebView<ExtensionData> {
             changelog,
         };
 
-        return super.internalShow(data, title);
+        await super.internalShow(data, title);
     }
 
-    public get pkg() {
+    public get pkg(): Package {
         return this.data.pkg;
     }
 
-    public get directory() {
+    public get directory(): string {
         return this.data.directory;
     }
 
-    public get manifest() {
+    public get manifest(): ExtensionManifest {
         return this.data.manifest;
     }
 
-    public get readme() {
+    public get readme(): Uri | null {
         return this.data.readme;
     }
 
-    public get changelog() {
+    public get changelog(): Uri | null {
         return this.data.changelog;
     }
 
-    protected async getHead(nonce: string) {
+    protected async getHead(nonce: string): Promise<string> {
         return `
             ${await super.getHead(nonce)}
             <link rel="stylesheet" href="${this.mediaUri}/workbench.css">
@@ -113,7 +113,7 @@ export class ExtensionDetailsView extends WebView<ExtensionData> {
             `;
     }
 
-    protected async getBody(nonce: string) {
+    protected async getBody(nonce: string): Promise<string> {
         const readme = this.readme ? await MarkdownView.render(this.readme) : undefined;
         const changelog = this.changelog ? await MarkdownView.render(this.changelog) : undefined;
 

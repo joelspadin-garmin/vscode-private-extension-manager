@@ -72,7 +72,7 @@ export class Package {
     /**
      * Comparison function to sort packages by name in alphabetical order.
      */
-    public static compare(a: Package, b: Package) {
+    public static compare(a: Package, b: Package): number {
         const nameA = a.displayName.toUpperCase();
         const nameB = b.displayName.toUpperCase();
 
@@ -147,7 +147,7 @@ export class Package {
      * Checks if the extension is installed, and updates the state to match the
      * installed version.
      */
-    public async updateState() {
+    public async updateState(): Promise<void> {
         const extension = await this.registry.extensionInfo.getExtension(this.extensionId);
         if (extension) {
             this._isInstalled = true;
@@ -165,7 +165,7 @@ export class Package {
      *
      * Call `updateState()` first to ensure this is up-to-date.
      */
-    public get state() {
+    public get state(): PackageState {
         if (this.isPublisherValid && this.vsixFile) {
             if (this.isUpdateAvailable) {
                 return PackageState.UpdateAvailable;
@@ -188,7 +188,7 @@ export class Package {
     /**
      * The NPM package specifier for the package.
      */
-    public get spec() {
+    public get spec(): string {
         return `${this.name}@${this.version}`;
     }
 
@@ -196,7 +196,7 @@ export class Package {
      * If `state` is `PackageState.Invalid`, gets a string explaining why the
      * package is invalid.
      */
-    public get errorMessage() {
+    public get errorMessage(): string {
         if (!this.isPublisherValid) {
             return localize('manifest.missing.publisher', 'Manifest is missing "publisher" field.');
         }
@@ -211,7 +211,7 @@ export class Package {
      *
      * Call `updateState()` first to ensure this is up-to-date.
      */
-    public get isInstalled() {
+    public get isInstalled(): boolean {
         return this._isInstalled;
     }
 
@@ -220,7 +220,7 @@ export class Package {
      *
      * Call `updateState()` first to ensure this is up-to-date.
      */
-    public get installedVersion() {
+    public get installedVersion(): SemVer | null {
         return this._installedVersion;
     }
 
@@ -230,7 +230,7 @@ export class Package {
      *
      * Call `updateState()` first to ensure this is up-to-date.
      */
-    public get isUiExtension() {
+    public get isUiExtension(): boolean {
         if (this._installedExtensionKind !== undefined) {
             return this._installedExtensionKind === vscode.ExtensionKind.UI;
         } else {
@@ -248,7 +248,7 @@ export class Package {
         return !!this.installedVersion && this.version > this.installedVersion;
     }
 
-    public toString() {
+    public toString(): string {
         return this.displayName;
     }
 
@@ -256,7 +256,12 @@ export class Package {
      * Downloads the package and returns the locations of its package manifest,
      * readme, changelog, and .vsix file.
      */
-    public async getContents() {
+    public async getContents(): Promise<{
+        manifest: vscode.Uri;
+        vsix: vscode.Uri | null;
+        readme: vscode.Uri | null;
+        changelog: vscode.Uri | null;
+    }> {
         const directory = await this.registry.downloadPackage(this);
 
         return {

@@ -102,7 +102,7 @@ export class Registry {
     /**
      * Comparison function to sort registries by name in alphabetical order.
      */
-    public static compare(a: Registry, b: Registry) {
+    public static compare(a: Registry, b: Registry): number {
         const nameA = a.name.toUpperCase();
         const nameB = b.name.toUpperCase();
 
@@ -137,7 +137,7 @@ export class Registry {
      * The Uri of the registry, if configured. If this is `undefined`, NPM's
      * normal resolution scheme is used to find the registry.
      */
-    public get uri() {
+    public get uri(): Uri | undefined {
         return this.options.registry ? Uri.parse(this.options.registry) : undefined;
     }
 
@@ -145,7 +145,7 @@ export class Registry {
      * Gets whether this registry has the same Uri and filtering options as
      * another registry.
      */
-    public equals(other: Registry) {
+    public equals(other: Registry): boolean {
         if (this.enablePagination !== other.enablePagination) {
             return false;
         }
@@ -167,7 +167,7 @@ export class Registry {
      *
      * @param packageOrSpec A package to download, or an NPM package specifier.
      */
-    public async downloadPackage(packageOrSpec: Package | string) {
+    public async downloadPackage(packageOrSpec: Package | string): Promise<Uri> {
         const spec = packageOrSpec instanceof Package ? packageOrSpec.spec : packageOrSpec;
 
         const registryDir = sanitize(this.options.registry ?? this.name);
@@ -234,7 +234,7 @@ export class Registry {
     /**
      * Gets the full package metadata for a package.
      */
-    public async getPackageMetadata(name: string) {
+    public async getPackageMetadata(name: string): Promise<Record<string, unknown>> {
         const spec = npa(name);
         return await npmfetch.json(`/${spec.escapedName}`, this.options);
     }
@@ -281,7 +281,7 @@ export class Registry {
      * If `version` is omitted, this gets the latest version for the user's selected channel.
      * @throws VersionMissingError if the given version does not exist.
      */
-    public async getPackage(name: string, version?: string) {
+    public async getPackage(name: string, version?: string): Promise<Package> {
         const metadata = await this.getPackageMetadata(name);
 
         assertType(metadata, PackageVersionData, `In package "${name}"`);

@@ -15,14 +15,14 @@ export interface Command {
 export class CommandManager {
     private readonly commands = new Map<string, vscode.Disposable>();
 
-    public dispose() {
+    public dispose(): void {
         for (const registration of this.commands.values()) {
             registration.dispose();
         }
         this.commands.clear();
     }
 
-    public register(...commands: Command[]) {
+    public register(...commands: Command[]): void {
         for (const command of commands) {
             this.registerCommand(command.id, command.execute, command);
         }

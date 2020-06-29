@@ -95,7 +95,7 @@ export class ExtensionInfoService implements vscode.Disposable {
      *
      * For testing use only. Use onDidChange instead.
      */
-    public get onDidChangeOtherExtension() {
+    public get onDidChangeOtherExtension(): vscode.Event<void> {
         return ExtensionInfoService._onDidChangeOtherExtension.event;
     }
 
@@ -125,7 +125,7 @@ export class ExtensionInfoService implements vscode.Disposable {
         );
     }
 
-    public dispose() {
+    public dispose(): void {
         this.disposable.dispose();
     }
 
@@ -133,7 +133,7 @@ export class ExtensionInfoService implements vscode.Disposable {
      * Clears the extension information cache, forcing subsequent calls to
      * `getExtension()` to query information for all extensions again.
      */
-    public clearCache() {
+    public clearCache(): void {
         this.clearCacheIf(() => true);
     }
 
@@ -203,7 +203,7 @@ export class ExtensionInfoService implements vscode.Disposable {
      * Gets whether the currently-installed version of the extension is newer than
      * the version of the given package.
      */
-    public async didExtensionUpdate(pkg: Package) {
+    public async didExtensionUpdate(pkg: Package): Promise<boolean> {
         const extension = await this.getExtension(pkg.extensionId);
         if (!extension) {
             getLogger().log(

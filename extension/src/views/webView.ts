@@ -18,23 +18,21 @@ export abstract class WebView<T> implements Disposable {
         this.localResourceRoots = localResourceRoots ?? [];
     }
 
-    public get visible() {
-        return this.panel ? this.panel.visible : false;
+    public get visible(): boolean {
+        return this.panel?.visible ?? false;
     }
 
-    public dispose() {
-        if (this.disposable) {
-            this.disposable.dispose();
-        }
+    public dispose(): void {
+        this.disposable?.dispose();
     }
 
-    public async refresh() {
+    public async refresh(): Promise<void> {
         if (this.panel) {
             this.panel.webview.html = await this.getHtml();
         }
     }
 
-    protected get data() {
+    protected get data(): T {
         if (this._data === undefined) {
             throw new Error('Data not set');
         }
@@ -45,7 +43,7 @@ export abstract class WebView<T> implements Disposable {
     /**
      * Gets the URI of the media directory.
      */
-    protected get mediaUri() {
+    protected get mediaUri(): vscode.Uri {
         return this.asWebviewUri('media');
     }
 
@@ -55,7 +53,7 @@ export abstract class WebView<T> implements Disposable {
      * @param localResource A URI or an absolute or relative file path to convert.
      *      Relative paths are relative to the extension's install directory.
      */
-    protected asWebviewUri(localResource: vscode.Uri | string) {
+    protected asWebviewUri(localResource: vscode.Uri | string): vscode.Uri {
         if (typeof localResource === 'string') {
             if (isAbsolute(localResource)) {
                 localResource = vscode.Uri.file(localResource);
@@ -71,7 +69,7 @@ export abstract class WebView<T> implements Disposable {
         }
     }
 
-    protected async internalShow(data: T, title: string) {
+    protected async internalShow(data: T, title: string): Promise<void> {
         this._data = data;
 
         if (this.panel === undefined) {
@@ -97,17 +95,17 @@ export abstract class WebView<T> implements Disposable {
         await this.refresh();
     }
 
-    protected get title() {
+    protected get title(): string {
         return this.panel?.title ?? '';
     }
 
-    protected set title(value) {
+    protected set title(value: string) {
         if (this.panel) {
             this.panel.title = value;
         }
     }
 
-    protected async getHead(nonce: string) {
+    protected async getHead(nonce: string): Promise<string> {
         const cspSource = this.panel?.webview.cspSource ?? '';
 
         const policy = [
@@ -127,7 +125,7 @@ export abstract class WebView<T> implements Disposable {
 
     protected abstract async getBody(nonce: string): Promise<string>;
 
-    protected async getHtml() {
+    protected async getHtml(): Promise<string> {
         const nonce = getNonce();
 
         return `<!doctype html>

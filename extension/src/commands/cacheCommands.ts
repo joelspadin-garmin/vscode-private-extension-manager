@@ -14,7 +14,7 @@ const localize = nls.loadMessageBundle();
 export class CleanCacheCommand implements Command {
     public readonly id = 'privateExtensions.cleanCache';
 
-    public async execute() {
+    public async execute(): Promise<void> {
         const cache = getNpmCacheDir();
 
         if (!cache) {

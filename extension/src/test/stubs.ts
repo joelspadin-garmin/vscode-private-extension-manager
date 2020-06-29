@@ -35,7 +35,7 @@ export class CommonStubs implements vscode.Disposable {
         this.disposable = vscode.Disposable.from(this.onDidChangeMyExtension, this.onDidChangeOtherExtension);
     }
 
-    public dispose() {
+    public dispose(): void {
         this.disposable.dispose();
     }
 
@@ -48,13 +48,15 @@ export class CommonStubs implements vscode.Disposable {
      *      Use `{}` if an extension should appear to be installed, but the
      *      extension details don't matter.
      */
-    public stubExtension<T>(extensionId: string, mockData?: Partial<vscode.Extension<T>>) {
+    public stubExtension<T>(extensionId: string, mockData?: Partial<vscode.Extension<T>>): void {
         let result: vscode.Extension<any> | undefined;
 
         if (mockData) {
+            const extensionPath = path.resolve('.', 'tmp', extensionId);
             result = {
                 id: extensionId,
-                extensionPath: path.resolve('.', 'tmp', extensionId),
+                extensionPath,
+                extensionUri: vscode.Uri.file(extensionPath),
                 isActive: false,
                 packageJSON: DEFAULT_PACKAGE_JSON,
                 extensionKind: vscode.env.remoteName ? vscode.ExtensionKind.Workspace : vscode.ExtensionKind.UI,
@@ -82,7 +84,7 @@ export class CommonStubs implements vscode.Disposable {
      *      Use `{}` if an extension should appear to be installed, but the
      *      extension details don't matter.
      */
-    public stubLocalExtension(extensionId: string, mockData?: Partial<vscode.Extension<any>>) {
+    public stubLocalExtension(extensionId: string, mockData?: Partial<vscode.Extension<any>>): void {
         let result: Partial<vscode.Extension<any>> | undefined;
 
         if (mockData) {
@@ -105,7 +107,7 @@ export class CommonStubs implements vscode.Disposable {
 /**
  * Stubs `vscode.env.remoteName` to return the given string.
  */
-export function stubRemoteName(name?: string) {
+export function stubRemoteName(name?: string): sinon.SinonStub {
     return sinon.stub(vscode.env, 'remoteName').get(() => name);
 }
 

@@ -1,5 +1,6 @@
 import * as nls from 'vscode-nls';
 
+import { Package } from './Package';
 import { Registry, VersionInfo } from './Registry';
 import { RegistryProvider } from './RegistryProvider';
 
@@ -12,7 +13,11 @@ const localize = nls.loadMessageBundle();
  * @param version Version or dist-tag such as "1.0.0" to find a specific version of the extension.
  *              If omitted, returns the latest version for the user's selected release channel.
  */
-export async function findPackage(registry: Registry | RegistryProvider, extensionId: string, version?: string) {
+export async function findPackage(
+    registry: Registry | RegistryProvider,
+    extensionId: string,
+    version?: string,
+): Promise<Package> {
     const registries = getRegistries(registry);
     const name = stripPublisher(extensionId);
 
@@ -24,7 +29,10 @@ export async function findPackage(registry: Registry | RegistryProvider, extensi
  * @param registry The registry containing the extension package, or a registry provider to search.
  * @param extensionId The extension ID of the package to find.
  */
-export async function getPackageVersions(registry: Registry | RegistryProvider, extensionId: string) {
+export async function getPackageVersions(
+    registry: Registry | RegistryProvider,
+    extensionId: string,
+): Promise<VersionInfo[]> {
     const registries = getRegistries(registry);
     const name = stripPublisher(extensionId);
 
@@ -36,7 +44,10 @@ export async function getPackageVersions(registry: Registry | RegistryProvider, 
  * @param registry The registry containing the extension package, or a registry provider to search.
  * @param extensionId The extension ID of the package to find.
  */
-export async function getPackageChannels(registry: Registry | RegistryProvider, extensionId: string) {
+export async function getPackageChannels(
+    registry: Registry | RegistryProvider,
+    extensionId: string,
+): Promise<Map<string, VersionInfo>> {
     const registries = getRegistries(registry);
     const name = stripPublisher(extensionId);
 

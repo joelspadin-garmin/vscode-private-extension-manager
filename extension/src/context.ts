@@ -1,6 +1,6 @@
 import { ExtensionContext } from 'vscode';
 
-export function setContext(ctx: ExtensionContext) {
+export function setContext(ctx: ExtensionContext): void {
     context = ctx;
 }
 
