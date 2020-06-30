@@ -60,6 +60,12 @@ const extensionConfig = {
         // We don't need iconv-loader, but it *will* be imported, so we need the
         // import to succeed but not do anything.
         new NormalModuleReplacementPlugin(/\/iconv-loader$/, 'node-noop'),
+        // Pacote tries to use node-gyp to run NPM if a fetched package has a
+        // prepare script. That can't be webpacked, so stub it out.
+        new NormalModuleReplacementPlugin(
+            /^@npmcli\/run-script$/,
+            path.resolve(__dirname, 'src/stubs/@npmcli/run-script.js')
+        ),
         // Write a file containing all third-party license information.
         new LicenseCheckerWebpackPlugin({
             allow: '(' + allowedLicenses.join(' OR ') + ')',

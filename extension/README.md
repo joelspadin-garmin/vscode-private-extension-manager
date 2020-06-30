@@ -90,6 +90,12 @@ to handle the NPM-specific behavior:
 }
 ```
 
+**Note:** `prepare` scripts will **not** be run before installing the extension.
+If you have native dependencies, instead of using node-gyp to build them on the
+user's machine, you should build them yourself for each supported platform and
+include them in the .vsix or host them on a server and have your extension
+download them at runtime.
+
 ## Discovering Extensions
 
 Now that your extensions are published to an NPM registry, you need to tell
