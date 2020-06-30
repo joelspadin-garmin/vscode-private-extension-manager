@@ -44,7 +44,7 @@ section.
 command. Select the `extension` folder.
 4. Run the following command in the terminal to install all dependencies:
 ```sh
-npm ci
+npm install
 ```
 5. Repeat steps 3-4 for the `remote-helper` folder.
 
