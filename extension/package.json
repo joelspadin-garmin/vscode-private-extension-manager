@@ -350,7 +350,7 @@
         "memoize-one": "^5.1.1",
         "node-noop": "^1.0.0",
         "npm-package-arg": "^8.0.0",
-        "npm-registry-fetch": "^4.0.4",
+        "npm-registry-fetch": "^4.0.5",
         "pacote": "^9.5.12",
         "rimraf": "^3.0.2",
         "sanitize-filename": "^1.6.3",
