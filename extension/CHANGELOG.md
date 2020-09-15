@@ -1,12 +1,9 @@
 # Change Log
 
-## Unreleased
+## 1.3.0
 
 - Renamed **Private Extensions: Clean NPM Cache** to **Private Extensions: Garbage Collect NPM Cache**.
 - Added a **Private Extensions: Delete NPM Cache** command to completely delete the cache.
-
-## 1.3.0-beta.0
-
 - Upgraded [npm-registry-fetch](https://github.com/npm/npm-registry-fetch#-fetch-options) again
   now that the issues with it are fixed.
 - Changed recommended extensions to not be hidden when installed. Fixed "no recommended extensions found"
