@@ -33,6 +33,8 @@
         "workspaceContains:.vscode/extensions.private.json",
         "onView:privateExtensions.extensions",
         "onView:privateExtensions.recommended",
+        "onCommand:privateExtensions.cache.delete",
+        "onCommand:privateExtensions.cache.garbageCollect",
         "onCommand:privateExtensions.checkForUpdates",
         "onCommand:privateExtensions.configureWorkspaceRegistries",
         "onCommand:privateExtensions.configureRecommendedExtensions",
@@ -79,13 +81,18 @@
         },
         "commands": [
             {
-                "command": "privateExtensions.checkForUpdates",
-                "title": "%command.checkForUpdates.title%",
+                "command": "privateExtensions.cache.delete",
+                "title": "%command.cache.delete.title%",
                 "category": "%command.category%"
             },
             {
-                "command": "privateExtensions.cleanCache",
-                "title": "%command.cleanCache.title%",
+                "command": "privateExtensions.cache.garbageCollect",
+                "title": "%command.cache.garbageCollect.title%",
+                "category": "%command.category%"
+            },
+            {
+                "command": "privateExtensions.checkForUpdates",
+                "title": "%command.checkForUpdates.title%",
                 "category": "%command.category%"
             },
             {

@@ -77,7 +77,8 @@ function registerCommands(
         new commands.ConfigureRecommendedExtensions(),
 
         // Other commands
-        new commands.CleanCacheCommand(),
+        new commands.DeleteCacheCommand(),
+        new commands.GarbageCollectCacheCommand(),
     );
 
     return commandManager;

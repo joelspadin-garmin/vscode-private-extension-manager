@@ -4,15 +4,39 @@ import * as nls from 'vscode-nls';
 
 import { Command } from '../commandManager';
 import { getLogger } from '../logger';
-import { getNpmCacheDir } from '../util';
+import { getNpmCacheDir, rimrafPromise } from '../util';
 
 const localize = nls.loadMessageBundle();
 
+export class DeleteCacheCommand implements Command {
+    public readonly id = 'privateExtensions.cache.delete';
+
+    public async execute(): Promise<void> {
+        const cache = getNpmCacheDir();
+
+        if (!cache) {
+            vscode.window.showInformationMessage(localize('cache.already.deleted', 'NPM cache is already deleted.'));
+            return;
+        }
+
+        vscode.window.withProgress(
+            {
+                title: localize('deleting.npm.cache', 'Deleting NPM cache.'),
+                location: vscode.ProgressLocation.Notification,
+            },
+            async () => {
+                await rimrafPromise(cache);
+                getLogger().log(`Deleted NPM cache: ${cache}`);
+            },
+        );
+    }
+}
+
 /**
- * Opens extensions.private.json to the "registries" element.
+ * Cleans and fixes up the NPM cache.
  */
-export class CleanCacheCommand implements Command {
-    public readonly id = 'privateExtensions.cleanCache';
+export class GarbageCollectCacheCommand implements Command {
+    public readonly id = 'privateExtensions.cache.garbageCollect';
 
     public async execute(): Promise<void> {
         const cache = getNpmCacheDir();

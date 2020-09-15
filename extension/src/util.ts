@@ -39,11 +39,9 @@ export function getNpmDownloadDir(): string {
 /**
  * Deletes the contents of `getNpmDownloadDir()`.
  */
-export function deleteNpmDownloads(): Promise<void> {
-    return new Promise((resolve) => {
-        const downloadDir = getNpmDownloadDir();
-        rimraf(downloadDir, () => resolve());
-    });
+export async function deleteNpmDownloads(): Promise<void> {
+    const downloadDir = getNpmDownloadDir();
+    await rimrafPromise(downloadDir);
 }
 
 /**
@@ -89,6 +87,18 @@ export function readJSONSync(file: string | Uri): any {
 
     const text = fs.readFileSync(file, 'utf8');
     return jsonc.parse(text);
+}
+
+export function rimrafPromise(path: string, options?: rimraf.Options): Promise<void> {
+    return new Promise((resolve, reject) => {
+        rimraf(path, options ?? {}, (err) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve();
+            }
+        });
+    });
 }
 
 /**
