@@ -212,6 +212,18 @@ npm publish . --tag=insiders
 When publishing pre-release versions, it is reccomended to use pre-release
 sematic versioning, such as **1.0.0-beta.0**.
 
+## Extension Updates
+
+Private Extension Manager will periodically check your installed extensions for
+updates and notify you if any are found. You can adjust the check interval or
+disable it with the `privateExtensions.updateCheckInterval` setting.
+
+The Private Extensions sidebar panel will also indicate any extensions with new
+versions with a green arrow. Clicking it will update the extension.
+
+You will typically need to reload the Visual Studio Code window for an update
+to take effect.
+
 ## Remote Development
 
 When using a [remote development](https://code.visualstudio.com/docs/remote/remote-overview)
