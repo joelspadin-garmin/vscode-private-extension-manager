@@ -15,6 +15,7 @@ const LicenseCheckerWebpackPlugin = require('license-checker-webpack-plugin');
 const allowedLicenses = [
     'Apache-2.0',
     'BSD-2-Clause',
+    'BSD-3-Clause',
     'CC-BY-3.0+',
     'CC0-1.0',
     'ISC',
