@@ -9,7 +9,7 @@ import * as path from 'path';
 import sanitize = require('sanitize-filename');
 import { SemVer } from 'semver';
 import { CancellationToken, Uri, window } from 'vscode';
-import * as nls from 'vscode-nls';
+import * as nls from 'vscode-nls/node';
 
 import { ExtensionInfoService } from './extensionInfo';
 import { getLogger } from './logger';

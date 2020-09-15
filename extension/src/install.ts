@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import * as nls from 'vscode-nls';
+import * as nls from 'vscode-nls/node';
 
 import { ExtensionInfoService } from './extensionInfo';
 import { findPackage } from './findPackage';

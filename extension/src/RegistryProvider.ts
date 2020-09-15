@@ -3,7 +3,7 @@ import * as t from 'io-ts';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { Disposable, EventEmitter } from 'vscode';
-import * as nls from 'vscode-nls';
+import * as nls from 'vscode-nls/node';
 
 import { ExtensionInfoService } from './extensionInfo';
 import { getLogger } from './logger';

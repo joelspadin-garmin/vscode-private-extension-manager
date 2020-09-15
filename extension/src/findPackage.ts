@@ -1,4 +1,4 @@
-import * as nls from 'vscode-nls';
+import * as nls from 'vscode-nls/node';
 
 import { Package } from './Package';
 import { Registry, VersionInfo } from './Registry';

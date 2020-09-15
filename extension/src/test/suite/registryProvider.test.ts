@@ -8,7 +8,7 @@ import { SemVer } from 'semver';
 import sinon = require('sinon');
 import 'source-map-support/register';
 import * as vscode from 'vscode';
-import * as nls from 'vscode-nls';
+import * as nls from 'vscode-nls/node';
 
 import { ExtensionInfoService } from '../../extensionInfo';
 import { Package } from '../../Package';

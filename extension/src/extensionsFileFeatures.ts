@@ -1,7 +1,7 @@
 import * as jsonc from 'jsonc-parser';
 import * as vscode from 'vscode';
 import { CompletionItem, Disposable } from 'vscode';
-import * as nls from 'vscode-nls';
+import * as nls from 'vscode-nls/node';
 
 import { RegistryProvider } from './RegistryProvider';
 

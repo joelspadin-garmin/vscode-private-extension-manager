@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { Disposable, EventEmitter, TreeDataProvider, TreeItem } from 'vscode';
-import * as nls from 'vscode-nls';
+import * as nls from 'vscode-nls/node';
 
 import { ExtensionInfoService } from '../extensionInfo';
 import { Package, PackageState } from '../Package';
@@ -234,14 +234,9 @@ class MessageItem extends BaseItem {
 class RegistryItem extends BaseItem {
     constructor(public readonly registry: Registry) {
         super(registry.name, vscode.TreeItemCollapsibleState.Expanded);
-    }
 
-    get contextValue() {
-        return ['registry', this.registry.source].join('.');
-    }
-
-    get resourceUri() {
-        return this.registry.uri;
+        this.contextValue = `registry.${this.registry.source}`;
+        this.resourceUri = this.registry.uri;
     }
 
     public async getExtensions() {
@@ -264,21 +259,20 @@ class RegistryItem extends BaseItem {
 class ExtensionItem extends BaseItem {
     constructor(public readonly pkg: Package) {
         super(pkg.displayName, vscode.TreeItemCollapsibleState.None);
-    }
 
-    get command() {
-        return {
+        this.command = {
             command: 'privateExtensions.extension.show',
             title: localize('show.extension', 'Show Extension'),
             arguments: [this.pkg],
-        } as vscode.Command;
+        };
+
+        this.contextValue = `extension.${this.pkg.state}`;
+        this.description = this.getDescription();
+        this.iconPath = EXTENSION_ICONS[this.pkg.state];
+        this.tooltip = this.getTooltip();
     }
 
-    get contextValue() {
-        return ['extension', this.pkg.state].join('.');
-    }
-
-    get description() {
+    private getDescription() {
         if (this.pkg.isUpdateAvailable && this.pkg.installedVersion) {
             return `${this.pkg.installedVersion} → ${this.pkg.version}`;
         } else {
@@ -286,11 +280,7 @@ class ExtensionItem extends BaseItem {
         }
     }
 
-    get iconPath() {
-        return EXTENSION_ICONS[this.pkg.state];
-    }
-
-    get tooltip() {
+    private getTooltip() {
         if (this.pkg.state === PackageState.Invalid) {
             return this.pkg.errorMessage;
         } else {

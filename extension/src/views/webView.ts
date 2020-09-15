@@ -1,7 +1,7 @@
 import { isAbsolute } from 'path';
 import * as vscode from 'vscode';
 import { Disposable, WebviewPanel } from 'vscode';
-import * as nls from 'vscode-nls';
+import * as nls from 'vscode-nls/node';
 
 import { getLogger } from '../logger';
 import { getExtensionFileUri, memoize } from '../util';

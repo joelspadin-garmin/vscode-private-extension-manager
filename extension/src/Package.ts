@@ -4,7 +4,7 @@ import * as path from 'path';
 import { parse as parseVersion, SemVer } from 'semver';
 import { promisify } from 'util';
 import * as vscode from 'vscode';
-import * as nls from 'vscode-nls';
+import * as nls from 'vscode-nls/node';
 
 import { Registry, VersionInfo } from './Registry';
 import { LATEST } from './releaseChannel';

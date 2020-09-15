@@ -1,6 +1,6 @@
 import cacache = require('cacache');
 import * as vscode from 'vscode';
-import * as nls from 'vscode-nls';
+import * as nls from 'vscode-nls/node';
 
 import { Command } from '../commandManager';
 import { getLogger } from '../logger';

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import * as nls from 'vscode-nls';
+import * as nls from 'vscode-nls/node';
 
 import { CommandManager } from './commandManager';
 import * as commands from './commands/index';

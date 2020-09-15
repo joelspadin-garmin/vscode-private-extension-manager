@@ -1,6 +1,6 @@
 import * as semver from 'semver';
 import * as vscode from 'vscode';
-import * as nls from 'vscode-nls';
+import * as nls from 'vscode-nls/node';
 
 import { Command } from '../commandManager';
 import { ExtensionInfoService } from '../extensionInfo';
