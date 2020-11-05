@@ -32,7 +32,7 @@ export function setReleaseChannel(publisher: string, name: string, channel: stri
 export function setReleaseChannel(publisherOrId: string, nameOrChannel: string, channel?: string): void {
     let id: string;
     if (channel) {
-        id = formatExtensionId(publisherOrId, name);
+        id = formatExtensionId(publisherOrId, nameOrChannel);
     } else {
         id = publisherOrId;
         channel = nameOrChannel;

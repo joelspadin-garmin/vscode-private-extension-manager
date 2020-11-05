@@ -123,7 +123,7 @@ export abstract class WebView<T> implements Disposable {
             `;
     }
 
-    protected abstract async getBody(nonce: string): Promise<string>;
+    protected abstract getBody(nonce: string): Promise<string>;
 
     protected async getHtml(): Promise<string> {
         const nonce = getNonce();

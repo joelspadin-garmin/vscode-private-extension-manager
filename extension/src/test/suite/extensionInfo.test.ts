@@ -175,7 +175,7 @@ suite('Extension Info', function () {
 });
 
 function delay(callback: () => void, timeout = 100) {
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
         setTimeout(() => {
             callback();
             resolve();

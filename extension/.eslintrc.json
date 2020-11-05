@@ -61,6 +61,7 @@
     },
     "ignorePatterns": [
         "webpack.config.js",
-        "src/stubs/**"
+        "src/stubs/**",
+        "*.d.ts"
     ]
 }

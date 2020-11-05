@@ -85,14 +85,19 @@ async function writeTemplateIfEmpty(editor: vscode.TextEditor) {
  */
 function focusJsonElement(editor: vscode.TextEditor, path: jsonc.JSONPath) {
     const tree = jsonc.parseTree(editor.document.getText());
-    const node = jsonc.findNodeAtLocation(tree, path);
-
-    if (node) {
-        const lastChildNode = node?.children?.[node.children.length - 1];
-
-        const offset = lastChildNode ? lastChildNode.offset + lastChildNode.length : node.offset + 1;
-        const position = editor.document.positionAt(offset);
-
-        editor.selections = [new vscode.Selection(position, position)];
+    if (!tree) {
+        return;
     }
+
+    const node = jsonc.findNodeAtLocation(tree, path);
+    if (!node) {
+        return;
+    }
+
+    const lastChildNode = node?.children?.[node.children.length - 1];
+
+    const offset = lastChildNode ? lastChildNode.offset + lastChildNode.length : node.offset + 1;
+    const position = editor.document.positionAt(offset);
+
+    editor.selections = [new vscode.Selection(position, position)];
 }
