@@ -354,7 +354,7 @@
         "io-ts": "^2.2.12",
         "is-unc-path": "^1.0.0",
         "jsonc-parser": "^3.0.0",
-        "libnpmsearch": "^3.0.1",
+        "libnpmsearch": "^2.0.2",
         "memoize-one": "^5.1.1",
         "node-noop": "^1.0.0",
         "npm-package-arg": "^8.1.0",
