@@ -19,7 +19,7 @@ export function getConfig(): WorkspaceConfiguration {
  */
 export function getNpmCacheDir(): string | undefined {
     if (context) {
-        return path.join(context.globalStoragePath, 'cache');
+        return Uri.joinPath(context.globalStorageUri, 'cache').fsPath;
     } else {
         return undefined;
     }
@@ -30,7 +30,7 @@ export function getNpmCacheDir(): string | undefined {
  */
 export function getNpmDownloadDir(): string {
     if (context) {
-        return path.join(context.globalStoragePath, 'packages');
+        return Uri.joinPath(context.globalStorageUri, 'packages').fsPath;
     } else {
         return path.resolve('./packages');
     }
