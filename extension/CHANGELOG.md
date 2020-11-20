@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.4.0
+
+- Added support for web versions of VS Code. Thanks, [lachaib](https://github.com/lachaib)!
+- Reverted npm-registry-fetch yet again, as we found more problems with the new version.
+
 ## 1.3.0
 
 - Renamed **Private Extensions: Clean NPM Cache** to **Private Extensions: Garbage Collect NPM Cache**.
