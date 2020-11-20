@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.4.1
+
+- Reverted libnpmsearch too, as that was still pulling in the new version of npm-registry-fetch.
+
 ## 1.4.0
 
 - Added support for web versions of VS Code. Thanks, [lachaib](https://github.com/lachaib)!
