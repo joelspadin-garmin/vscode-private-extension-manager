@@ -348,7 +348,7 @@
         "webpack-cli": "^3.3.12"
     },
     "dependencies": {
-        "cacache": "^15.0.5",
+        "cacache": "^12.0.4",
         "fp-ts": "^2.8.6",
         "glob": "^7.1.6",
         "io-ts": "^2.2.12",
@@ -358,8 +358,8 @@
         "memoize-one": "^5.1.1",
         "node-noop": "^1.0.0",
         "npm-package-arg": "^8.1.0",
-        "npm-registry-fetch": "^9.0.0",
-        "pacote": "^11.1.13",
+        "npm-registry-fetch": "^4.0.7",
+        "pacote": "^9.5.12",
         "rimraf": "^3.0.2",
         "sanitize-filename": "^1.6.3",
         "semver": "^7.3.2",
