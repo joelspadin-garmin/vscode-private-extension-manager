@@ -2,9 +2,11 @@ import { assert } from 'chai';
 import { afterEach, beforeEach } from 'mocha';
 import { SemVer } from 'semver';
 import sinon = require('sinon');
+import os = require('os')
 import 'source-map-support/register';
 import * as vscode from 'vscode';
 import * as nls from 'vscode-nls/node';
+import * as path from 'path';
 
 import { ExtensionInfoService } from '../../extensionInfo';
 import { NotAnExtensionError, Package, PackageState } from '../../Package';
@@ -767,5 +769,88 @@ suite('Package', function () {
             NotAnExtensionError,
             `\uFF3B\uFF3BPaackaagee test-package iis noot aan eexteensiioon\uFF3D: \uFF3BExpeecteed string aat engines.vscode buut goot 42\uFF3D\uFF3D`,
         );
+    });
+
+    test('Vsix file: No OS specific setting', async function () {
+        stubs.stubExtension('test.test-package');
+
+        const pkg = new Package(getDummyRegistry(), {
+            name: 'test-package',
+            publisher: 'Test',
+            version: '1.2.3',
+            engines: { vscode: '1.38.0' },
+            files: ['extension.vsix'],
+        });
+
+        const directory = await pkg.registry.downloadPackage(pkg);
+        const expected = vscode.Uri.file(path.join(directory.fsPath, "extension.vsix"));
+        assert.equal((await pkg.getContents()).vsix?.toString(), expected.toString());
+    });
+
+    test('Vsix file: OS specific setting returns specific file', async function () {
+        stubs.stubExtension('test.test-package');
+
+        const expectedPlatform = os.platform();
+        const pkg = new Package(getDummyRegistry(), {
+            name: 'test-package',
+            publisher: 'Test',
+            version: '1.2.3',
+            engines: { vscode: '1.38.0' },
+            files: ['z_wrong_file.vsix', 'unrelated.vsix', 'correct_file.vsix', 'a_wrong_file.vsix'],
+            osSpecific: {
+                [expectedPlatform]: 'correct_file.vsix',
+                unrelated_os: 'unrelated.vsix'
+            },
+        });
+
+        const directory = await pkg.registry.downloadPackage(pkg);
+        const expected = vscode.Uri.file(path.join(directory.fsPath, "correct_file.vsix"));
+        assert.equal((await pkg.getContents()).vsix?.toString(), expected.toString());
+    });
+
+    test('Vsix file: OS specific setting but missing file', async function () {
+        stubs.stubExtension('test.test-package');
+
+        const expectedPlatform = os.platform();
+        const pkg = new Package(getDummyRegistry(), {
+            name: 'test-package',
+            publisher: 'Test',
+            version: '1.2.3',
+            engines: { vscode: '1.38.0' },
+            files: ['z_wrong_file.vsix', 'a_wrong_file.vsix'],
+            osSpecific: { [expectedPlatform]: 'missing_in_files.vsix'},
+        });
+
+        assert.isNull((await pkg.getContents()).vsix);
+    });
+
+    test('Vsix file: OS specific setting but no supported OS', async function () {
+        stubs.stubExtension('test.test-package');
+
+        const pkg = new Package(getDummyRegistry(), {
+            name: 'test-package',
+            publisher: 'Test',
+            version: '1.2.3',
+            engines: { vscode: '1.38.0' },
+            files: ['extension_1.vsix', 'extension_2.vsix'],
+            osSpecific: { unrelated_os: 'extension_1.vsix'},
+        });
+
+        assert.isNull((await pkg.getContents()).vsix);
+    });
+
+    test('Vsix file: Empty OS specific setting', async function () {
+        stubs.stubExtension('test.test-package');
+
+        const pkg = new Package(getDummyRegistry(), {
+            name: 'test-package',
+            publisher: 'Test',
+            version: '1.2.3',
+            engines: { vscode: '1.38.0' },
+            files: ['extension.vsix'],
+            osSpecific: { },
+        });
+
+        assert.isNull((await pkg.getContents()).vsix);
     });
 });

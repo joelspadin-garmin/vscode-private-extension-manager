@@ -51,6 +51,7 @@ const PackageManifest = options(
         description: t.string,
         version: t.string,
         files: t.array(t.string),
+        osSpecific: t.record(t.string, t.string)
     },
 );
 type PackageManifest = t.TypeOf<typeof PackageManifest>;
@@ -286,6 +287,20 @@ function uriJoin(directory: vscode.Uri, file: string) {
 
 function findVsixFile(manifest: PackageManifest) {
     if (manifest.files) {
+        if (manifest.osSpecific) {
+            const os = require("os");
+            const osEntry = manifest.osSpecific[os.platform()];
+
+            if (osEntry) {
+                const osSpecificFile = manifest.files.find(e => (e === osEntry && typeof e === 'string' && e.endsWith('.vsix')));
+
+                if (osSpecificFile) {
+                    return osSpecificFile;
+                }
+            }
+            return null;
+        }
+
         for (const file of manifest.files) {
             if (typeof file === 'string' && file.endsWith('.vsix')) {
                 return file;
