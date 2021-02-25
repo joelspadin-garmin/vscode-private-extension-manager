@@ -1,7 +1,6 @@
 import { assert } from 'chai';
 import { afterEach, beforeEach } from 'mocha';
 import * as os from 'os';
-import * as path from 'path';
 import { SemVer } from 'semver';
 import sinon = require('sinon');
 import 'source-map-support/register';
@@ -782,9 +781,7 @@ suite('Package', function () {
             files: ['extension.vsix'],
         });
 
-        const directory = await pkg.registry.downloadPackage(pkg);
-        const expected = vscode.Uri.file(path.join(directory.fsPath, 'extension.vsix'));
-        assert.equal((await pkg.getContents()).vsix?.toString(), expected.toString());
+        assert.deepInclude(pkg, {vsixFile: 'extension.vsix'});
     });
 
     test('Vsix file: OS specific setting returns specific file', async function () {
@@ -803,9 +800,7 @@ suite('Package', function () {
             },
         });
 
-        const directory = await pkg.registry.downloadPackage(pkg);
-        const expected = vscode.Uri.file(path.join(directory.fsPath, 'correct_file.vsix'));
-        assert.equal((await pkg.getContents()).vsix?.toString(), expected.toString());
+        assert.deepInclude(pkg, {vsixFile: 'correct_file.vsix'});
     });
 
     test('Vsix file: OS specific setting but no supported OS', async function () {
@@ -820,7 +815,7 @@ suite('Package', function () {
             osSpecificVsix: { unrelated_os: 'extension.vsix' },
         });
 
-        assert.isNull((await pkg.getContents()).vsix);
+        assert.deepInclude(pkg, {vsixFile: null});
         await pkg.updateState();
 
         assert.deepInclude(pkg, {
@@ -844,7 +839,7 @@ suite('Package', function () {
             osSpecificVsix: {},
         });
 
-        assert.isNull((await pkg.getContents()).vsix);
+        assert.deepInclude(pkg, {vsixFile: null});
     });
 
     test('Vsix file: Default if no matching OS', async function () {
@@ -862,8 +857,6 @@ suite('Package', function () {
             },
         });
 
-        const directory = await pkg.registry.downloadPackage(pkg);
-        const expected = vscode.Uri.file(path.join(directory.fsPath, 'default_extension.vsix'));
-        assert.equal((await pkg.getContents()).vsix?.toString(), expected.toString());
+        assert.deepInclude(pkg, {vsixFile: 'default_extension.vsix'});
     });
 });

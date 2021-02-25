@@ -125,7 +125,7 @@ export class Package {
     /* The channel that this package is tracking */
     public readonly channel: string;
 
-    private readonly vsixFile: Result<string>;
+    private readonly _vsixFile: Result<string>;
     private readonly isPublisherValid: boolean;
 
     private _isInstalled = false;
@@ -169,7 +169,7 @@ export class Package {
         // if the extension is already installed.
         this._isUiExtension = isUiExtension(this.extensionId, manifest);
 
-        this.vsixFile = findVsixFile(manifest);
+        this._vsixFile = findVsixFile(manifest);
     }
 
     /**
@@ -195,7 +195,7 @@ export class Package {
      * Call `updateState()` first to ensure this is up-to-date.
      */
     public get state(): PackageState {
-        if (this.isPublisherValid && valueOrNull(this.vsixFile)) {
+        if (this.isPublisherValid && this.vsixFile) {
             if (this.isUpdateAvailable) {
                 return PackageState.UpdateAvailable;
             }
@@ -229,8 +229,8 @@ export class Package {
         if (!this.isPublisherValid) {
             return localize('manifest.missing.publisher', 'Manifest is missing "publisher" field.');
         }
-        if (this.vsixFile.type === 'error') {
-            return this.vsixFile.error.message;
+        if (this._vsixFile.type === 'error') {
+            return this._vsixFile.error.message;
         }
         return '';
     }
@@ -277,6 +277,14 @@ export class Package {
         return !!this.installedVersion && this.version > this.installedVersion;
     }
 
+    /**
+     * Gets the .vsix file or `null`, if the package doesn't contain a
+     * suitable file.
+     */
+    public get vsixFile(): string | null {
+        return valueOrNull(this._vsixFile);
+    }
+
     public toString(): string {
         return this.displayName;
     }
@@ -292,7 +300,7 @@ export class Package {
         changelog: vscode.Uri | null;
     }> {
         const directory = await this.registry.downloadPackage(this);
-        const vsix = valueOrNull(this.vsixFile);
+        const vsix = this.vsixFile;
 
         return {
             manifest: uriJoin(directory, 'package.json'),
