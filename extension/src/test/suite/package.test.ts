@@ -821,9 +821,7 @@ suite('Package', function () {
         assert.deepInclude(pkg, {
             state: PackageState.Invalid,
             errorMessage:
-                '\uFF3BMaaniifeest iis miissiing .vsiix fiilee iin "oosSpeeciifiicVsiix" fiieeld foor "' +
-                os.platform() +
-                '".\uFF3D',
+                `\uFF3BMaaniifeest iis miissiing .vsiix fiilee iin "oosSpeeciifiicVsiix" fiieeld foor "${os.platform}".\uFF3D`,
         });
     });
 
