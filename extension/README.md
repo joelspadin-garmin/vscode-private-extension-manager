@@ -98,7 +98,9 @@ download them at runtime.
 
 ### OS specific Extensions
 
-Use optional `osSpecificVsix` to choose a .vsix file by the [operating system](https://nodejs.org/api/os.html#os_os_platform):
+By default, the first .vsix file in the files array is used. If you have different
+native dependencies for each platform, you can use osSpecificVsix to choose a .vsix
+file by the [operating system](https://nodejs.org/api/os.html#os_os_platform).
 
 ```JSON
     ...
