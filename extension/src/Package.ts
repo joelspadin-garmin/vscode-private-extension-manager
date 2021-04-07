@@ -1,5 +1,6 @@
 import * as _glob from 'glob';
 import * as t from 'io-ts';
+import * as os from 'os';
 import * as path from 'path';
 import { parse as parseVersion, SemVer } from 'semver';
 import { promisify } from 'util';
@@ -39,6 +40,33 @@ export enum PackageState {
 export class NotAnExtensionError extends Error {}
 
 /**
+ * Represents a result containing a value.
+ */
+type ResultSuccess<T> = { type: 'success'; value: T };
+
+/**
+ * Represents a result containing an error.
+ */
+type ResultError = { type: 'error'; error: Error };
+
+/**
+ * Type that contains a value if successful or an error otherwise.
+ */
+type Result<T> = ResultSuccess<T> | ResultError;
+
+function valueOrNull<T>(result: Result<T>): T | null {
+    return result.type === 'success' ? result.value : null;
+}
+
+function success<T>(value: T): ResultSuccess<T> {
+    return { type: 'success', value: value };
+}
+
+function error(message: string): ResultError {
+    return { type: 'error', error: new Error(message) };
+}
+
+/**
  * Fields expected for all NPM packages.
  */
 const PackageManifest = options(
@@ -51,6 +79,7 @@ const PackageManifest = options(
         description: t.string,
         version: t.string,
         files: t.array(t.string),
+        osSpecificVsix: t.record(t.string, t.string),
     },
 );
 type PackageManifest = t.TypeOf<typeof PackageManifest>;
@@ -96,7 +125,7 @@ export class Package {
     /* The channel that this package is tracking */
     public readonly channel: string;
 
-    private readonly vsixFile: string | null;
+    private readonly _vsixFile: Result<string>;
     private readonly isPublisherValid: boolean;
 
     private _isInstalled = false;
@@ -140,7 +169,7 @@ export class Package {
         // if the extension is already installed.
         this._isUiExtension = isUiExtension(this.extensionId, manifest);
 
-        this.vsixFile = findVsixFile(manifest);
+        this._vsixFile = findVsixFile(manifest);
     }
 
     /**
@@ -200,8 +229,8 @@ export class Package {
         if (!this.isPublisherValid) {
             return localize('manifest.missing.publisher', 'Manifest is missing "publisher" field.');
         }
-        if (!this.vsixFile) {
-            return localize('manifest.missing.vsix', 'Manifest is missing .vsix file in "files" field.');
+        if (this._vsixFile.type === 'error') {
+            return this._vsixFile.error.message;
         }
         return '';
     }
@@ -248,6 +277,14 @@ export class Package {
         return !!this.installedVersion && this.version > this.installedVersion;
     }
 
+    /**
+     * Gets the .vsix file or `null`, if the package doesn't contain a
+     * suitable file.
+     */
+    public get vsixFile(): string | null {
+        return valueOrNull(this._vsixFile);
+    }
+
     public toString(): string {
         return this.displayName;
     }
@@ -263,10 +300,11 @@ export class Package {
         changelog: vscode.Uri | null;
     }> {
         const directory = await this.registry.downloadPackage(this);
+        const vsix = this.vsixFile;
 
         return {
             manifest: uriJoin(directory, 'package.json'),
-            vsix: this.vsixFile ? uriJoin(directory, this.vsixFile) : null,
+            vsix: vsix ? uriJoin(directory, vsix) : null,
             readme: await findFile(directory, README_GLOB),
             changelog: await findFile(directory, CHANGELOG_GLOB),
         };
@@ -284,16 +322,32 @@ function uriJoin(directory: vscode.Uri, file: string) {
     return vscode.Uri.file(path.join(directory.fsPath, file));
 }
 
-function findVsixFile(manifest: PackageManifest) {
+function findVsixFile(manifest: PackageManifest): Result<string> {
     if (manifest.files) {
+        if (manifest.osSpecificVsix) {
+            const vsix = manifest.osSpecificVsix[os.platform()] ?? manifest.osSpecificVsix['default'];
+
+            if (vsix) {
+                return success(vsix);
+            }
+
+            return error(
+                localize(
+                    'manifest.missing.os.vsix',
+                    'Manifest is missing .vsix file in "osSpecificVsix" field for "{0}".',
+                    os.platform(),
+                ),
+            );
+        }
+
         for (const file of manifest.files) {
             if (typeof file === 'string' && file.endsWith('.vsix')) {
-                return file;
+                return success(file);
             }
         }
     }
 
-    return null;
+    return error(localize('manifest.missing.vsix', 'Manifest is missing .vsix file in "files" field.'));
 }
 
 /**

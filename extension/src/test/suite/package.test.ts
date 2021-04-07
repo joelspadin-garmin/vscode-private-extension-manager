@@ -1,5 +1,6 @@
 import { assert } from 'chai';
 import { afterEach, beforeEach } from 'mocha';
+import * as os from 'os';
 import { SemVer } from 'semver';
 import sinon = require('sinon');
 import 'source-map-support/register';
@@ -767,5 +768,93 @@ suite('Package', function () {
             NotAnExtensionError,
             `\uFF3B\uFF3BPaackaagee test-package iis noot aan eexteensiioon\uFF3D: \uFF3BExpeecteed string aat engines.vscode buut goot 42\uFF3D\uFF3D`,
         );
+    });
+
+    test('Vsix file: No OS specific setting', async function () {
+        stubs.stubExtension('test.test-package');
+
+        const pkg = new Package(getDummyRegistry(), {
+            name: 'test-package',
+            publisher: 'Test',
+            version: '1.2.3',
+            engines: { vscode: '1.38.0' },
+            files: ['extension.vsix'],
+        });
+
+        assert.deepInclude(pkg, {vsixFile: 'extension.vsix'});
+    });
+
+    test('Vsix file: OS specific setting returns specific file', async function () {
+        stubs.stubExtension('test.test-package');
+
+        const expectedPlatform = os.platform();
+        const pkg = new Package(getDummyRegistry(), {
+            name: 'test-package',
+            publisher: 'Test',
+            version: '1.2.3',
+            engines: { vscode: '1.38.0' },
+            files: ['z_wrong_file.vsix', 'unrelated.vsix', 'correct_file.vsix', 'a_wrong_file.vsix'],
+            osSpecificVsix: {
+                [expectedPlatform]: 'correct_file.vsix',
+                unrelated_os: 'unrelated.vsix',
+            },
+        });
+
+        assert.deepInclude(pkg, {vsixFile: 'correct_file.vsix'});
+    });
+
+    test('Vsix file: OS specific setting but no supported OS', async function () {
+        stubs.stubExtension('test.test-package');
+
+        const pkg = new Package(getDummyRegistry(), {
+            name: 'test-package',
+            publisher: 'Test',
+            version: '1.2.3',
+            engines: { vscode: '1.38.0' },
+            files: ['extension.vsix'],
+            osSpecificVsix: { unrelated_os: 'extension.vsix' },
+        });
+
+        assert.deepInclude(pkg, {vsixFile: null});
+        await pkg.updateState();
+
+        assert.deepInclude(pkg, {
+            state: PackageState.Invalid,
+            errorMessage:
+                `\uFF3BMaaniifeest iis miissiing .vsiix fiilee iin "oosSpeeciifiicVsiix" fiieeld foor "${os.platform}".\uFF3D`,
+        });
+    });
+
+    test('Vsix file: Empty OS specific setting', async function () {
+        stubs.stubExtension('test.test-package');
+
+        const pkg = new Package(getDummyRegistry(), {
+            name: 'test-package',
+            publisher: 'Test',
+            version: '1.2.3',
+            engines: { vscode: '1.38.0' },
+            files: ['extension.vsix'],
+            osSpecificVsix: {},
+        });
+
+        assert.deepInclude(pkg, {vsixFile: null});
+    });
+
+    test('Vsix file: Default if no matching OS', async function () {
+        stubs.stubExtension('test.test-package');
+
+        const pkg = new Package(getDummyRegistry(), {
+            name: 'test-package',
+            publisher: 'Test',
+            version: '1.2.3',
+            engines: { vscode: '1.38.0' },
+            files: ['extension.vsix'],
+            osSpecificVsix: {
+                unrelated_os: 'extension_1.vsix',
+                default: 'default_extension.vsix',
+            },
+        });
+
+        assert.deepInclude(pkg, {vsixFile: 'default_extension.vsix'});
     });
 });

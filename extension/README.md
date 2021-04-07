@@ -96,6 +96,26 @@ user's machine, you should build them yourself for each supported platform and
 include them in the .vsix or host them on a server and have your extension
 download them at runtime.
 
+### OS specific Extensions
+
+By default, the first .vsix file in the files array is used. If you have different
+native dependencies for each platform, you can use osSpecificVsix to choose a .vsix
+file by the [operating system](https://nodejs.org/api/os.html#os_os_platform).
+
+```JSON
+    ...
+    "osSpecificVsix": {
+        "linux": "extension-linux.vsix",
+        "win32": "extension-win32.vsix",
+        "default": "extension-default.vsix",
+    },
+    ...
+```
+
+The package must include all files listed. `default` (*optional*) is used to select
+a file in case none of the explicit keys matches; otherwise an error is shown on
+unsupported platforms.
+
 ## Discovering Extensions
 
 Now that your extensions are published to an NPM registry, you need to tell
