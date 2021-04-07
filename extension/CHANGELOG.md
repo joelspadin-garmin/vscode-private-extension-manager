@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.5.0
+
+- Added support for [OS-specific extension packages](https://github.com/joelspadin-garmin/vscode-private-extension-manager/tree/master/extension#os-specific-extensions).
+  Thanks, [offa](https://github.com/offa)!
+
 ## 1.4.1
 
 - Reverted libnpmsearch too, as that was still pulling in the new version of npm-registry-fetch.
