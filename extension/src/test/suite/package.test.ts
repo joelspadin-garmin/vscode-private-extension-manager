@@ -781,7 +781,7 @@ suite('Package', function () {
             files: ['extension.vsix'],
         });
 
-        assert.deepInclude(pkg, {vsixFile: 'extension.vsix'});
+        assert.deepInclude(pkg, { vsixFile: 'extension.vsix' });
     });
 
     test('Vsix file: OS specific setting returns specific file', async function () {
@@ -800,7 +800,7 @@ suite('Package', function () {
             },
         });
 
-        assert.deepInclude(pkg, {vsixFile: 'correct_file.vsix'});
+        assert.deepInclude(pkg, { vsixFile: 'correct_file.vsix' });
     });
 
     test('Vsix file: OS specific setting but no supported OS', async function () {
@@ -815,13 +815,12 @@ suite('Package', function () {
             osSpecificVsix: { unrelated_os: 'extension.vsix' },
         });
 
-        assert.deepInclude(pkg, {vsixFile: null});
+        assert.deepInclude(pkg, { vsixFile: null });
         await pkg.updateState();
 
         assert.deepInclude(pkg, {
             state: PackageState.Invalid,
-            errorMessage:
-                `\uFF3BMaaniifeest iis miissiing .vsiix fiilee iin "oosSpeeciifiicVsiix" fiieeld foor "${os.platform}".\uFF3D`,
+            errorMessage: `\uFF3BMaaniifeest iis miissiing .vsiix fiilee iin "oosSpeeciifiicVsiix" fiieeld foor "${os.platform}".\uFF3D`,
         });
     });
 
@@ -837,7 +836,7 @@ suite('Package', function () {
             osSpecificVsix: {},
         });
 
-        assert.deepInclude(pkg, {vsixFile: null});
+        assert.deepInclude(pkg, { vsixFile: null });
     });
 
     test('Vsix file: Default if no matching OS', async function () {
@@ -855,6 +854,6 @@ suite('Package', function () {
             },
         });
 
-        assert.deepInclude(pkg, {vsixFile: 'default_extension.vsix'});
+        assert.deepInclude(pkg, { vsixFile: 'default_extension.vsix' });
     });
 });
