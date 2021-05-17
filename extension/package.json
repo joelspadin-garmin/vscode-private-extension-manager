@@ -77,6 +77,12 @@
                     "scope": "machine",
                     "description": "%configuration.updateCheckInterval.description%",
                     "default": 3600
+                },
+                "privateExtensions.allowInsecureContent": {
+                    "type": "boolean",
+                    "scope": "machine",
+                    "description": "%configuration.allowInsecureContent.description%",
+                    "default": false
                 }
             }
         },
