@@ -108,10 +108,16 @@ export abstract class WebView<T> implements Disposable {
     protected async getHead(nonce: string): Promise<string> {
         const cspSource = this.panel?.webview.cspSource ?? '';
 
+        const allowInsecure = vscode.workspace
+            .getConfiguration('privateExtensions')
+            .get<boolean>('allowInsecureContent');
+
+        const allowedProtocol = allowInsecure ? 'http' : 'https';
+
         const policy = [
             `default-src 'none';`,
             `font-src ${cspSource};`,
-            `img-src ${cspSource} https:;`,
+            `img-src ${cspSource} ${allowedProtocol}:;`,
             `script-src 'nonce-${nonce}';`,
             `style-src ${cspSource} 'unsafe-inline';`,
         ].join('');
