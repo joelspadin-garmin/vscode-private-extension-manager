@@ -19,13 +19,15 @@
             }
         },
         {
-            "label": "package",
-            "type": "npm",
-            "script": "package",
-            "problemMatcher": [
-                "$ts-webpack"
-            ]
-        },
+			"type": "npm",
+			"script": "test-watch",
+			"problemMatcher": "$tsc-watch",
+			"isBackground": true,
+			"presentation": {
+				"reveal": "never"
+			},
+			"group": "build"
+		},
         {
             "label": "lint",
             "type": "npm",
