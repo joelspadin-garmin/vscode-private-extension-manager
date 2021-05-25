@@ -15,5 +15,8 @@
     // Fix errors that can be fixed on save.
     "editor.codeActionsOnSave": {
         "source.fixAll": true
+    },
+    "[markdown]": {
+        "editor.formatOnSave": true
     }
 }

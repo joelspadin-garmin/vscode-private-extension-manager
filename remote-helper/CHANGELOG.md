@@ -2,8 +2,8 @@
 
 ## 1.0.0
 
-- Changes for marketplace release
+-   Changes for marketplace release
 
 ## 0.9.0-beta.0
 
-- Initial release
+-   Initial release

@@ -112,7 +112,7 @@ file by the [operating system](https://nodejs.org/api/os.html#os_os_platform).
     ...
 ```
 
-The package must include all files listed. `default` (*optional*) is used to select
+The package must include all files listed. `default` (_optional_) is used to select
 a file in case none of the explicit keys matches; otherwise an error is shown on
 unsupported platforms.
 
@@ -151,19 +151,19 @@ The file has the following structure:
 The `registries` array defines one or more NPM registries to search for private
 extensions. Each item supports the following fields:
 
-* **name**: Name to display for the registry.
-* **registry**: (Optional) The address of the NPM registry which contains the extension packages.
+-   **name**: Name to display for the registry.
+-   **registry**: (Optional) The address of the NPM registry which contains the extension packages.
     If omitted, the registry is determined according to standard [NPM config files](https://docs.npmjs.com/files/npmrc).
-* **query**: (Optional) Display only packages that match this [search query](https://github.com/npm/registry/blob/master/docs/REGISTRY-API.md#get-v1search).
+-   **query**: (Optional) Display only packages that match this [search query](https://github.com/npm/registry/blob/master/docs/REGISTRY-API.md#get-v1search).
     This is either an array of search terms or a string with space-delimited terms.
     For example, `"keywords:group1 keywords:group2"` would display only packages
     that have the either of the keywords `group1` or `group2`.
-* **enablePagination**: (Optional) If `true`, keep requesting more package results from the registry
+-   **enablePagination**: (Optional) If `true`, keep requesting more package results from the registry
     until it gives an empty response. If `false`, make only one request. This defaults to `true`.
     Set it to false when using a server that doesn't properly handle the `from` parameter of the NPM search API.
     You may also need to increase `limit` to get all results if this is disabled.
-* **limit**: (Optional) Number of results to limit each query to when requesting package results. Default: 100.
-* Any options supported by [npm-registry-fetch](https://github.com/npm/npm-registry-fetch#-fetch-options).
+-   **limit**: (Optional) Number of results to limit each query to when requesting package results. Default: 100.
+-   Any options supported by [npm-registry-fetch](https://github.com/npm/npm-registry-fetch#-fetch-options).
     Use these if you need to set authentication, a proxy, or other options.
 
 The `recommendations` array is an optional list of private extensions from any
