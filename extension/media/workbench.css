@@ -9742,6 +9742,10 @@ div.preview.inline .monaco-editor .comment-range-glyph {
     font-size: 18px;
 }
 
+.extension-editor > .header > .details > .subtitle > .version {
+    font-size: 18px;
+}
+
 .extension-editor > .header > .details > .subtitle,
 .extension-editor > .header > .details > .subtitle .install,
 .extension-editor > .header > .details > .subtitle .rating {

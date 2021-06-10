@@ -116,6 +116,7 @@ export class ExtensionDetailsView extends WebView<ExtensionData> {
     protected async getBody(nonce: string): Promise<string> {
         const readme = this.readme ? await MarkdownView.render(this.readme) : undefined;
         const changelog = this.changelog ? await MarkdownView.render(this.changelog) : undefined;
+        const version = this.pkg.installedVersion ?? this.pkg.version;
 
         // This matches the structure of VS Code's built-in extensions viewer
         // so we can re-use their style sheet.
@@ -146,6 +147,7 @@ export class ExtensionDetailsView extends WebView<ExtensionData> {
                             <span class="publisher" title="${localize('publisher', 'Publisher')}">
                                 ${this.pkg.publisher}
                             </span>
+                            <span class="version" title="${localize('version', 'Version')}">${version}</span>
                         </div>
                         <div class="description">
                             ${this.pkg.description}
