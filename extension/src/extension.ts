@@ -1,6 +1,6 @@
+import * as fs from 'fs';
 import * as vscode from 'vscode';
 import * as nls from 'vscode-nls/node';
-import * as fs from 'fs';
 
 import { CommandManager } from './commandManager';
 import * as commands from './commands/index';
@@ -23,7 +23,7 @@ nls.config({ messageFormat: nls.MessageFormat.file })();
 export function activate(context: vscode.ExtensionContext): void {
     setContext(context);
     try {
-        fs.accessSync(context.globalStorageUri.fsPath)
+        fs.accessSync(context.globalStorageUri.fsPath);
     } catch {
         fs.mkdirSync(context.globalStorageUri.fsPath);
     }

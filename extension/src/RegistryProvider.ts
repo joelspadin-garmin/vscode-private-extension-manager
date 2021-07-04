@@ -4,8 +4,8 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { Disposable, EventEmitter } from 'vscode';
 import * as nls from 'vscode-nls/node';
-import { context } from "./context";
 
+import { context } from './context';
 import { ExtensionInfoService } from './extensionInfo';
 import { ExtensionsConfigurationInitialContent } from './extensionsFileTemplate';
 import { getLogger } from './logger';
@@ -66,18 +66,20 @@ export class RegistryProvider implements Disposable {
 
         this.onDidChangeRegistries(() => {
             const logger = getLogger();
-            logger.log("===== Registries Refreshed =====")
-            logger.log("Registries:");
-            logger.log(JSON.stringify(
-                this.getRegistries().map((reg) => {
-                    return { name: reg.name, uri: reg.uri, pagination: reg.enablePagination, query: reg.query }
-                }),
-                null,
-                2
-            ));
-            logger.log("Recommended extensions:");
-            logger.log("\t" + Array.from(this.getRecommendedExtensions()).join(",\n\t"));
-            logger.log("\n");
+            logger.log('===== Registries Refreshed =====');
+            logger.log('Registries:');
+            logger.log(
+                JSON.stringify(
+                    this.getRegistries().map((reg) => {
+                        return { name: reg.name, uri: reg.uri, pagination: reg.enablePagination, query: reg.query };
+                    }),
+                    null,
+                    2,
+                ),
+            );
+            logger.log('Recommended extensions:');
+            logger.log('\t' + Array.from(this.getRecommendedExtensions()).join(',\n\t'));
+            logger.log('\n');
         });
     }
 
@@ -154,7 +156,7 @@ export class RegistryProvider implements Disposable {
                 extensions.add(name);
             }
         }
-        for(const name of this.globalRecommendedExtensions) {
+        for (const name of this.globalRecommendedExtensions) {
             extensions.add(name);
         }
 
@@ -273,12 +275,15 @@ export class RegistryProvider implements Disposable {
         const configFilePath = path.join(globalConfigFolder, FolderRegistryProvider.ConfigGlobPattern);
 
         try {
-            fs.accessSync(configFilePath)
+            fs.accessSync(configFilePath);
         } catch {
-            fs.writeFileSync(configFilePath, ExtensionsConfigurationInitialContent([
-                "This file configures the private extension manager for this user across all workspaces.",
-                "this user across all workspaces"
-            ]));
+            fs.writeFileSync(
+                configFilePath,
+                ExtensionsConfigurationInitialContent([
+                    'This file configures the private extension manager for this user across all workspaces.',
+                    'this user across all workspaces',
+                ]),
+            );
         }
         const configFile = vscode.Uri.file(configFilePath);
 
