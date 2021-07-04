@@ -66,10 +66,18 @@ export class RegistryProvider implements Disposable {
 
         this.onDidChangeRegistries(() => {
             const logger = getLogger();
+            logger.log("===== Registries Refreshed =====")
             logger.log("Registries:");
-            logger.log(JSON.stringify(this.getRegistries()));
+            logger.log(JSON.stringify(
+                this.getRegistries().map((reg) => {
+                    return { name: reg.name, uri: reg.uri, pagination: reg.enablePagination, query: reg.query }
+                }),
+                null,
+                2
+            ));
             logger.log("Recommended extensions:");
-            logger.log(JSON.stringify(this.getRecommendedExtensions()));
+            logger.log("\t" + Array.from(this.getRecommendedExtensions()).join(",\n\t"));
+            logger.log("\n");
         });
     }
 
