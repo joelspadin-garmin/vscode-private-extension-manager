@@ -3,18 +3,19 @@
 
 export const ExtensionsConfigurationFilePath = '.vscode/extensions.private.json';
 
-export const ExtensionsConfigurationInitialContent = `{
-\t// This file configures the private extension manager for users of this workspace.
+export const ExtensionsConfigurationInitialContent = (desc: string[]) => `{
+\t// ${desc[0]}
 \t// Extension identifier format: \${publisher}.\${name}. Example: vscode.csharp
 
 \t// List of NPM registries containing private extensions.
-\t// Each item should have a "name", a "registry" URL, and optionally a "query" to
-\t// filter which extensions are shown.
+\t// Each item should have a "name", a "registry" URL.
+\t// Optional parameters are "query" to filter which extensions are shown, and
+\t// "pagination" to disable pagination for registries that do not support it e.g. Artifactory 6.
 \t// See https://www.npmjs.com/package/npm-registry-fetch#fetch-opts for extra
 \t// options including authentication.
 \t"registries": [
 \t],
-\t// List of private extensions which should be recommended for users of this workspace.
+\t// List of private extensions which should be recommended for ${desc[1]}.
 \t"recommendations": [
 \t]
 }`;

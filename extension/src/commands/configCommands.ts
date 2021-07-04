@@ -71,7 +71,10 @@ async function writeTemplateIfEmpty(editor: vscode.TextEditor) {
     }
 
     await editor.edit((editBuilder) => {
-        editBuilder.insert(new vscode.Position(0, 0), ExtensionsConfigurationInitialContent);
+        editBuilder.insert(new vscode.Position(0, 0), ExtensionsConfigurationInitialContent([
+            "This file configures the private extension manager for users of this workspace.",
+            "users of this workspace"
+        ]));
     });
 
     await editor.document.save();

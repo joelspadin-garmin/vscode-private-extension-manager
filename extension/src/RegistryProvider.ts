@@ -4,8 +4,10 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { Disposable, EventEmitter } from 'vscode';
 import * as nls from 'vscode-nls/node';
+import { context } from "./context";
 
 import { ExtensionInfoService } from './extensionInfo';
+import { ExtensionsConfigurationInitialContent } from './extensionsFileTemplate';
 import { getLogger } from './logger';
 import { Package } from './Package';
 import { Registry, RegistrySource } from './Registry';
@@ -45,6 +47,8 @@ export class RegistryProvider implements Disposable {
     private folders: FolderRegistryProvider[] = [];
     private isStale = true;
     private userRegistries: Registry[] = [];
+    private globalRegistries: Registry[] = [];
+    private globalRecommendedExtensions: string[] = [];
 
     constructor(private readonly extensionInfo: ExtensionInfoService) {
         this.disposable = Disposable.from(
@@ -57,6 +61,16 @@ export class RegistryProvider implements Disposable {
                 this.addFolder(folder);
             }
         }
+
+        this.getGlobalConfig();
+
+        this.onDidChangeRegistries(() => {
+            const logger = getLogger();
+            logger.log("Registries:");
+            logger.log(JSON.stringify(this.getRegistries()));
+            logger.log("Recommended extensions:");
+            logger.log(JSON.stringify(this.getRecommendedExtensions()));
+        });
     }
 
     public dispose(): void {
@@ -79,6 +93,12 @@ export class RegistryProvider implements Disposable {
         }
 
         this._onDidChangeRegistries.fire();
+
+        // const logger = getLogger();
+        // logger.log("Registries:");
+        // logger.log(this.getRegistries());
+        // logger.log("Recommended extensions:");
+        // logger.log(this.getRecommendedExtensions());
     }
 
     /**
@@ -96,6 +116,7 @@ export class RegistryProvider implements Disposable {
             registries.push(...folder.getRegistries());
         }
 
+        registries.push(...this.globalRegistries);
         registries.push(...this.getUserRegistries());
 
         return dedupeRegistries(registries);
@@ -124,6 +145,9 @@ export class RegistryProvider implements Disposable {
             for (const name of folder.getRecommendedExtensions()) {
                 extensions.add(name);
             }
+        }
+        for(const name of this.globalRecommendedExtensions) {
+            extensions.add(name);
         }
 
         return extensions;
@@ -235,6 +259,35 @@ export class RegistryProvider implements Disposable {
             removed.map((f) => f.dispose());
         }
     }
+
+    private getGlobalConfig() {
+        const globalConfigFolder = context.globalStorageUri.fsPath;
+        const configFilePath = path.join(globalConfigFolder, FolderRegistryProvider.ConfigGlobPattern);
+
+        try {
+            fs.accessSync(configFilePath)
+        } catch {
+            fs.writeFileSync(configFilePath, ExtensionsConfigurationInitialContent([
+                "This file configures the private extension manager for this user across all workspaces.",
+                "this user across all workspaces"
+            ]));
+        }
+        const configFile = vscode.Uri.file(configFilePath);
+
+        const config = readJSONSync(configFile);
+        assertType(config, ExtensionsConfig, localize('in.file', 'In {0}', configFile.fsPath));
+
+        if (config.registries) {
+            for (const registry of config.registries) {
+                const { name, ...options } = registry;
+                this.globalRegistries.push(new Registry(this.extensionInfo, name, RegistrySource.Workspace, options));
+            }
+        }
+
+        if (config.recommendations) {
+            this.globalRecommendedExtensions = config.recommendations;
+        }
+    }
 }
 
 /**
@@ -248,7 +301,7 @@ class FolderRegistryProvider implements Disposable {
      */
     public readonly onDidChangeRegistries = this._onDidChangeRegistries.event;
 
-    private static readonly ConfigGlobPattern = 'extensions.private.json';
+    public static readonly ConfigGlobPattern = 'extensions.private.json';
 
     private readonly configFolder: string;
     private isStale = true;
