@@ -62,7 +62,9 @@ export class RegistryProvider implements Disposable {
             }
         }
 
-        this.getGlobalConfig();
+        const globalConfig = this.getGlobalConfig();
+        this.getGlobalRegistries(globalConfig);
+        this.getGlobalRecommended(globalConfig);
 
         this.onDidChangeRegistries(() => {
             const logger = getLogger();
@@ -270,7 +272,7 @@ export class RegistryProvider implements Disposable {
         }
     }
 
-    private getGlobalConfig() {
+    public getGlobalConfig(): ExtensionsConfig {
         const globalConfigFolder = context.globalStorageUri.fsPath;
         const configFilePath = path.join(globalConfigFolder, FolderRegistryProvider.ConfigGlobPattern);
 
@@ -286,20 +288,27 @@ export class RegistryProvider implements Disposable {
             );
         }
         const configFile = vscode.Uri.file(configFilePath);
-
         const config = readJSONSync(configFile);
         assertType(config, ExtensionsConfig, localize('in.file', 'In {0}', configFile.fsPath));
 
+        return config;
+    }
+
+    private getGlobalRegistries(config: ExtensionsConfig): Registry[] {
         if (config.registries) {
             for (const registry of config.registries) {
                 const { name, ...options } = registry;
                 this.globalRegistries.push(new Registry(this.extensionInfo, name, RegistrySource.Workspace, options));
             }
         }
+        return this.globalRegistries;
+    }
 
+    private getGlobalRecommended(config: ExtensionsConfig): string[] {
         if (config.recommendations) {
             this.globalRecommendedExtensions = config.recommendations;
         }
+        return this.globalRecommendedExtensions;
     }
 }
 

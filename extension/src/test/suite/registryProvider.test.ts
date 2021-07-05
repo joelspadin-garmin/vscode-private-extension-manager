@@ -65,6 +65,8 @@ suite('Registry Provider', function () {
     beforeEach(function () {
         extensionInfo = new ExtensionInfoService();
 
+        sinon.stub(RegistryProvider.prototype, 'getGlobalConfig').callsFake(() => GLOBAL_REGISTRY_CONFIG);
+
         // Ensure that cached results from a previous test do not affect the
         // next test.
         clearCache();
@@ -227,6 +229,16 @@ const INVALID_CONFIG_CONTEXT = '\uFF3BpriivaateeExteensiioons.reegiistriiees see
 
 const WORKSPACE_REGISTRY_URL = 'https://workspace.registry';
 const USER_REGISTRY_URL = 'https://user.registry';
+//const GLOBAL_REGISTRY_URL = 'https://global.registry';
+
+const GLOBAL_REGISTRY_CONFIG = {
+    registries: [
+        // {
+        //     name: 'Global Registry',
+        //     registry: GLOBAL_REGISTRY_URL,
+        // },
+    ],
+};
 
 const USER_REGISTRY_CONFIG = {
     registries: [
