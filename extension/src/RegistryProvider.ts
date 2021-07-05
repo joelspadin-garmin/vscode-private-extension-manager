@@ -128,8 +128,8 @@ export class RegistryProvider implements Disposable {
             registries.push(...folder.getRegistries());
         }
 
-        registries.push(...this.globalRegistries);
         registries.push(...this.getUserRegistries());
+        registries.push(...this.globalRegistries);
 
         return dedupeRegistries(registries);
     }
@@ -298,7 +298,7 @@ export class RegistryProvider implements Disposable {
         if (config.registries) {
             for (const registry of config.registries) {
                 const { name, ...options } = registry;
-                this.globalRegistries.push(new Registry(this.extensionInfo, name, RegistrySource.Workspace, options));
+                this.globalRegistries.push(new Registry(this.extensionInfo, name, RegistrySource.Global, options));
             }
         }
         return this.globalRegistries;
