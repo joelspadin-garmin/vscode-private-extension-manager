@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import * as vscode from 'vscode';
 import * as nls from 'vscode-nls/node';
 
@@ -21,6 +22,11 @@ nls.config({ messageFormat: nls.MessageFormat.file })();
 
 export function activate(context: vscode.ExtensionContext): void {
     setContext(context);
+    try {
+        fs.accessSync(context.globalStorageUri.fsPath);
+    } catch {
+        fs.mkdirSync(context.globalStorageUri.fsPath);
+    }
 
     const extensionInfo = new ExtensionInfoService();
     const registryProvider = new RegistryProvider(extensionInfo);
