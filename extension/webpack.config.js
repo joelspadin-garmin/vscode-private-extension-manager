@@ -63,6 +63,7 @@ const extensionConfig = {
         ),
         // Write a file containing all third-party license information.
         new LicenseCheckerWebpackPlugin({
+            filter: /(^.*[/\\]node_modules[/\\]((?:@[^/\\]+[/\\])?(?:[^@/\\][^/\\]*)))/,
             allow: `(${allowedLicenses.join(' OR ')})`,
             outputFilename: 'ThirdPartyNotices.txt',
             emitError: true,
