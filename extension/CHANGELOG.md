@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.7.0
+
+-   Relaxed package type checking for JFrog Artifactory (fixes [#50](https://github.com/joelspadin-garmin/vscode-private-extension-manager/issues/50)).
+    Thanks, [matspi](https://github.com/matspi)!
+-   Added the extension version number to the extension details view. Thanks, [offa](https://github.com/offa)!
+
 ## 1.6.0
 
 -   Added a `privateExtensions.allowInsecureContent` setting to opt in to allowing non-HTTPS content from extension README files.

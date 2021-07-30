@@ -2,7 +2,7 @@
     "name": "private-extension-manager",
     "displayName": "Private Extension Manager",
     "description": "Manages extensions hosted in private NPM registries.",
-    "version": "1.6.0",
+    "version": "1.7.0",
     "publisher": "garmin",
     "license": "Apache-2.0",
     "author": {
