@@ -90,7 +90,7 @@ const PackageVersionData = options(
         versions: t.record(t.string, t.record(t.string, t.any)),
     },
     {
-        time: t.record(t.string, t.string),
+        time: t.record(t.string, t.union([t.string, t.null])),
     },
 );
 type PackageVersionData = t.TypeOf<typeof PackageVersionData>;
