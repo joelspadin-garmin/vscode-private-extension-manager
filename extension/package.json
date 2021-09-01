@@ -17,8 +17,7 @@
         "vscode": "^1.51.0"
     },
     "extensionKind": [
-        "workspace",
-        "web"
+        "workspace"
     ],
     "extensionPack": [
         "garmin.private-extension-manager-remote-helper"
