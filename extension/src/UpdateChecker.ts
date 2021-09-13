@@ -13,6 +13,7 @@ const localize = nls.loadMessageBundle();
 
 const INIT_DELAY_S = 5;
 const DEFAULT_INTERVAL_S = 3600;
+const DEFAULT_AUTO_UPDATE = false;
 
 export class UpdateChecker implements Disposable {
     private disposable: Disposable;
@@ -20,6 +21,7 @@ export class UpdateChecker implements Disposable {
     private checkInterval?: NodeJS.Timeout;
 
     private intervalMS: number;
+    private autoUpdate: boolean;
 
     private get isAutomaticUpdateEnabled() {
         return this.intervalMS > 0;
@@ -30,6 +32,7 @@ export class UpdateChecker implements Disposable {
         private readonly extensionInfo: ExtensionInfoService,
     ) {
         this.intervalMS = getUpdateIntervalMS();
+        this.autoUpdate = getAutoUpdate();
 
         this.disposable = Disposable.from(
             vscode.workspace.onDidChangeConfiguration(this.onDidChangeConfiguration, this),
@@ -68,7 +71,11 @@ export class UpdateChecker implements Disposable {
         const updates = await this.getPackagesWithUpdates();
 
         if (updates.length > 0) {
-            await this.showUpdatePrompt(updates);
+            if (this.autoUpdate) {
+                await updateExtensions(this.extensionInfo, updates);
+            } else {
+                await this.showUpdatePrompt(updates);
+            }
         } else if (!isAutomaticCheck) {
             await this.showNoUpdatesMessage();
         }
@@ -142,4 +149,11 @@ function getUpdateIntervalMS() {
     const interval = config.get<number>('updateCheckInterval', DEFAULT_INTERVAL_S);
 
     return interval * 1000;
+}
+
+function getAutoUpdate() {
+    const config = getConfig();
+    const autoUpdate = config.get<boolean>('autoUpdate', DEFAULT_AUTO_UPDATE);
+
+    return autoUpdate;
 }
