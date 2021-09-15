@@ -77,13 +77,7 @@ export class UpdateExtensionCommand implements Command {
         // the new version number reflected in the extensions API. If not, we
         // need to reload.
         if (!(await this.extensionInfo.didExtensionUpdate(pkg))) {
-            await install.showReloadPrompt(
-                localize(
-                    'reload.to.complete.update',
-                    'Please reload Visual Studio Code to complete updating the extension {0}.',
-                    pkg.displayName,
-                ),
-            );
+            await install.showReloadPrompt(install.ReloadReason.Update, pkg.displayName);
         }
     }
 }
@@ -102,13 +96,7 @@ export class UninstallExtensionCommand implements Command {
         // If vscode could immediately unload the extension, it should no longer
         // be visible to the extensions API now. If it is, we need to reload.
         if (await this.extensionInfo.getExtension(extensionId)) {
-            await install.showReloadPrompt(
-                localize(
-                    'reload.to.complete.uninstall',
-                    'Please reload Visual Studio Code to complete uninstalling the extension {0}.',
-                    extensionId,
-                ),
-            );
+            await install.showReloadPrompt(install.ReloadReason.Uninstall, extensionId);
         }
     }
 }
@@ -322,13 +310,7 @@ function installExtension(provider: RegistryProvider, extensionOrId: Package | s
 }
 
 async function showInstallReloadPrompt(pkg: Package) {
-    return await install.showReloadPrompt(
-        localize(
-            'reload.to.complete.install',
-            'Please reload Visual Studio Code to complete installing the extension {0}.',
-            pkg.displayName,
-        ),
-    );
+    return await install.showReloadPrompt(install.ReloadReason.Install, pkg.displayName);
 }
 
 // https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/extensions/browser/extensionsActions.ts

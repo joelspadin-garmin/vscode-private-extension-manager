@@ -88,6 +88,12 @@
                     "scope": "machine",
                     "description": "%configuration.autoUpdate.description%",
                     "default": false
+                },
+                "privateExtensions.autoReload": {
+                    "type": "boolean",
+                    "scope": "machine",
+                    "description": "%configuration.autoReload.description%",
+                    "default": false
                 }
             }
         },
