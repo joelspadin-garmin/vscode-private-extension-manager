@@ -274,7 +274,7 @@ export class Package {
      * Call `updateState()` first to ensure this is up-to-date.
      */
     public get isUpdateAvailable(): boolean {
-        return !!this.installedVersion && this.version > this.installedVersion;
+        return !!this.installedVersion && this.version.compare(this.installedVersion) == 1;
     }
 
     /**
