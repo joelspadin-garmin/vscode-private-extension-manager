@@ -27,6 +27,13 @@ export class ShowExtensionCommand implements Command {
 }
 
 /**
+ * Options received at execution of a command
+ */
+export interface ExtensionCommandOptions {
+    silent?: boolean;
+}
+
+/**
  * Installs an extension.
  */
 export class InstallExtensionCommand implements Command {
@@ -37,14 +44,14 @@ export class InstallExtensionCommand implements Command {
         private readonly extensionInfo: ExtensionInfoService,
     ) {}
 
-    public async execute(extensionOrId: Package | string): Promise<void> {
+    public async execute(extensionOrId: Package | string, options?: ExtensionCommandOptions): Promise<void> {
         const pkg = await this.extensionInfo.waitForExtensionChange(
             installExtension(this.registryProvider, extensionOrId),
         );
 
         // If vscode could immediately load the extension, it should be visible
         // to the extensions API now. If not, we need to reload.
-        if (!(await this.extensionInfo.getExtension(pkg.extensionId))) {
+        if (!options?.silent && !(await this.extensionInfo.getExtension(pkg.extensionId))) {
             await showInstallReloadPrompt(pkg);
         }
     }
