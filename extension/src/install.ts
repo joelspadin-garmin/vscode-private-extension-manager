@@ -85,7 +85,12 @@ export async function updateExtensions(extensionInfo: ExtensionInfoService, pack
         },
     );
 
-    if (!packages.every((pkg) => extensionInfo.didExtensionUpdate(pkg))) {
+    // Array.prototype.every() does not support Promises
+    // Build an array of promise and use it as provided function for every()
+    
+    const promiseArray = packages.map( pkg => extensionInfo.didExtensionUpdate(pkg));
+
+    if (packages.every((value, index) => promiseArray[index])) {
         await showReloadPrompt(
             localize(
                 'reload.to.complete.update.all',
