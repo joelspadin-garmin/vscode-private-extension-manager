@@ -59,7 +59,7 @@ export function memoize(_target: unknown, _key: string, descriptor: PropertyDesc
     const newFunc = memoizeOne(oldFunc);
 
     descriptor.value = function (...args: any[]) {
-        return newFunc.apply(this, ...args);
+        return newFunc.call(this, args);
     };
 }
 
@@ -121,4 +121,30 @@ export function uriEquals(a: Uri, b: Uri): boolean {
  */
 export function formatExtensionId(publisher: string, name: string): string {
     return `${publisher}.${name}`.toLowerCase();
+}
+
+export function toString(obj: unknown): string {
+    if (obj === undefined) {
+        return 'undefined';
+    }
+    if (obj === null) {
+        return 'null';
+    }
+
+    if (typeof obj === 'string') {
+        return obj;
+    }
+
+    if (
+        typeof obj === 'bigint' ||
+        typeof obj === 'boolean' ||
+        typeof obj === 'function' ||
+        typeof obj === 'number' ||
+        typeof obj === 'object' ||
+        typeof obj === 'symbol'
+    ) {
+        return obj.toString();
+    }
+
+    return 'unknown';
 }

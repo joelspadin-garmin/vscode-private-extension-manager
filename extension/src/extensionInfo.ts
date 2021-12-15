@@ -6,6 +6,7 @@ import * as nls from 'vscode-nls/node';
 import { context } from './context';
 import { getLogger } from './logger';
 import { Package } from './Package';
+import { toString } from './util';
 
 const localize = nls.loadMessageBundle();
 
@@ -75,7 +76,7 @@ export class ExtensionInfoService implements vscode.Disposable {
                 localize(
                     'warn.register.fail',
                     'Warning: Failed to register remote extension listener:\n{0}',
-                    ex.toString(),
+                    toString(ex),
                 ),
             );
         }
@@ -247,7 +248,7 @@ export class ExtensionInfoService implements vscode.Disposable {
                 return uiExtension ? toExtensionInfo(uiExtension) : undefined;
             } catch (ex) {
                 getLogger().log(
-                    localize('warn.remote.helper.fail', 'Failed to call remote helper:\n{0}', ex.toString()),
+                    localize('warn.remote.helper.fail', 'Failed to call remote helper:\n{0}', toString(ex)),
                 );
             }
         }

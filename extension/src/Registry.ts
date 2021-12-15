@@ -16,7 +16,7 @@ import { getLogger } from './logger';
 import { NotAnExtensionError, Package } from './Package';
 import { getReleaseChannel, LATEST } from './releaseChannel';
 import { assertType, options } from './typeUtil';
-import { getNpmCacheDir, getNpmDownloadDir, uriEquals } from './util';
+import { getNpmCacheDir, getNpmDownloadDir, uriEquals, toString } from './util';
 
 const localize = nls.loadMessageBundle();
 
@@ -219,7 +219,7 @@ export class Registry {
                             'warn.discarding.package',
                             'Warning: Discarding package {0}:\n{1}',
                             result.name,
-                            ex.toString(),
+                            toString(ex),
                         ),
                     );
                 }

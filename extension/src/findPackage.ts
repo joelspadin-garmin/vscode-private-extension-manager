@@ -100,11 +100,20 @@ async function _findChannels(registries: readonly Registry[], name: string) {
     return results;
 }
 
+function isHttpError(err: unknown): err is { statusCode: number } {
+    return (
+        typeof err === 'object' &&
+        err !== null &&
+        'statusCode' in err &&
+        typeof (err as { statusCode: unknown }).statusCode === 'number'
+    );
+}
+
 async function tryGetPackage(registry: Registry, name: string, version?: string) {
     try {
         return await registry.getPackage(name, version);
     } catch (ex) {
-        if (ex.statusCode === 404) {
+        if (isHttpError(ex) && ex.statusCode === 404) {
             // Ignore 404 errors. The registry does not have the package.
             return null;
         } else {
@@ -117,7 +126,7 @@ async function tryGetVersions(registry: Registry, name: string) {
     try {
         return await registry.getPackageVersions(name);
     } catch (ex) {
-        if (ex.statusCode === 404) {
+        if (isHttpError(ex) && ex.statusCode === 404) {
             // Ignore 404 errors. The registry does not have the package.
             return null;
         } else {
@@ -130,7 +139,7 @@ async function tryGetChannels(registry: Registry, name: string) {
     try {
         return await registry.getPackageChannels(name);
     } catch (ex) {
-        if (ex.statusCode === 404) {
+        if (isHttpError(ex) && ex.statusCode === 404) {
             // Ignore 404 errors. The registry does not have the package.
             return null;
         } else {

@@ -4,7 +4,7 @@ import { Disposable, WebviewPanel } from 'vscode';
 import * as nls from 'vscode-nls/node';
 
 import { getLogger } from '../logger';
-import { getExtensionFileUri, memoize } from '../util';
+import { getExtensionFileUri, memoize, toString } from '../util';
 
 const localize = nls.loadMessageBundle();
 
@@ -197,7 +197,7 @@ async function getUiPlatform(): Promise<NodeJS.Platform> {
             }
         } catch (ex) {
             getLogger().log(
-                localize('warn.remote.helper.fail', 'Warning: Failed to call remote helper:\n{0}', ex.toString()),
+                localize('warn.remote.helper.fail', 'Warning: Failed to call remote helper:\n{0}', toString(ex)),
             );
         }
     }
