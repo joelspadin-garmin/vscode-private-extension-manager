@@ -2,7 +2,7 @@ import * as _glob from 'glob';
 import * as t from 'io-ts';
 import * as os from 'os';
 import * as path from 'path';
-import { parse as parseVersion, SemVer } from 'semver';
+import { gt, parse as parseVersion, SemVer } from 'semver';
 import { promisify } from 'util';
 import * as vscode from 'vscode';
 import * as nls from 'vscode-nls/node';
@@ -274,7 +274,7 @@ export class Package {
      * Call `updateState()` first to ensure this is up-to-date.
      */
     public get isUpdateAvailable(): boolean {
-        return !!this.installedVersion && this.version > this.installedVersion;
+        return !!this.installedVersion && gt(this.version, this.installedVersion);
     }
 
     /**
