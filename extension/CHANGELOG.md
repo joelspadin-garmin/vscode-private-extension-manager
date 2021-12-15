@@ -1,5 +1,13 @@
 # Change Log
 
+## 1.8.0
+
+-   Fixed incorrect extension version comparisons. Thanks, [denielig](https://github.com/denielig)!
+-   Added a `privateExtensions.autoUpdate` setting which will make extensions update automatically without prompting first.
+    Thanks, [colas31](https://github.com/colas31)!
+-   Other extensions can now pass `{silent: true}` as a second parameter to the `privateExtensions.extension.install`
+    command to silently install a private extension. Also provided by colas31.
+
 ## 1.7.0
 
 -   Relaxed package type checking for JFrog Artifactory (fixes [#50](https://github.com/joelspadin-garmin/vscode-private-extension-manager/issues/50)).
