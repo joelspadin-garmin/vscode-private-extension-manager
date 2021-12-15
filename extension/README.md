@@ -188,6 +188,17 @@ as the `registries` array in `extensions.private.json`.
 You can use the **Private Extensions: Add Registry...** and
 **Private Extensions: Remove Registry** commands to quickly edit this setting.
 
+### Global Configuration
+
+Registries and recommendations can also be read from a file `extensions.private.json` in the extension's storage folder:
+
+-   Windows: `%appdata%\\Code\\User\\globalStorage\\garmin.private-extension-manager`
+-   Linux: `~/.vscode-server/data/User/globalStorage/garmin.private-extension-manager`
+
+This file allows for setting registries and recommendations for a user, but separate from their personal VS Code user settings. The global configuration is aimed at organisations being able to set registries and recommendation for all users by placing this file in each user's global storage folder, such as with a group policy.
+
+The file is read only on launch of VS Code as it shouldn't be getting changed too often, so if changes are made then you'll need to do a restart. It has the same format as the workspace configuration file.
+
 ### Custom Channels
 
 It is possible to create tracking channels by using npm dist-tags when

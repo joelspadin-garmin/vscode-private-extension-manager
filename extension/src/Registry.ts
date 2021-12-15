@@ -31,6 +31,8 @@ export enum RegistrySource {
     User = 'user',
     /** Registry is defined by a workspace folder's extensions.private.json. */
     Workspace = 'workspace',
+    /** Registry is defined by extensions.private.json in globalStorage for this user. */
+    Global = 'global',
 }
 
 /**

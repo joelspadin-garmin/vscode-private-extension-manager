@@ -28,6 +28,7 @@ suite('Registry Provider', function () {
 
     let scope1: nock.Scope;
     let scope2: nock.Scope;
+    let scope3: nock.Scope;
     let extensionInfo: ExtensionInfoService;
 
     before(function () {
@@ -52,6 +53,14 @@ suite('Registry Provider', function () {
         mockSearch(scope2, '*', Object.values(USER_SEARCH));
 
         scope2.get('/user').reply(200, USER_PACKAGE.user);
+
+        // Mock data for registries in global user settings
+        scope3 = nock(GLOBAL_REGISTRY_URL);
+        scope3.persist();
+
+        mockSearch(scope3, '*', Object.values(GLOBAL_SEARCH));
+
+        scope3.get('/global').reply(200, GLOBAL_PACKAGE.global);
     });
 
     after(function () {
@@ -64,6 +73,8 @@ suite('Registry Provider', function () {
 
     beforeEach(function () {
         extensionInfo = new ExtensionInfoService();
+
+        sinon.stub(RegistryProvider.prototype, 'getGlobalConfig').callsFake(() => GLOBAL_REGISTRY_CONFIG);
 
         // Ensure that cached results from a previous test do not affect the
         // next test.
@@ -83,8 +94,13 @@ suite('Registry Provider', function () {
         const registries = provider.getRegistries();
 
         // Registries should be in the order they are defined, with workspace
-        // registries first and user registries last.
-        const expected = [EXPECT_REGISTRY.workspace1, EXPECT_REGISTRY.workspace2, EXPECT_REGISTRY.user];
+        // registries first, user registries second, and global registries last.
+        const expected = [
+            EXPECT_REGISTRY.workspace1,
+            EXPECT_REGISTRY.workspace2,
+            EXPECT_REGISTRY.user,
+            EXPECT_REGISTRY.global,
+        ];
 
         assert.containSubsetInOrder(registries, expected);
         assert.lengthOf(registries, expected.length);
@@ -96,7 +112,7 @@ suite('Registry Provider', function () {
         const provider = new RegistryProvider(extensionInfo);
 
         const recommendations = provider.getRecommendedExtensions();
-        const expected = new Set(['test.recommended1', 'test.recommended2']);
+        const expected = new Set(['test.recommended1', 'test.recommended2', 'test.global']);
 
         assert.deepStrictEqual(recommendations, expected);
     });
@@ -110,6 +126,7 @@ suite('Registry Provider', function () {
         packages.sort(Package.compare);
 
         const expected = [
+            EXPECT_PACKAGE.global,
             EXPECT_PACKAGE.recommended1,
             EXPECT_PACKAGE.recommended2,
             EXPECT_PACKAGE.test,
@@ -128,6 +145,7 @@ suite('Registry Provider', function () {
         packages.sort(Package.compare);
 
         const expected = [
+            EXPECT_PACKAGE.global,
             EXPECT_PACKAGE.recommended1,
             EXPECT_PACKAGE.recommended2,
             EXPECT_PACKAGE.testInsiders,
@@ -227,6 +245,7 @@ const INVALID_CONFIG_CONTEXT = '\uFF3BpriivaateeExteensiioons.reegiistriiees see
 
 const WORKSPACE_REGISTRY_URL = 'https://workspace.registry';
 const USER_REGISTRY_URL = 'https://user.registry';
+const GLOBAL_REGISTRY_URL = 'https://global.registry';
 
 const USER_REGISTRY_CONFIG = {
     registries: [
@@ -247,6 +266,16 @@ const USER_REGISTRY_CONFIG_CHANNEL = {
     channels: {
         'test.test': 'insiders',
     },
+};
+
+const GLOBAL_REGISTRY_CONFIG = {
+    registries: [
+        {
+            name: 'Global Registry',
+            registry: GLOBAL_REGISTRY_URL,
+        },
+    ],
+    recommendations: ['test.global'],
 };
 
 const WORKSPACE_SEARCH: Record<string, search.Result> = {
@@ -273,6 +302,13 @@ const USER_SEARCH: Record<string, search.Result> = {
     user: {
         name: 'user',
         version: '1.0.0',
+    },
+};
+
+const GLOBAL_SEARCH: Record<string, search.Result> = {
+    global: {
+        name: 'global',
+        version: '2.1.0',
     },
 };
 
@@ -375,6 +411,26 @@ const USER_PACKAGE: Record<string, PackageMetadata> = {
     },
 };
 
+const GLOBAL_PACKAGE: Record<string, PackageMetadata> = {
+    global: {
+        name: 'global',
+        'dist-tags': { latest: '2.1.0' },
+        versions: {
+            '2.1.0': {
+                publisher: 'Test',
+                name: 'global',
+                version: '2.1.0',
+                engines: { vscode: '1.38.0' },
+                dist: {
+                    shasum: 'TODO',
+                    tarball: GLOBAL_REGISTRY_URL + 'global/-/global-2.1.0.tgz',
+                },
+                files: ['extension.vsix'],
+            },
+        },
+    },
+};
+
 const EXPECT_PACKAGE: Record<string, Partial<Package>> = {
     test: {
         extensionId: 'test.test',
@@ -392,6 +448,9 @@ const EXPECT_PACKAGE: Record<string, Partial<Package>> = {
     },
     user: {
         extensionId: 'test.user',
+    },
+    global: {
+        extensionId: 'test.global',
     },
 };
 
@@ -412,6 +471,12 @@ const EXPECT_REGISTRY: Record<string, Partial<Registry>> = {
         name: 'User Registry',
         uri: vscode.Uri.parse(USER_REGISTRY_URL),
         source: RegistrySource.User,
+        query: '*',
+    },
+    global: {
+        name: 'Global Registry',
+        uri: vscode.Uri.parse(GLOBAL_REGISTRY_URL),
+        source: RegistrySource.Global,
         query: '*',
     },
 };

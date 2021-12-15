@@ -5,7 +5,9 @@ import * as vscode from 'vscode';
 import { Disposable, EventEmitter } from 'vscode';
 import * as nls from 'vscode-nls/node';
 
+import { context } from './context';
 import { ExtensionInfoService } from './extensionInfo';
+import { ExtensionsConfigurationInitialContent } from './extensionsFileTemplate';
 import { getLogger } from './logger';
 import { Package } from './Package';
 import { Registry, RegistrySource } from './Registry';
@@ -45,6 +47,8 @@ export class RegistryProvider implements Disposable {
     private folders: FolderRegistryProvider[] = [];
     private isStale = true;
     private userRegistries: Registry[] = [];
+    private globalRegistries: Registry[] = [];
+    private globalRecommendedExtensions: string[] = [];
 
     constructor(private readonly extensionInfo: ExtensionInfoService) {
         this.disposable = Disposable.from(
@@ -57,6 +61,28 @@ export class RegistryProvider implements Disposable {
                 this.addFolder(folder);
             }
         }
+
+        const globalConfig = this.getGlobalConfig();
+        this.getGlobalRegistries(globalConfig);
+        this.getGlobalRecommended(globalConfig);
+
+        this.onDidChangeRegistries(() => {
+            const logger = getLogger();
+            logger.log('===== Registries Refreshed =====');
+            logger.log('Registries:');
+            logger.log(
+                JSON.stringify(
+                    this.getRegistries().map((reg) => {
+                        return { name: reg.name, uri: reg.uri, pagination: reg.enablePagination, query: reg.query };
+                    }),
+                    null,
+                    2,
+                ),
+            );
+            logger.log('Recommended extensions:');
+            logger.log('\t' + Array.from(this.getRecommendedExtensions()).join(',\n\t'));
+            logger.log('\n');
+        });
     }
 
     public dispose(): void {
@@ -79,6 +105,12 @@ export class RegistryProvider implements Disposable {
         }
 
         this._onDidChangeRegistries.fire();
+
+        // const logger = getLogger();
+        // logger.log("Registries:");
+        // logger.log(this.getRegistries());
+        // logger.log("Recommended extensions:");
+        // logger.log(this.getRecommendedExtensions());
     }
 
     /**
@@ -97,6 +129,7 @@ export class RegistryProvider implements Disposable {
         }
 
         registries.push(...this.getUserRegistries());
+        registries.push(...this.globalRegistries);
 
         return dedupeRegistries(registries);
     }
@@ -124,6 +157,9 @@ export class RegistryProvider implements Disposable {
             for (const name of folder.getRecommendedExtensions()) {
                 extensions.add(name);
             }
+        }
+        for (const name of this.globalRecommendedExtensions) {
+            extensions.add(name);
         }
 
         return extensions;
@@ -235,6 +271,45 @@ export class RegistryProvider implements Disposable {
             removed.map((f) => f.dispose());
         }
     }
+
+    public getGlobalConfig(): ExtensionsConfig {
+        const globalConfigFolder = context.globalStorageUri.fsPath;
+        const configFilePath = path.join(globalConfigFolder, FolderRegistryProvider.ConfigGlobPattern);
+
+        try {
+            fs.accessSync(configFilePath);
+        } catch {
+            fs.writeFileSync(
+                configFilePath,
+                ExtensionsConfigurationInitialContent([
+                    'This file configures the private extension manager for this user across all workspaces.',
+                    'this user across all workspaces',
+                ]),
+            );
+        }
+        const configFile = vscode.Uri.file(configFilePath);
+        const config = readJSONSync(configFile);
+        assertType(config, ExtensionsConfig, localize('in.file', 'In {0}', configFile.fsPath));
+
+        return config;
+    }
+
+    private getGlobalRegistries(config: ExtensionsConfig): Registry[] {
+        if (config.registries) {
+            for (const registry of config.registries) {
+                const { name, ...options } = registry;
+                this.globalRegistries.push(new Registry(this.extensionInfo, name, RegistrySource.Global, options));
+            }
+        }
+        return this.globalRegistries;
+    }
+
+    private getGlobalRecommended(config: ExtensionsConfig): string[] {
+        if (config.recommendations) {
+            this.globalRecommendedExtensions = config.recommendations;
+        }
+        return this.globalRecommendedExtensions;
+    }
 }
 
 /**
@@ -248,7 +323,7 @@ class FolderRegistryProvider implements Disposable {
      */
     public readonly onDidChangeRegistries = this._onDidChangeRegistries.event;
 
-    private static readonly ConfigGlobPattern = 'extensions.private.json';
+    public static readonly ConfigGlobPattern = 'extensions.private.json';
 
     private readonly configFolder: string;
     private isStale = true;
