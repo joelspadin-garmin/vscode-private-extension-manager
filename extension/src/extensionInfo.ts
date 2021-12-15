@@ -5,6 +5,7 @@ import * as nls from 'vscode-nls/node';
 import { context } from './context';
 import { getLogger } from './logger';
 import { Package } from './Package';
+import { gte } from 'semver';
 
 const localize = nls.loadMessageBundle();
 
@@ -200,7 +201,7 @@ export class ExtensionInfoService implements vscode.Disposable {
     }
 
     /**
-     * Gets whether the currently-installed version of the extension is newer than
+     * Gets whether the currently-installed version of the extension is newer or egual than
      * the version of the given package.
      */
     public async didExtensionUpdate(pkg: Package): Promise<boolean> {
@@ -212,7 +213,7 @@ export class ExtensionInfoService implements vscode.Disposable {
             return false;
         }
 
-        return extension.version > pkg.version;
+        return gte(extension.version, pkg.version);
     }
 
     /**
