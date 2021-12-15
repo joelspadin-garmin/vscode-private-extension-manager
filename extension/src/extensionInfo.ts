@@ -1,11 +1,11 @@
 import * as semver from 'semver';
+import { gte } from 'semver';
 import * as vscode from 'vscode';
 import * as nls from 'vscode-nls/node';
 
 import { context } from './context';
 import { getLogger } from './logger';
 import { Package } from './Package';
-import { gte } from 'semver';
 
 const localize = nls.loadMessageBundle();
 
