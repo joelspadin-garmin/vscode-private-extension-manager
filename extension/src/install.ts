@@ -6,8 +6,19 @@ import { findPackage } from './findPackage';
 import { Package } from './Package';
 import { Registry } from './Registry';
 import { RegistryProvider } from './RegistryProvider';
+import { getConfig, sleep } from './util';
 
 const localize = nls.loadMessageBundle();
+
+const DEFAULT_AUTO_RELOAD = false;
+const CANCEL_MESSAGE = localize('cancel', 'Cancel');
+
+export enum ReloadReason {
+    Install,
+    Uninstall,
+    Update,
+    UpdateAll,
+}
 
 /**
  * Installs the given extension package.
@@ -91,21 +102,106 @@ export async function updateExtensions(extensionInfo: ExtensionInfoService, pack
     const promiseArray = packages.map((pkg) => extensionInfo.didExtensionUpdate(pkg));
 
     if (packages.every((value, index) => promiseArray[index])) {
-        await showReloadPrompt(
-            localize(
+        await showReloadPrompt(ReloadReason.UpdateAll);
+    }
+}
+
+/**
+ * Compute the message for a manual reload
+ * @param reason The reason to reload VSCode.
+ * @param extension Name of the extension that was changed.
+ */
+function getReloadPromptMessage(reason: ReloadReason, extension?: string): string {
+    switch (reason) {
+        case ReloadReason.Install:
+            return localize(
+                'reload.to.complete.install',
+                'Please reload Visual Studio Code to complete installing the extension {0}.',
+                extension,
+            );
+        case ReloadReason.Uninstall:
+            return localize(
+                'reload.to.complete.uninstall',
+                'Please reload Visual Studio Code to complete uninstalling the extension {0}.',
+                extension,
+            );
+        case ReloadReason.Update:
+            return localize(
+                'reload.to.complete.update',
+                'Please reload Visual Studio Code to complete updating the extension {0}.',
+                extension,
+            );
+        case ReloadReason.UpdateAll:
+            return localize(
                 'reload.to.complete.update.all',
                 'Please reload Visual Studio Code to complete updating the extensions.',
-            ),
-        );
+            );
+        default:
+            return localize(
+                'reload.to.complete.changes',
+                'Please reload Visual Studio Code to complete changes to private extensions.',
+            );
+    }
+}
+
+/**
+ * Compute the message for AutoReload
+ * @param reason The reason to reload VSCode.
+ * @param extension Name of the extension that was changed.
+ */
+function getAutoReloadMessage(reason: ReloadReason, extension?: string): string {
+    switch (reason) {
+        case ReloadReason.Install:
+            return localize(
+                'autoreload.to.complete.install',
+                'Visual Studio Code will restart in 3 seconds to complete installing the extension {0}.',
+                extension,
+            );
+        case ReloadReason.Uninstall:
+            return localize(
+                'autoreload.to.complete.uninstall',
+                'Visual Studio Code will restart in 3 seconds to complete uninstalling the extension {0}.',
+                extension,
+            );
+        case ReloadReason.Update:
+            return localize(
+                'autoreload.to.complete.update',
+                'Visual Studio Code will restart in 3 seconds to complete updating the extension {0}.',
+                extension,
+            );
+        case ReloadReason.UpdateAll:
+            return localize(
+                'autoreload.to.complete.update.all',
+                'Visual Studio Code will restart in 3 seconds to complete updating the extensions.',
+            );
+        default:
+            return localize(
+                'autoreload.to.complete.changes',
+                'Visual Studio Code will restart in 3 seconds to complete changes to private extensions.',
+            );
     }
 }
 
 /**
  * Displays a message with a button to reload vscode.
- * @param message The message to display.
+ * @param reason The reason to reload VSCode.
+ * @param extension Name of the extension that was changed.
  */
-export async function showReloadPrompt(message: string): Promise<void> {
-    const reload = await vscode.window.showInformationMessage(message, localize('reload.now', 'Reload Now'));
+export async function showReloadPrompt(reason: ReloadReason, extension?: string): Promise<void> {
+    let reload: boolean;
+
+    if (getAutoReload()) {
+        const message = getAutoReloadMessage(reason, extension);
+        const cancel = vscode.window.showInformationMessage(message, CANCEL_MESSAGE);
+        const timeout = sleep(3000);
+        const result = await Promise.race([cancel, timeout]);
+        reload = result !== CANCEL_MESSAGE;
+    } else {
+        const message = getReloadPromptMessage(reason, extension);
+        const reloadMessage = localize('reload.now', 'Reload Now');
+        const result = await vscode.window.showInformationMessage(message, reloadMessage);
+        reload = result === reloadMessage;
+    }
     if (reload) {
         vscode.commands.executeCommand('workbench.action.reloadWindow');
     }
@@ -140,4 +236,11 @@ async function installExtensionById(registry: Registry | RegistryProvider, exten
     await installExtensionByPackage(pkg);
 
     return pkg;
+}
+
+function getAutoReload() {
+    const config = getConfig();
+    const autoUpdate = config.get<boolean>('autoReload', DEFAULT_AUTO_RELOAD);
+
+    return autoUpdate;
 }

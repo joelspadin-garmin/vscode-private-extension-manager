@@ -148,3 +148,11 @@ export function toString(obj: unknown): string {
 
     return 'unknown';
 }
+/**
+ * Returns a Promise that will resolve in after the given duration.
+ *
+ * @param durationInMs The duration to wait, in ms.
+ */
+export function sleep(durationInMs: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, durationInMs));
+}

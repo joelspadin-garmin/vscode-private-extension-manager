@@ -5,6 +5,7 @@
     "configuration.updateCheckInterval.description": "Number of seconds between checks for updates to private extensions. Set to 0 to disable automatic update checks.",
     "configuration.allowInsecureContent.description": "Allow insecure content in Extension Description view",
     "configuration.autoUpdate.description": "Controls the automatic update behavior of private extensions.",
+    "configuration.autoReload.description": "Controls if VSCode should automatically reload after the installation/uninstallation of an extension instead of requested it to the user",
     "command.cache.delete.title": "Delete NPM Cache",
     "command.cache.garbageCollect.title": "Garbage Collect NPM Cache",
     "command.category": "Private Extensions",
