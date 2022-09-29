@@ -137,6 +137,20 @@ async function installExtensionByPackage(pkg: Package) {
 async function installExtensionById(registry: Registry | RegistryProvider, extensionId: string, version?: string) {
     const pkg = await findPackage(registry, extensionId, version);
 
+    // List all additional extensions that must be installed, either with extensionPack or with extensionDependencies
+    const additionalExtensions = [...(pkg?.extensionPack || []), ...(pkg?.extensionDependencies || [])];
+
+    for (const extId of additionalExtensions) {
+        try {
+            const addPkg = await findPackage(registry, extId);
+            await installExtensionByPackage(addPkg);
+        } catch (e) {
+            /* Additional package is not in a private registry
+               we let default behaviour to try and fetch it from VS Code marketplace
+            */
+        }
+    }
+
     await installExtensionByPackage(pkg);
 
     return pkg;

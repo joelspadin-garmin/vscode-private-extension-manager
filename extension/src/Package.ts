@@ -80,6 +80,8 @@ const PackageManifest = options(
         version: t.string,
         files: t.array(t.string),
         osSpecificVsix: t.record(t.string, t.string),
+        extensionPack: t.array(t.string),
+        extensiondependencies: t.array(t.string),
     },
 );
 type PackageManifest = t.TypeOf<typeof PackageManifest>;
@@ -125,6 +127,10 @@ export class Package {
     /* The channel that this package is tracking */
     public readonly channel: string;
 
+    /** Additional extensions to the package */
+    public readonly extensionPack: string[] | undefined;
+    public readonly extensionDependencies: string[] | undefined;
+
     private readonly _vsixFile: Result<string>;
     private readonly isPublisherValid: boolean;
 
@@ -163,6 +169,9 @@ export class Package {
 
         this.description = manifest.description ?? this.name;
         this.version = parseVersion(manifest.version) ?? new SemVer('0.0.0');
+
+        this.extensionPack = manifest?.extensionPack;
+        this.extensionDependencies = manifest?.extensiondependencies;
 
         // Attempt to infer from the manifest where the extension will be
         // installed. This is overridden by the actual install location later
