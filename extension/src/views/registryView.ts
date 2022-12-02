@@ -200,7 +200,10 @@ class RecommendedProvider implements TreeDataProvider<Element>, Disposable {
         const extensions: Package[] = [];
 
         for (const pkg of await this.registryProvider.getUniquePackages()) {
-            if (recommendedExtensions.has(pkg.extensionId)) {
+            if (
+                recommendedExtensions.has(pkg.extensionId) ||
+                recommendedExtensions.has(`@${pkg.publisher}/${pkg.name}`)
+            ) {
                 extensions.push(pkg);
             }
         }

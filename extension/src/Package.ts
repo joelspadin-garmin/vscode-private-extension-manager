@@ -10,7 +10,7 @@ import * as nls from 'vscode-nls/node';
 import { Registry, VersionInfo } from './Registry';
 import { LATEST } from './releaseChannel';
 import { assertType, options } from './typeUtil';
-import { isNonEmptyArray, formatExtensionId } from './util';
+import { isNonEmptyArray, formatExtensionId, parseScopedName } from './util';
 
 const README_GLOB = 'README?(.*)';
 const CHANGELOG_GLOB = 'CHANGELOG?(.*)';
@@ -112,6 +112,11 @@ export class Package {
     public readonly name: string;
     /** The name of the package's publisher */
     public readonly publisher: string;
+    /**
+     * The package's npm scope, as in `@${scope}/${name}`.
+     * If defined, `scope === publisher`
+     * */
+    public readonly scope?: string;
     /** The ID of the extension in the form `publisher.name`. */
     public readonly extensionId: string;
     /** The name to display for the package in the UI. */
@@ -151,14 +156,19 @@ export class Package {
             NotAnExtensionError,
         );
 
-        this.name = manifest.name;
+        const { scope, name } = parseScopedName(manifest.name);
+        this.scope = scope;
+        this.name = name;
+
         this.channel = channel;
         this.displayName = manifest.displayName ?? this.name;
 
+        const publisher = manifest.publisher ?? this.scope;
+
         // VS Code uses case-insensitive comparison to match extension IDs.
         // Match that behavior by normalizing everything to lowercase.
-        this.isPublisherValid = !!manifest.publisher;
-        this.publisher = manifest.publisher ?? localize('publisher.unknown', 'Unknown');
+        this.isPublisherValid = !!publisher;
+        this.publisher = publisher ?? localize('publisher.unknown', 'Unknown');
         this.extensionId = formatExtensionId(this.publisher, this.name);
 
         this.description = manifest.description ?? this.name;
@@ -215,10 +225,22 @@ export class Package {
     }
 
     /**
+     * The NPM package specifier without any particular version.
+     * If the package has a scope, this will be `@${scope}/${name}`
+     * Otherwise, just `${name}`.
+     */
+    public get specWithoutVersion(): string {
+        if (this.scope) {
+            return `@${this.scope}/${this.name}`;
+        }
+        return this.name;
+    }
+
+    /**
      * The NPM package specifier for the package.
      */
     public get spec(): string {
-        return `${this.name}@${this.version}`;
+        return `${this.specWithoutVersion}@${this.version}`;
     }
 
     /**
@@ -314,7 +336,7 @@ export class Package {
      * Gets the release channels available for the package.
      */
     public getChannels(): Promise<Record<string, VersionInfo>> {
-        return this.registry.getPackageChannels(this.name);
+        return this.registry.getPackageChannels(this.specWithoutVersion);
     }
 }
 

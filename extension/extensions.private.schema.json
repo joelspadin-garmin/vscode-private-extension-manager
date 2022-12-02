@@ -40,12 +40,12 @@
             }
         },
         "recommendations": {
-            "description": "List of private extensions which should be recommended for users of this workspace. The identifier of an extension is always '${publisher}.${name}'. For example: 'garmin.private-extension-manager'.",
+            "description": "List of private extensions which should be recommended for users of this workspace. The identifier of an extension is always either '${publisher}.${name}'. For example: 'garmin.private-extension-manager'. To support publishing to scoped registries, you may also give this as `@${publisher}/${name}`",
             "type": "array",
             "items": {
                 "type": "string",
-                "pattern": "^([a-z0-9A-Z][a-z0-9\\-A-Z]*)\\.([a-z0-9A-Z][a-z0-9\\-A-Z]*)$",
-                "errorMessage": "Expected format '${publisher}.${name}'. Example: 'garmin.private-extension-manager'."
+                "pattern": "^([a-z0-9A-Z][a-z0-9\\-A-Z]*)\\.([a-z0-9A-Z][a-z0-9\\-A-Z]*)$|^@([a-z0-9A-Z][a-z0-9\\-A-Z]*)/([a-z0-9A-Z][a-z0-9\\-A-Z]*)$",
+                "errorMessage": "Expected format '${publisher}.${name}' or '@${publisher}/${name}'. Example: 'garmin.private-extension-manager'."
             }
         }
     },

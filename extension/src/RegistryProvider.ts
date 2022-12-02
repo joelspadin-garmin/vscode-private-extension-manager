@@ -137,6 +137,12 @@ export class RegistryProvider implements Disposable {
         const results = new Map<string, Package>();
 
         for (const registry of this.getRegistries()) {
+            // Look up packages explicitly by their id
+            for (const pkgName of this.getRecommendedExtensions()) {
+                const pkg = await registry.getPackage(pkgName);
+
+                results.set(pkg.extensionId, pkg);
+            }
             for (const pkg of await registry.getPackages()) {
                 results.set(pkg.extensionId, pkg);
             }
