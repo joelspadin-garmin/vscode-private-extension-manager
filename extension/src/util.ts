@@ -117,6 +117,26 @@ export function uriEquals(a: Uri, b: Uri): boolean {
 }
 
 /**
+ * Parse a scoped npm package name, and return the scope + name.
+ * If package name isn't scoped, just return the name.
+ */
+export function parseScopedName(name: string): { name: string; scope?: string } {
+    const pat = /@(?<scope>[a-z0-9A-Z][a-z0-9\-A-Z]*)\/(?<name>[a-z0-9A-Z][a-z0-9\-A-Z]*)/;
+    const match = name.match(pat);
+
+    if (match?.groups) {
+        return {
+            name: match.groups.name,
+            scope: match.groups.scope,
+        };
+    }
+    return {
+        name,
+        scope: undefined,
+    };
+}
+
+/**
  * Returns an extension identifier given the publisher and extension name.
  */
 export function formatExtensionId(publisher: string, name: string): string {

@@ -304,6 +304,10 @@ export class Registry {
 
     private async *findMatchingPackages(query: string | readonly string[], token?: CancellationToken) {
         let from = 0;
+        if (this.name.toLowerCase() === 'github') {
+            return;
+        }
+
         while (from < MAX_RESULTS) {
             if (token?.isCancellationRequested) {
                 break;
